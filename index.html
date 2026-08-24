@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Bruno Lopes 3D Logo Test</title>
+<title>Bruno Lopes 3D Logo — Wild Float</title>
 
 <style>
 	html, body {
@@ -18,6 +18,7 @@
 		position: relative;
 		width: 100%;
 		height: 100%;
+		overflow: hidden;
 	}
 
 	canvas {
@@ -28,10 +29,10 @@
 
 	.hint {
 		position: absolute;
-		left: 18px;
-		bottom: 16px;
+		left: 16px;
+		bottom: 14px;
 		font: 12px/1.2 Arial, sans-serif;
-		opacity: .4;
+		opacity: .35;
 		pointer-events: none;
 	}
 </style>
@@ -40,7 +41,7 @@
 <body>
 
 <div id="app">
-	<div class="hint">move the mouse • letters repel • eyes follow</div>
+	<div class="hint">move the mouse • letters run away • wait a few seconds</div>
 </div>
 
 <script type="module">
@@ -87,87 +88,63 @@ app.prepend(renderer.domElement);
 
 /* ==================================================
    LIGHTING
-   FRONT + BACKLIGHTS
    ================================================== */
-
-/*
-   Front light:
-   gives the letters a readable clay form.
-*/
 
 const frontLight = new THREE.DirectionalLight(
 	0xffffff,
-	3.2
+	3.4
 );
 
 frontLight.position.set(
 	0,
-	1.5,
+	0.5,
 	8
 );
 
 scene.add(frontLight);
 
 
-/*
-   Soft environment fill.
-*/
-
 const hemi = new THREE.HemisphereLight(
-	0xfff7ec,
-	0x554e6b,
-	1.45
+	0xfff4e8,
+	0x4d4966,
+	1.35
 );
 
 scene.add(hemi);
 
 
-/*
-   Left cool rim/back light.
-*/
-
 const backLeft = new THREE.DirectionalLight(
-	0x7897ff,
-	2.8
+	0x6f8cff,
+	3.0
 );
 
 backLeft.position.set(
 	-5,
-	2.5,
+	3,
 	-5
 );
 
 scene.add(backLeft);
 
 
-/*
-   Right warm rim/back light.
-*/
-
 const backRight = new THREE.DirectionalLight(
-	0xff8cb9,
-	2.5
+	0xff79ad,
+	2.8
 );
 
 backRight.position.set(
 	5,
-	-1.5,
-	-4
+	-2,
+	-5
 );
 
 scene.add(backRight);
 
 
-/*
-   A subtle moving side light.
-   It reacts slightly to the cursor and helps
-   reveal that the letters are really 3D.
-*/
-
 const cursorLight = new THREE.PointLight(
 	0xffffff,
-	5.0,
-	20
+	6.0,
+	25
 );
 
 cursorLight.position.set(
@@ -186,9 +163,13 @@ scene.add(cursorLight);
 const pointer = new THREE.Vector2(0, 0);
 const smoothPointer = new THREE.Vector2(0, 0);
 
+let pointerActive = false;
+
 window.addEventListener(
 	"pointermove",
 	(event) => {
+
+		pointerActive = true;
 
 		pointer.x =
 			(event.clientX / window.innerWidth) * 2 - 1;
@@ -204,13 +185,16 @@ window.addEventListener(
 window.addEventListener(
 	"pointerleave",
 	() => {
+
+		pointerActive = false;
+
 		pointer.set(0, 0);
 	}
 );
 
 
 /* ==================================================
-   MODEL REFERENCES
+   MODEL
    ================================================== */
 
 let model = null;
@@ -222,6 +206,10 @@ let topPupil = null;
 let botPupil = null;
 
 const interactiveItems = [];
+
+let modelBounds = null;
+let logoWidth = 1;
+let logoHeight = 1;
 
 
 /* ==================================================
@@ -253,11 +241,40 @@ function rememberBase(object) {
 	object.userData.baseRotation =
 		object.rotation.clone();
 
+	object.userData.velocity =
+		new THREE.Vector3(
+			THREE.MathUtils.randFloatSpread(.01),
+			THREE.MathUtils.randFloatSpread(.01),
+			THREE.MathUtils.randFloatSpread(.006)
+		);
+
+	object.userData.angularVelocity =
+		new THREE.Vector3(
+			THREE.MathUtils.randFloatSpread(.003),
+			THREE.MathUtils.randFloatSpread(.003),
+			THREE.MathUtils.randFloatSpread(.004)
+		);
+
 	object.userData.phase =
 		Math.random() * Math.PI * 2;
 
-	object.userData.floatAmp =
-		0.008 + Math.random() * 0.012;
+	object.userData.freqA =
+		0.25 + Math.random() * 0.35;
+
+	object.userData.freqB =
+		0.20 + Math.random() * 0.30;
+
+	object.userData.freqC =
+		0.15 + Math.random() * 0.25;
+
+	object.userData.seedX =
+		Math.random() * 100;
+
+	object.userData.seedY =
+		Math.random() * 100;
+
+	object.userData.seedZ =
+		Math.random() * 100;
 }
 
 
@@ -274,7 +291,7 @@ function addInteractive(object) {
 
 
 /* ==================================================
-   CAMERA FRAMING
+   CAMERA / BOUNDS
    ================================================== */
 
 function frameObject(object) {
@@ -287,15 +304,25 @@ function frameObject(object) {
 	box.getSize(size);
 	box.getCenter(center);
 
-	/*
-	   Center the whole logo around the scene origin.
-	*/
 	object.position.sub(center);
 
+	/*
+	   recompute after centering
+	*/
+	modelBounds =
+		new THREE.Box3().setFromObject(object);
+
+	const centeredSize = new THREE.Vector3();
+
+	modelBounds.getSize(centeredSize);
+
+	logoWidth = centeredSize.x;
+	logoHeight = centeredSize.z;
+
 	const maxDim = Math.max(
-		size.x,
-		size.y,
-		size.z
+		centeredSize.x,
+		centeredSize.z,
+		centeredSize.y
 	);
 
 	const fov =
@@ -305,7 +332,10 @@ function frameObject(object) {
 		maxDim /
 		(2 * Math.tan(fov / 2));
 
-	distance *= 1.25;
+	/*
+	   Extra room because the letters will spread.
+	*/
+	distance *= 1.65;
 
 	camera.position.set(
 		0,
@@ -324,7 +354,7 @@ function frameObject(object) {
 
 
 /* ==================================================
-   LOAD GLB
+   LOAD
    ================================================== */
 
 const loader = new GLTFLoader();
@@ -338,12 +368,8 @@ loader.load(
 		model = gltf.scene;
 
 		/*
-		   IMPORTANT:
-		   Previous version used -90°.
-		   This one uses +90° because your screenshot
-		   showed the logo flipped to the wrong side.
+		   Correct orientation.
 		*/
-
 		model.rotation.x =
 			Math.PI / 2;
 
@@ -400,7 +426,7 @@ loader.load(
 		);
 
 
-		const regularLetters = [
+		[
 			"B",
 			"R",
 			"U",
@@ -409,9 +435,7 @@ loader.load(
 			"P",
 			"E",
 			"S"
-		];
-
-		regularLetters.forEach(
+		].forEach(
 			(name) => {
 
 				addInteractive(
@@ -421,9 +445,6 @@ loader.load(
 		);
 
 
-		/*
-		   The O groups react as whole objects.
-		*/
 		addInteractive(topControl);
 		addInteractive(botControl);
 
@@ -439,9 +460,21 @@ loader.load(
 
 		frameObject(model);
 
-		console.log("Logo loaded:", model);
-		console.log("Top pupil:", topPupil);
-		console.log("Bottom pupil:", botPupil);
+
+		console.log(
+			"Top pupil:",
+			topPupil
+		);
+
+		console.log(
+			"Bottom pupil:",
+			botPupil
+		);
+
+		console.log(
+			"Interactive objects:",
+			interactiveItems
+		);
 	},
 
 	undefined,
@@ -459,12 +492,15 @@ loader.load(
 
 
 /* ==================================================
-   EYE MOVEMENT
+   EYES
    ================================================== */
 
 /*
-   With +90° X correction, the visual plane
-   still behaves as local X / Z.
+   IMPORTANT:
+   The pupils move in LOCAL X/Y.
+
+   The entire GLB root is rotated +90° on X,
+   so Blender's local Y becomes screen vertical.
 */
 
 function updatePupil(
@@ -480,84 +516,92 @@ function updatePupil(
 		return;
 	}
 
+
 	const base =
 		pupil.userData.basePosition;
 
-	const maxX = 0.060;
-	const maxZ = 0.045;
+
+	/*
+	   Much larger movement than before,
+	   so the tracking is very obvious.
+	*/
+
+	const maxX = 0.105;
+	const maxY = 0.085;
+
 
 	let targetX =
 		smoothPointer.x * maxX;
 
-	let targetZ =
-		-smoothPointer.y * maxZ;
+	let targetY =
+		smoothPointer.y * maxY;
+
 
 	const nx =
 		targetX / maxX;
 
-	const nz =
-		targetZ / maxZ;
+	const ny =
+		targetY / maxY;
 
 	const length =
 		Math.sqrt(
 			nx * nx +
-			nz * nz
+			ny * ny
 		);
+
 
 	if (length > 1) {
 
 		targetX /= length;
-		targetZ /= length;
+		targetY /= length;
 	}
+
 
 	pupil.position.x +=
 		(
 			base.x +
 			targetX -
 			pupil.position.x
-		) * 0.17;
+		) * 0.22;
 
-	pupil.position.z +=
+
+	pupil.position.y +=
 		(
-			base.z +
-			targetZ -
-			pupil.position.z
-		) * 0.17;
+			base.y +
+			targetY -
+			pupil.position.y
+		) * 0.22;
 
+
+	/*
+	   Simulated collision pressure.
+	*/
 
 	const pressure =
 		THREE.MathUtils.smoothstep(
 			length,
-			0.70,
+			0.62,
 			1.0
 		);
 
+
 	if (
 		control &&
-		control.userData.basePosition &&
 		control.userData.baseRotation
 	) {
-
-		const bp =
-			control.userData.basePosition;
 
 		const br =
 			control.userData.baseRotation;
 
 
-		/*
-		   More visible "bump" when the pupil
-		   approaches the edge.
-		*/
-
-		const targetRotY =
-			br.y
+		const targetRotZ =
+			br.z
 			-
 			smoothPointer.x
 			*
 			pressure
 			*
-			0.11
+			0.18
 			*
 			strength;
 
@@ -569,73 +613,48 @@ function updatePupil(
 			*
 			pressure
 			*
-			0.055
+			0.08
 			*
 			strength;
 
 
-		control.rotation.y +=
+		control.rotation.z +=
 			(
-				targetRotY -
-				control.rotation.y
-			) * 0.08;
+				targetRotZ -
+				control.rotation.z
+			) * 0.10;
 
 
 		control.rotation.x +=
 			(
 				targetRotX -
 				control.rotation.x
-			) * 0.08;
-
-
-		control.position.x +=
-			(
-				bp.x
-				+
-				smoothPointer.x
-				*
-				pressure
-				*
-				0.018
-				-
-				control.position.x
-			) * 0.065;
-
-
-		control.position.z +=
-			(
-				bp.z
-				-
-				smoothPointer.y
-				*
-				pressure
-				*
-				0.014
-				-
-				control.position.z
-			) * 0.065;
+			) * 0.10;
 	}
 }
 
 
 /* ==================================================
-   LETTER REPULSION
+   WILD FLOAT / REPULSION
    ================================================== */
-
-/*
-   Mouse now behaves like a magnetic repeller.
-
-   The closer it gets to a letter:
-   - letter moves away from the cursor
-   - pushes a little toward / away in depth
-   - rotates more aggressively
-   - nearby letters also receive some influence
-*/
 
 const tempWorld = new THREE.Vector3();
 const tempScreen = new THREE.Vector3();
 
 function updateLetters(time) {
+
+	/*
+	   At first the name stays readable.
+	   After a few seconds the freedom ramps up.
+	*/
+
+	const chaos =
+		THREE.MathUtils.smoothstep(
+			time,
+			2.0,
+			10.0
+		);
+
 
 	interactiveItems.forEach(
 		(object, index) => {
@@ -647,51 +666,91 @@ function updateLetters(time) {
 				return;
 			}
 
-			const basePosition =
+
+			const base =
 				object.userData.basePosition;
 
-			const baseRotation =
-				object.userData.baseRotation;
+			const velocity =
+				object.userData.velocity;
+
+			const angularVelocity =
+				object.userData.angularVelocity;
 
 			const phase =
 				object.userData.phase;
 
 
 			/* --------------------------------------
-			   ZERO-GRAVITY IDLE
+			   AUTONOMOUS DRIFT
 			   -------------------------------------- */
 
-			const idleX =
-				Math.cos(
-					time * 0.38 + phase
+			const wanderX =
+				(
+					Math.sin(
+						time *
+						object.userData.freqA +
+						phase
+					)
+					+
+					0.55 *
+					Math.sin(
+						time *
+						(object.userData.freqB * 1.7) +
+						object.userData.seedX
+					)
 				)
 				*
-				object.userData.floatAmp
+				logoWidth
 				*
-				0.50;
+				0.0055
+				*
+				chaos;
 
 
-			const idleZ =
+			const wanderY =
+				(
+					Math.cos(
+						time *
+						object.userData.freqB +
+						phase * 1.3
+					)
+					+
+					0.5 *
+					Math.sin(
+						time *
+						(object.userData.freqC * 1.9) +
+						object.userData.seedY
+					)
+				)
+				*
+				logoHeight
+				*
+				0.006
+				*
+				chaos;
+
+
+			const wanderDepth =
 				Math.sin(
-					time * 0.50 + phase
+					time *
+					object.userData.freqC +
+					object.userData.seedZ
 				)
 				*
-				object.userData.floatAmp;
+				logoWidth
+				*
+				0.0018
+				*
+				chaos;
 
 
-			const idleY =
-				Math.sin(
-					time * 0.31 +
-					phase * 0.8
-				)
-				*
-				object.userData.floatAmp
-				*
-				0.30;
+			velocity.x += wanderX;
+			velocity.y += wanderY;
+			velocity.z += wanderDepth;
 
 
 			/* --------------------------------------
-			   OBJECT POSITION IN SCREEN SPACE
+			   MOUSE REPULSION
 			   -------------------------------------- */
 
 			object.getWorldPosition(tempWorld);
@@ -718,16 +777,17 @@ function updateLetters(time) {
 
 
 			/*
-			   Slightly larger radius than before,
-			   so the cursor can push letters
-			   while travelling between them.
+			   Wide field:
+			   mouse pushes letters even when
+			   moving through gaps.
 			*/
 
-			const radius = 0.34;
+			const radius = 0.42;
 
 
 			let influence =
-				1 - (distance / radius);
+				1 -
+				(distance / radius);
 
 
 			influence =
@@ -738,151 +798,261 @@ function updateLetters(time) {
 				);
 
 
-			/*
-			   Strong center, soft edge.
-			*/
-
 			influence =
 				influence *
-				influence *
-				(3 - 2 * influence);
+				influence;
 
 
-			let dirX = dx;
-			let dirY = dy;
+			if (influence > 0) {
 
-			const dirLength =
-				Math.sqrt(
-					dirX * dirX +
-					dirY * dirY
-				) || 1;
-
-
-			dirX /= dirLength;
-			dirY /= dirLength;
+				const dirLength =
+					Math.sqrt(
+						dx * dx +
+						dy * dy
+					) || 1;
 
 
-			/*
-			   Stronger repulsion.
-			*/
-
-			const push =
-				influence * 0.085;
+				const dirX =
+					dx / dirLength;
 
 
-			const targetX =
-				basePosition.x
-				+
-				idleX
-				+
-				dirX * push;
+				const dirY =
+					dy / dirLength;
 
 
-			const targetZ =
-				basePosition.z
-				+
-				idleZ
-				-
-				dirY * push;
+				/*
+				   Strong "run away" force.
+				*/
+
+				const force =
+					influence
+					*
+					0.018;
 
 
-			/*
-			   Depth movement makes the effect
-			   look more 3D instead of just 2D.
-			*/
-
-			const targetY =
-				basePosition.y
-				+
-				idleY
-				+
-				influence * 0.045;
+				velocity.x +=
+					dirX * force;
 
 
-			object.position.x +=
-				(
-					targetX -
-					object.position.x
-				) * 0.09;
+				velocity.y +=
+					dirY * force;
 
 
-			object.position.z +=
-				(
-					targetZ -
-					object.position.z
-				) * 0.09;
+				/*
+				   Some depth kick.
+				*/
+
+				velocity.z +=
+					influence
+					*
+					0.0045;
 
 
-			object.position.y +=
-				(
-					targetY -
-					object.position.y
-				) * 0.075;
+				angularVelocity.x +=
+					dirY
+					*
+					influence
+					*
+					0.006;
+
+
+				angularVelocity.y +=
+					dirX
+					*
+					influence
+					*
+					0.009;
+
+
+				angularVelocity.z +=
+					(dirX - dirY)
+					*
+					influence
+					*
+					0.007;
+			}
 
 
 			/* --------------------------------------
-			   STRONGER 3D ROTATION
+			   VERY WEAK HOME GRAVITY
 			   -------------------------------------- */
 
-			const targetRotY =
-				baseRotation.y
-				+
-				dirX
-				*
-				influence
-				*
-				0.22
-				+
-				Math.sin(
-					time * 0.36 + phase
-				) * 0.018;
+			/*
+			   It becomes weaker with time,
+			   so eventually BRUNO LOPES can
+			   become almost unrecognizable.
+			*/
+
+			const homeStrength =
+				THREE.MathUtils.lerp(
+					0.012,
+					0.0018,
+					chaos
+				);
 
 
-			const targetRotX =
-				baseRotation.x
-				+
-				dirY
-				*
-				influence
-				*
-				0.16
-				+
-				Math.cos(
-					time * 0.32 + phase
-				) * 0.012;
-
-
-			const targetRotZ =
-				baseRotation.z
-				-
-				dirX
-				*
-				dirY
-				*
-				influence
-				*
-				0.15;
-
-
-			object.rotation.y +=
+			velocity.x +=
 				(
-					targetRotY -
-					object.rotation.y
-				) * 0.075;
+					base.x -
+					object.position.x
+				)
+				*
+				homeStrength;
+
+
+			velocity.y +=
+				(
+					base.y -
+					object.position.y
+				)
+				*
+				homeStrength;
+
+
+			velocity.z +=
+				(
+					base.z -
+					object.position.z
+				)
+				*
+				0.006;
+
+
+			/* --------------------------------------
+			   CONTAINMENT — MENU BOX
+			   -------------------------------------- */
+
+			/*
+			   Letters are free, but remain inside
+			   an invisible box around the logo.
+			*/
+
+			const halfW =
+				logoWidth * 0.72;
+
+
+			const halfH =
+				logoHeight * 0.92;
+
+
+			const minX =
+				-halfW;
+
+
+			const maxX =
+				halfW;
+
+
+			const minY =
+				-halfH;
+
+
+			const maxY =
+				halfH;
+
+
+			if (object.position.x < minX) {
+
+				velocity.x +=
+					(minX - object.position.x)
+					*
+					0.035;
+			}
+
+
+			if (object.position.x > maxX) {
+
+				velocity.x +=
+					(maxX - object.position.x)
+					*
+					0.035;
+			}
+
+
+			if (object.position.y < minY) {
+
+				velocity.y +=
+					(minY - object.position.y)
+					*
+					0.035;
+			}
+
+
+			if (object.position.y > maxY) {
+
+				velocity.y +=
+					(maxY - object.position.y)
+					*
+					0.035;
+			}
+
+
+			/* --------------------------------------
+			   APPLY VELOCITY
+			   -------------------------------------- */
+
+			velocity.multiplyScalar(
+				0.965
+			);
+
+
+			object.position.add(
+				velocity
+			);
+
+
+			/* --------------------------------------
+			   ROTATION — MUCH STRONGER
+			   -------------------------------------- */
+
+			angularVelocity.x +=
+				Math.sin(
+					time * 0.34 +
+					phase
+				)
+				*
+				0.0007
+				*
+				chaos;
+
+
+			angularVelocity.y +=
+				Math.cos(
+					time * 0.29 +
+					phase
+				)
+				*
+				0.0010
+				*
+				chaos;
+
+
+			angularVelocity.z +=
+				Math.sin(
+					time * 0.24 +
+					phase * 1.4
+				)
+				*
+				0.0008
+				*
+				chaos;
+
+
+			angularVelocity.multiplyScalar(
+				0.975
+			);
 
 
 			object.rotation.x +=
-				(
-					targetRotX -
-					object.rotation.x
-				) * 0.075;
+				angularVelocity.x;
+
+
+			object.rotation.y +=
+				angularVelocity.y;
 
 
 			object.rotation.z +=
-				(
-					targetRotZ -
-					object.rotation.z
-				) * 0.065;
+				angularVelocity.z;
 		}
 	);
 }
@@ -894,32 +1064,26 @@ function updateLetters(time) {
 
 function updateCursorLight() {
 
-	/*
-	   The light moves laterally with the cursor.
-	   It makes the clay highlights travel over
-	   the forms and reveals the rotations.
-	*/
-
 	cursorLight.position.x +=
 		(
-			smoothPointer.x * 4.0 -
+			smoothPointer.x * 5.5 -
 			cursorLight.position.x
-		) * 0.06;
+		) * 0.07;
 
 
 	cursorLight.position.y +=
 		(
-			smoothPointer.y * 2.5 -
+			smoothPointer.y * 3.5 -
 			cursorLight.position.y
-		) * 0.06;
+		) * 0.07;
 
 
-	cursorLight.position.z = 5.0;
+	cursorLight.position.z = 5.5;
 }
 
 
 /* ==================================================
-   ANIMATION LOOP
+   LOOP
    ================================================== */
 
 const clock = new THREE.Clock();
@@ -934,7 +1098,7 @@ function animate() {
 
 	smoothPointer.lerp(
 		pointer,
-		0.075
+		0.10
 	);
 
 
@@ -951,7 +1115,7 @@ function animate() {
 		updatePupil(
 			botPupil,
 			botControl,
-			0.92
+			0.95
 		);
 	}
 
