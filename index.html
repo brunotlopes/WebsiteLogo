@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Bruno Lopes 3D Logo Test</title>
+<style>
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#fff4e0;
+  }
+  #app{
+    width:100%;
+    height:100%;
+    position:relative;
+  }
+  canvas{display:block;width:100%;height:100%}
+  .hint{
+    position:absolute;
+    left:16px;
+    bottom:14px;
+    font:12px/1.2 Arial,sans-serif;
+    opacity:.45;
+    pointer-events:none;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="hint">move the mouse • eyes follow • letters float</div>
+</div>
+
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
+import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/loaders/GLTFLoader.js';
+
+const app = document.querySelector('#app');
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xfff4e0);
+
+const camera = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 0.01, 100);
+camera.position.set(0, 0, 8);
+
+const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:false });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+app.prepend(renderer.domElement);
+
+// soft lighting
+scene.add(new THREE.HemisphereLight(0xffffff, 0x6e6a78, 2.0));
+
+const key = new THREE.DirectionalLight(0xffffff, 3.0);
+key.position.set(4, 5, 7);
+scene.add(key);
+
+const fill = new THREE.DirectionalLight(0x9fb2ff, 1.4);
+fill.position.set(-4, 1, 5);
+scene.add(fill);
+
+const rim = new THREE.DirectionalLight(0xffd1df, 1.0);
+rim.position.set(2, -3, 4);
+scene.add(rim);
+
+const pointer = new THREE.Vector2(0,0);
+const smoothPointer = new THREE.Vector2(0,0);
+
+let model = null;
+
+// letter meshes / groups that will float
+const floatNames = ['B','R','U','N','L','P','E','S','O.Top','O.Bot'];
+const floatItems = [];
+
+// controls / pupils
+let topControl = null;
+let botControl = null;
+let topPupil = null;
+let botPupil = null;
+
+function findAny(root, names){
+  for(const n of names){
+    const obj = root.getObjectByName(n);
+    if(obj) return obj;
+  }
+  return null;
+}
+
+function rememberBase(obj){
+  obj.userData.basePosition = obj.position.clone();
+  obj.userData.baseRotation = obj.rotation.clone();
+  obj.userData.phase = Math.random() * Math.PI * 2;
+  obj.userData.floatAmp = 0.012 + Math.random() * 0.012;
+  obj.userData.rotAmp = THREE.MathUtils.degToRad(0.8 + Math.random() * 1.4);
+}
+
+function frameObject(object){
+  const box = new THREE.Box3().setFromObject(object);
+  const size = new THREE.Vector3();
+  const center = new THREE.Vector3();
+  box.getSize(size);
+  box.getCenter(center);
+
+  object.position.sub(center);
+
+  const maxDim = Math.max(size.x, size.y, size.z);
+  const fov = THREE.MathUtils.degToRad(camera.fov);
+  let dist = maxDim / (2 * Math.tan(fov / 2));
+  dist *= 1.35;
+
+  camera.position.set(0, 0, dist);
+  camera.near = Math.max(0.01, dist / 100);
+  camera.far = dist * 100;
+  camera.updateProjectionMatrix();
+}
+
+const loader = new GLTFLoader();
+
+loader.load(
+  './Name1.glb',
+  (gltf) => {
+    model = gltf.scene;
+    scene.add(model);
+
+    // preserve glTF materials, but make sure textures render correctly
+    model.traverse((obj)=>{
+      if(obj.isMesh){
+        obj.frustumCulled = true;
+        if(obj.material){
+          obj.material.needsUpdate = true;
+        }
+      }
+    });
+
+    floatNames.forEach(name=>{
+      const obj = model.getObjectByName(name);
+      if(obj){
+        rememberBase(obj);
+        floatItems.push(obj);
+      }
+    });
+
+    topControl = findAny(model, ['O_TOP_CONTROL','O.Top.Control','O_TOP_CTRL']);
+    botControl = findAny(model, ['O_BOT_CONTROL','O.Bot.Control','O_BOT_CTRL']);
+
+    topPupil = findAny(model, ['O.Top.Pupil','O_TOP_PUPIL','Pupil.Top']);
+    botPupil = findAny(model, ['O.Bot.Pupil','O_BOT_PUPIL','Pupil.Bot']);
+
+    [topControl,botControl,topPupil,botPupil].forEach(obj=>{
+      if(obj && !obj.userData.basePosition){
+        rememberBase(obj);
+      }
+    });
+
+    frameObject(model);
+
+    console.log('Loaded:', gltf.scene);
+    console.log('Top control:', topControl);
+    console.log('Bot control:', botControl);
+    console.log('Top pupil:', topPupil);
+    console.log('Bot pupil:', botPupil);
+  },
+  undefined,
+  (err)=>{
+    console.error(err);
+    document.querySelector('.hint').textContent =
+      'Could not load Name1.glb — make sure it is next to this HTML file.';
+  }
+);
+
+window.addEventListener('pointermove', (e)=>{
+  pointer.x = (e.clientX / innerWidth) * 2 - 1;
+  pointer.y = -(e.clientY / innerHeight) * 2 + 1;
+}, {passive:true});
+
+window.addEventListener('pointerleave', ()=>{
+  pointer.set(0,0);
+});
+
+function updatePupil(pupil, control, t, strength=1){
+  if(!pupil || !pupil.userData.basePosition) return;
+
+  const base = pupil.userData.basePosition;
+
+  // local movement radius – tweak these first
+  const maxX = 0.06;
+  const maxY = 0.045;
+
+  const tx = pointer.x * maxX;
+  const ty = pointer.y * maxY;
+
+  // elliptical clamp
+  const nx = tx / maxX;
+  const ny = ty / maxY;
+  const len = Math.sqrt(nx*nx + ny*ny);
+
+  let cx = tx;
+  let cy = ty;
+
+  if(len > 1){
+    cx /= len;
+    cy /= len;
+  }
+
+  pupil.position.x += ((base.x + cx) - pupil.position.x) * 0.14;
+  pupil.position.y += ((base.y + cy) - pupil.position.y) * 0.14;
+
+  // pressure grows near the inside wall of the O
+  const pressure = THREE.MathUtils.smoothstep(len, 0.72, 1.0);
+
+  if(control && control.userData.baseRotation){
+    const br = control.userData.baseRotation;
+    const bp = control.userData.basePosition;
+
+    const targetRotZ = br.z - pointer.x * pressure * 0.06 * strength;
+    const targetRotX = br.x + pointer.y * pressure * 0.025 * strength;
+
+    control.rotation.z += (targetRotZ - control.rotation.z) * 0.08;
+    control.rotation.x += (targetRotX - control.rotation.x) * 0.08;
+
+    control.position.x += ((bp.x + pointer.x * pressure * 0.01) - control.position.x) * 0.06;
+    control.position.y += ((bp.y + pointer.y * pressure * 0.008) - control.position.y) * 0.06;
+  }
+}
+
+const clock = new THREE.Clock();
+
+function animate(){
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+
+  smoothPointer.lerp(pointer, 0.06);
+
+  // zero-gravity feeling per letter
+  floatItems.forEach((obj, i)=>{
+    if(!obj.userData.basePosition || !obj.userData.baseRotation) return;
+
+    // the two O controls handle most of the eye reaction;
+    // keep ordinary float very subtle
+    const p = obj.userData.basePosition;
+    const r = obj.userData.baseRotation;
+    const phase = obj.userData.phase || i;
+
+    const floatY = Math.sin(t * (0.55 + i*0.025) + phase) * obj.userData.floatAmp;
+    const floatX = Math.cos(t * (0.35 + i*0.02) + phase) * obj.userData.floatAmp * 0.35;
+
+    obj.position.x += ((p.x + floatX) - obj.position.x) * 0.04;
+    obj.position.y += ((p.y + floatY) - obj.position.y) * 0.04;
+
+    const rz = r.z + Math.sin(t*0.42 + phase) * obj.userData.rotAmp;
+    obj.rotation.z += (rz - obj.rotation.z) * 0.035;
+  });
+
+  updatePupil(topPupil, topControl, t, 1.0);
+  updatePupil(botPupil, botControl, t, 0.92);
+
+  renderer.render(scene, camera);
+}
+
+animate();
+
+window.addEventListener('resize', ()=>{
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+</body>
+</html>
