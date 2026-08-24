@@ -4,271 +4,1247 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Bruno Lopes 3D Logo Test</title>
+
 <style>
-  html,body{
-    margin:0;
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    background:#fff4e0;
-  }
-  #app{
-    width:100%;
-    height:100%;
-    position:relative;
-  }
-  canvas{display:block;width:100%;height:100%}
-  .hint{
-    position:absolute;
-    left:16px;
-    bottom:14px;
-    font:12px/1.2 Arial,sans-serif;
-    opacity:.45;
-    pointer-events:none;
-  }
+	html,
+	body {
+		margin: 0;
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+		background: #fff4e0;
+	}
+
+	#app {
+		position: relative;
+		width: 100%;
+		height: 100%;
+	}
+
+	canvas {
+		display: block;
+		width: 100%;
+		height: 100%;
+	}
+
+	.hint {
+		position: absolute;
+		left: 18px;
+		bottom: 16px;
+
+		font-family: Arial, sans-serif;
+		font-size: 12px;
+
+		opacity: .42;
+
+		pointer-events: none;
+	}
 </style>
 </head>
+
 <body>
+
 <div id="app">
-  <div class="hint">move the mouse • eyes follow • letters float</div>
+
+	<div class="hint">
+		move the mouse • eyes follow • letters react
+	</div>
+
 </div>
 
+
 <script type="module">
-import * as THREE from 'https://esm.sh/three@0.180.0';
-import { GLTFLoader } from 'https://esm.sh/three@0.180.0/examples/jsm/loaders/GLTFLoader.js';
 
-const app = document.querySelector('#app');
+import * as THREE
+from "https://esm.sh/three@0.180.0";
 
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xfff4e0);
+import { GLTFLoader }
+from "https://esm.sh/three@0.180.0/examples/jsm/loaders/GLTFLoader.js";
 
-const camera = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 0.01, 100);
-camera.position.set(0, 0, 8);
 
-const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:false });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.setSize(innerWidth, innerHeight);
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.0;
-app.prepend(renderer.domElement);
+/* ==================================================
+   BASIC SCENE
+   ================================================== */
 
-// soft lighting
-scene.add(new THREE.HemisphereLight(0xffffff, 0x6e6a78, 2.0));
+const app =
+	document.querySelector("#app");
 
-const key = new THREE.DirectionalLight(0xffffff, 3.0);
-key.position.set(4, 5, 7);
+
+const scene =
+	new THREE.Scene();
+
+
+scene.background =
+	new THREE.Color(0xfff4e0);
+
+
+
+const camera =
+	new THREE.PerspectiveCamera(
+		30,
+		window.innerWidth /
+			window.innerHeight,
+		0.01,
+		100
+	);
+
+
+
+const renderer =
+	new THREE.WebGLRenderer({
+		antialias: true
+	});
+
+
+renderer.setPixelRatio(
+	Math.min(
+		window.devicePixelRatio,
+		2
+	)
+);
+
+
+renderer.setSize(
+	window.innerWidth,
+	window.innerHeight
+);
+
+
+renderer.outputColorSpace =
+	THREE.SRGBColorSpace;
+
+
+renderer.toneMapping =
+	THREE.ACESFilmicToneMapping;
+
+
+renderer.toneMappingExposure =
+	1.0;
+
+
+app.prepend(
+	renderer.domElement
+);
+
+
+
+/* ==================================================
+   LIGHTING
+   ================================================== */
+
+/*
+   Tenta reproduzir de forma leve
+   aquele setup de várias Area Lights
+   do Blender.
+*/
+
+
+const hemi =
+	new THREE.HemisphereLight(
+		0xffffff,
+		0x6e6a78,
+		2.0
+	);
+
+
+scene.add(hemi);
+
+
+
+const key =
+	new THREE.DirectionalLight(
+		0xffffff,
+		3.0
+	);
+
+
+key.position.set(
+	4,
+	5,
+	7
+);
+
+
 scene.add(key);
 
-const fill = new THREE.DirectionalLight(0x9fb2ff, 1.4);
-fill.position.set(-4, 1, 5);
+
+
+const fill =
+	new THREE.DirectionalLight(
+		0x9fb2ff,
+		1.4
+	);
+
+
+fill.position.set(
+	-4,
+	1,
+	5
+);
+
+
 scene.add(fill);
 
-const rim = new THREE.DirectionalLight(0xffd1df, 1.0);
-rim.position.set(2, -3, 4);
+
+
+const rim =
+	new THREE.DirectionalLight(
+		0xffd1df,
+		1.0
+	);
+
+
+rim.position.set(
+	2,
+	-3,
+	4
+);
+
+
 scene.add(rim);
 
-const pointer = new THREE.Vector2(0,0);
-const smoothPointer = new THREE.Vector2(0,0);
+
+
+/* ==================================================
+   POINTER
+   ================================================== */
+
+const pointer =
+	new THREE.Vector2(0, 0);
+
+
+const smoothPointer =
+	new THREE.Vector2(0, 0);
+
+
+
+window.addEventListener(
+	"pointermove",
+
+	(event) => {
+
+		pointer.x =
+			(event.clientX /
+				window.innerWidth)
+			* 2 - 1;
+
+
+		pointer.y =
+			-(
+				(event.clientY /
+					window.innerHeight)
+				* 2 - 1
+			);
+
+	},
+
+	{
+		passive: true
+	}
+);
+
+
+
+window.addEventListener(
+	"pointerleave",
+
+	() => {
+
+		pointer.set(
+			0,
+			0
+		);
+
+	}
+);
+
+
+
+/* ==================================================
+   MODEL REFERENCES
+   ================================================== */
 
 let model = null;
 
-// letter meshes / groups that will float
-const floatNames = ['B','R','U','N','L','P','E','S','O.Top','O.Bot'];
-const floatItems = [];
 
-// controls / pupils
 let topControl = null;
 let botControl = null;
+
 let topPupil = null;
 let botPupil = null;
 
-function findAny(root, names){
-  for(const n of names){
-    const obj = root.getObjectByName(n);
-    if(obj) return obj;
-  }
-  return null;
+
+/*
+   Elementos que flutuam / reagem ao mouse.
+   Para os O usamos os CONTROLs, e não só a mesh,
+   para levar olho + pupila junto.
+*/
+
+const interactiveItems = [];
+
+
+
+/* ==================================================
+   HELPERS
+   ================================================== */
+
+function findAny(root, names) {
+
+	for (const name of names) {
+
+		const object =
+			root.getObjectByName(name);
+
+
+		if (object) {
+			return object;
+		}
+
+	}
+
+
+	return null;
+
 }
 
-function rememberBase(obj){
-  obj.userData.basePosition = obj.position.clone();
-  obj.userData.baseRotation = obj.rotation.clone();
-  obj.userData.phase = Math.random() * Math.PI * 2;
-  obj.userData.floatAmp = 0.012 + Math.random() * 0.012;
-  obj.userData.rotAmp = THREE.MathUtils.degToRad(0.8 + Math.random() * 1.4);
+
+
+function rememberBase(object) {
+
+	if (!object) {
+		return;
+	}
+
+
+	object.userData.basePosition =
+		object.position.clone();
+
+
+	object.userData.baseRotation =
+		object.rotation.clone();
+
+
+	object.userData.phase =
+		Math.random()
+		* Math.PI
+		* 2;
+
+
+	object.userData.floatAmp =
+		0.008
+		+
+		Math.random()
+		* 0.010;
+
 }
 
-function frameObject(object){
-  const box = new THREE.Box3().setFromObject(object);
-  const size = new THREE.Vector3();
-  const center = new THREE.Vector3();
-  box.getSize(size);
-  box.getCenter(center);
 
-  object.position.sub(center);
 
-  const maxDim = Math.max(size.x, size.y, size.z);
-  const fov = THREE.MathUtils.degToRad(camera.fov);
-  let dist = maxDim / (2 * Math.tan(fov / 2));
-  dist *= 1.35;
+function addInteractive(object) {
 
-  camera.position.set(0, 0, dist);
-  camera.near = Math.max(0.01, dist / 100);
-  camera.far = dist * 100;
-  camera.updateProjectionMatrix();
+	if (!object) {
+		return;
+	}
+
+
+	rememberBase(object);
+
+
+	if (
+		!interactiveItems.includes(
+			object
+		)
+	) {
+
+		interactiveItems.push(
+			object
+		);
+
+	}
+
 }
 
-const loader = new GLTFLoader();
+
+
+/* ==================================================
+   CAMERA FRAMING
+   ================================================== */
+
+function frameObject(object) {
+
+	const box =
+		new THREE.Box3()
+			.setFromObject(object);
+
+
+	const size =
+		new THREE.Vector3();
+
+
+	const center =
+		new THREE.Vector3();
+
+
+	box.getSize(size);
+
+	box.getCenter(center);
+
+
+	/*
+	   Centraliza o GLB.
+	*/
+
+	object.position.sub(center);
+
+
+	const maxDim =
+		Math.max(
+			size.x,
+			size.y,
+			size.z
+		);
+
+
+	const fov =
+		THREE.MathUtils.degToRad(
+			camera.fov
+		);
+
+
+	let distance =
+		maxDim /
+		(
+			2 *
+			Math.tan(
+				fov / 2
+			)
+		);
+
+
+	distance *= 1.28;
+
+
+	camera.position.set(
+		0,
+		0,
+		distance
+	);
+
+
+	camera.near =
+		Math.max(
+			0.01,
+			distance / 100
+		);
+
+
+	camera.far =
+		distance * 100;
+
+
+	camera.updateProjectionMatrix();
+
+}
+
+
+
+/* ==================================================
+   LOAD GLB
+   ================================================== */
+
+const loader =
+	new GLTFLoader();
+
+
 
 loader.load(
-  './Name1.glb',
-  (gltf) => {
-    model = gltf.scene;
-    scene.add(model);
 
-    // preserve glTF materials, but make sure textures render correctly
-    model.traverse((obj)=>{
-      if(obj.isMesh){
-        obj.frustumCulled = true;
-        if(obj.material){
-          obj.material.needsUpdate = true;
-        }
-      }
-    });
+	"./Name1.glb",
 
-    floatNames.forEach(name=>{
-      const obj = model.getObjectByName(name);
-      if(obj){
-        rememberBase(obj);
-        floatItems.push(obj);
-      }
-    });
 
-    topControl = findAny(model, ['O_TOP_CONTROL','O.Top.Control','O_TOP_CTRL']);
-    botControl = findAny(model, ['O_BOT_CONTROL','O.Bot.Control','O_BOT_CTRL']);
+	(gltf) => {
 
-    topPupil = findAny(model, ['O.Top.Pupil','O_TOP_PUPIL','Pupil.Top']);
-    botPupil = findAny(model, ['O.Bot.Pupil','O_BOT_PUPIL','Pupil.Bot']);
+		model =
+			gltf.scene;
 
-    [topControl,botControl,topPupil,botPupil].forEach(obj=>{
-      if(obj && !obj.userData.basePosition){
-        rememberBase(obj);
-      }
-    });
 
-    frameObject(model);
+		/*
+		   Seu modelo veio do Blender "deitado"
+		   em relação à câmera do Three.js.
 
-    console.log('Loaded:', gltf.scene);
-    console.log('Top control:', topControl);
-    console.log('Bot control:', botControl);
-    console.log('Top pupil:', topPupil);
-    console.log('Bot pupil:', botPupil);
-  },
-  undefined,
-  (err)=>{
-    console.error(err);
-    document.querySelector('.hint').textContent =
-      'Could not load Name1.glb — make sure it is next to this HTML file.';
-  }
+		   -90 graus em X coloca BRUNO LOPES
+		   de frente para a tela.
+		*/
+
+		model.rotation.x =
+			-Math.PI / 2;
+
+
+		scene.add(model);
+
+
+
+		model.traverse(
+			(object) => {
+
+				if (
+					object.isMesh &&
+					object.material
+				) {
+
+					object.material.needsUpdate =
+						true;
+
+				}
+
+			}
+		);
+
+
+
+		/* ------------------------------------------
+		   EYES
+		   ------------------------------------------ */
+
+		topControl =
+			findAny(
+				model,
+				[
+					"O_TOP_CONTROL",
+					"O.Top.Control",
+					"O_TOP_CTRL"
+				]
+			);
+
+
+		botControl =
+			findAny(
+				model,
+				[
+					"O_BOT_CONTROL",
+					"O.Bot.Control",
+					"O_BOT_CTRL"
+				]
+			);
+
+
+		topPupil =
+			findAny(
+				model,
+				[
+					"O.Top.Pupil",
+					"O_TOP_PUPIL",
+					"Pupil.Top"
+				]
+			);
+
+
+		botPupil =
+			findAny(
+				model,
+				[
+					"O.Bot.Pupil",
+					"O_BOT_PUPIL",
+					"Pupil.Bot"
+				]
+			);
+
+
+
+		/* ------------------------------------------
+		   REGULAR LETTERS
+		   ------------------------------------------ */
+
+		const regularLetters =
+			[
+				"B",
+				"R",
+				"U",
+				"N",
+				"L",
+				"P",
+				"E",
+				"S"
+			];
+
+
+		regularLetters.forEach(
+			(name) => {
+
+				addInteractive(
+					model.getObjectByName(
+						name
+					)
+				);
+
+			}
+		);
+
+
+
+		/*
+		   Os O entram através dos controls.
+		*/
+
+		addInteractive(
+			topControl
+		);
+
+
+		addInteractive(
+			botControl
+		);
+
+
+
+		/*
+		   Pupilas precisam de seus próprios
+		   estados base.
+		*/
+
+		if (topPupil) {
+			rememberBase(topPupil);
+		}
+
+
+		if (botPupil) {
+			rememberBase(botPupil);
+		}
+
+
+
+		/*
+		   Agora que já corrigimos a rotação,
+		   enquadramos o modelo.
+		*/
+
+		frameObject(model);
+
+
+
+		console.log(
+			"Logo loaded",
+			model
+		);
+
+
+		console.log(
+			"Interactive items",
+			interactiveItems
+		);
+
+
+		console.log(
+			"Top pupil",
+			topPupil
+		);
+
+
+		console.log(
+			"Bottom pupil",
+			botPupil
+		);
+
+	},
+
+
+	undefined,
+
+
+	(error) => {
+
+		console.error(error);
+
+
+		document.querySelector(
+			".hint"
+		).textContent =
+			"Could not load Name1.glb";
+
+	}
+
 );
 
-window.addEventListener('pointermove', (e)=>{
-  pointer.x = (e.clientX / innerWidth) * 2 - 1;
-  pointer.y = -(e.clientY / innerHeight) * 2 + 1;
-}, {passive:true});
 
-window.addEventListener('pointerleave', ()=>{
-  pointer.set(0,0);
-});
 
-function updatePupil(pupil, control, t, strength=1){
-  if(!pupil || !pupil.userData.basePosition) return;
+/* ==================================================
+   EYE MOVEMENT
+   ================================================== */
 
-  const base = pupil.userData.basePosition;
+/*
+   IMPORTANTE:
 
-  // local movement radius – tweak these first
-  const maxX = 0.06;
-  const maxY = 0.045;
+   Como corrigimos o GLB com rotation.x = -90°,
+   o plano visual das letras usa X + Z
+   localmente.
 
-  const tx = pointer.x * maxX;
-  const ty = pointer.y * maxY;
+   Por isso a pupila se move em X e Z,
+   não X e Y.
+*/
 
-  // elliptical clamp
-  const nx = tx / maxX;
-  const ny = ty / maxY;
-  const len = Math.sqrt(nx*nx + ny*ny);
+function updatePupil(
+	pupil,
+	control,
+	strength = 1
+) {
 
-  let cx = tx;
-  let cy = ty;
+	if (
+		!pupil ||
+		!pupil.userData.basePosition
+	) {
+		return;
+	}
 
-  if(len > 1){
-    cx /= len;
-    cy /= len;
-  }
 
-  pupil.position.x += ((base.x + cx) - pupil.position.x) * 0.14;
-  pupil.position.y += ((base.y + cy) - pupil.position.y) * 0.14;
+	const base =
+		pupil.userData.basePosition;
 
-  // pressure grows near the inside wall of the O
-  const pressure = THREE.MathUtils.smoothstep(len, 0.72, 1.0);
 
-  if(control && control.userData.baseRotation){
-    const br = control.userData.baseRotation;
-    const bp = control.userData.basePosition;
+	/*
+	   Tamanho da "gaiola" invisível
+	   dentro do O.
+	*/
 
-    const targetRotZ = br.z - pointer.x * pressure * 0.06 * strength;
-    const targetRotX = br.x + pointer.y * pressure * 0.025 * strength;
+	const maxX =
+		0.060;
 
-    control.rotation.z += (targetRotZ - control.rotation.z) * 0.08;
-    control.rotation.x += (targetRotX - control.rotation.x) * 0.08;
 
-    control.position.x += ((bp.x + pointer.x * pressure * 0.01) - control.position.x) * 0.06;
-    control.position.y += ((bp.y + pointer.y * pressure * 0.008) - control.position.y) * 0.06;
-  }
+	const maxZ =
+		0.045;
+
+
+
+	let targetX =
+		smoothPointer.x
+		* maxX;
+
+
+	let targetZ =
+		smoothPointer.y
+		* maxZ;
+
+
+
+	/*
+	   Clamp elíptico:
+	   a pupila não sai do O.
+	*/
+
+	const nx =
+		targetX /
+		maxX;
+
+
+	const nz =
+		targetZ /
+		maxZ;
+
+
+	const length =
+		Math.sqrt(
+			nx * nx +
+			nz * nz
+		);
+
+
+
+	if (length > 1) {
+
+		targetX /=
+			length;
+
+
+		targetZ /=
+			length;
+
+	}
+
+
+
+	pupil.position.x +=
+		(
+			base.x +
+			targetX -
+			pupil.position.x
+		)
+		* 0.16;
+
+
+	pupil.position.z +=
+		(
+			base.z +
+			targetZ -
+			pupil.position.z
+		)
+		* 0.16;
+
+
+
+	/*
+	   Quando chega perto da parede do O,
+	   começa a "pressionar" a letra.
+	*/
+
+	const pressure =
+		THREE.MathUtils.smoothstep(
+			length,
+			0.72,
+			1.0
+		);
+
+
+
+	if (
+		control &&
+		control.userData.basePosition &&
+		control.userData.baseRotation
+	) {
+
+		const bp =
+			control.userData.basePosition;
+
+
+		const br =
+			control.userData.baseRotation;
+
+
+
+		const rotationTarget =
+			br.y
+			-
+			smoothPointer.x
+			*
+			pressure
+			*
+			0.055
+			*
+			strength;
+
+
+
+		control.rotation.y +=
+			(
+				rotationTarget -
+				control.rotation.y
+			)
+			* 0.075;
+
+
+
+		control.position.x +=
+			(
+				bp.x
+				+
+				smoothPointer.x
+				*
+				pressure
+				*
+				0.012
+				-
+				control.position.x
+			)
+			* 0.06;
+
+
+
+		control.position.z +=
+			(
+				bp.z
+				+
+				smoothPointer.y
+				*
+				pressure
+				*
+				0.010
+				-
+				control.position.z
+			)
+			* 0.06;
+
+	}
+
 }
 
-const clock = new THREE.Clock();
 
-function animate(){
-  requestAnimationFrame(animate);
-  const t = clock.getElapsedTime();
 
-  smoothPointer.lerp(pointer, 0.06);
+/* ==================================================
+   LETTER / CURSOR INTERACTION
+   ================================================== */
 
-  // zero-gravity feeling per letter
-  floatItems.forEach((obj, i)=>{
-    if(!obj.userData.basePosition || !obj.userData.baseRotation) return;
+/*
+   Essa é a parte nova.
 
-    // the two O controls handle most of the eye reaction;
-    // keep ordinary float very subtle
-    const p = obj.userData.basePosition;
-    const r = obj.userData.baseRotation;
-    const phase = obj.userData.phase || i;
+   Não precisa acertar exatamente a letra.
 
-    const floatY = Math.sin(t * (0.55 + i*0.025) + phase) * obj.userData.floatAmp;
-    const floatX = Math.cos(t * (0.35 + i*0.02) + phase) * obj.userData.floatAmp * 0.35;
+   Quando o mouse passa ENTRE as letras,
+   calculamos a distância do cursor
+   para cada letra na tela.
 
-    obj.position.x += ((p.x + floatX) - obj.position.x) * 0.04;
-    obj.position.y += ((p.y + floatY) - obj.position.y) * 0.04;
+   As letras próximas:
+   - afastam um pouquinho
+   - sobem
+   - giram levemente
 
-    const rz = r.z + Math.sin(t*0.42 + phase) * obj.userData.rotAmp;
-    obj.rotation.z += (rz - obj.rotation.z) * 0.035;
-  });
+   Isso dá o feeling de objetos em
+   zero gravity sendo perturbados.
+*/
 
-  updatePupil(topPupil, topControl, t, 1.0);
-  updatePupil(botPupil, botControl, t, 0.92);
 
-  renderer.render(scene, camera);
+const tempWorld =
+	new THREE.Vector3();
+
+
+const tempScreen =
+	new THREE.Vector3();
+
+
+
+function updateLetters(time) {
+
+	interactiveItems.forEach(
+		(object, index) => {
+
+			if (
+				!object.userData.basePosition ||
+				!object.userData.baseRotation
+			) {
+				return;
+			}
+
+
+			const basePosition =
+				object.userData.basePosition;
+
+
+			const baseRotation =
+				object.userData.baseRotation;
+
+
+			const phase =
+				object.userData.phase;
+
+
+			/* --------------------------------------
+			   IDLE FLOAT
+			   -------------------------------------- */
+
+			const idleX =
+				Math.cos(
+					time * 0.42 +
+					phase
+				)
+				*
+				object.userData.floatAmp
+				*
+				0.45;
+
+
+			const idleZ =
+				Math.sin(
+					time * 0.55 +
+					phase
+				)
+				*
+				object.userData.floatAmp;
+
+
+
+			/* --------------------------------------
+			   SCREEN POSITION OF LETTER
+			   -------------------------------------- */
+
+			object.getWorldPosition(
+				tempWorld
+			);
+
+
+			tempScreen
+				.copy(tempWorld)
+				.project(camera);
+
+
+
+			const dx =
+				tempScreen.x -
+				smoothPointer.x;
+
+
+			const dy =
+				tempScreen.y -
+				smoothPointer.y;
+
+
+			const distance =
+				Math.sqrt(
+					dx * dx +
+					dy * dy
+				);
+
+
+
+			/*
+			   Raio de influência do mouse.
+
+			   Maior = várias letras reagem juntas.
+			*/
+
+			const radius =
+				0.26;
+
+
+
+			let influence =
+				1 -
+				(
+					distance /
+					radius
+				);
+
+
+
+			influence =
+				THREE.MathUtils.clamp(
+					influence,
+					0,
+					1
+				);
+
+
+
+			/*
+			   Ease para não parecer linear.
+			*/
+
+			influence =
+				influence
+				*
+				influence
+				*
+				(
+					3 -
+					2 *
+					influence
+				);
+
+
+
+			/* --------------------------------------
+			   DIRECTION AWAY FROM CURSOR
+			   -------------------------------------- */
+
+			let dirX = dx;
+			let dirY = dy;
+
+
+			const dirLength =
+				Math.sqrt(
+					dirX * dirX +
+					dirY * dirY
+				)
+				|| 1;
+
+
+			dirX /=
+				dirLength;
+
+
+			dirY /=
+				dirLength;
+
+
+
+			/*
+			   Movimento muito pequeno.
+
+			   Você pode aumentar depois.
+			*/
+
+			const push =
+				influence
+				*
+				0.035;
+
+
+
+			const targetX =
+				basePosition.x
+				+
+				idleX
+				+
+				dirX
+				*
+				push;
+
+
+			/*
+			   Z local é vertical na tela
+			   depois da correção de -90°.
+			*/
+
+			const targetZ =
+				basePosition.z
+				+
+				idleZ
+				+
+				dirY
+				*
+				push;
+
+
+
+			object.position.x +=
+				(
+					targetX -
+					object.position.x
+				)
+				* 0.075;
+
+
+
+			object.position.z +=
+				(
+					targetZ -
+					object.position.z
+				)
+				* 0.075;
+
+
+
+			/* --------------------------------------
+			   SMALL ROTATION
+			   -------------------------------------- */
+
+			const rotationPush =
+				dirX
+				*
+				influence
+				*
+				0.065;
+
+
+
+			const idleRotation =
+				Math.sin(
+					time * 0.38 +
+					phase
+				)
+				*
+				0.012;
+
+
+
+			const targetRotationY =
+				baseRotation.y
+				+
+				idleRotation
+				+
+				rotationPush;
+
+
+
+			object.rotation.y +=
+				(
+					targetRotationY -
+					object.rotation.y
+				)
+				* 0.055;
+
+		}
+	);
+
 }
+
+
+
+/* ==================================================
+   ANIMATION LOOP
+   ================================================== */
+
+const clock =
+	new THREE.Clock();
+
+
+
+function animate() {
+
+	requestAnimationFrame(
+		animate
+	);
+
+
+	const time =
+		clock.getElapsedTime();
+
+
+
+	smoothPointer.lerp(
+		pointer,
+		0.07
+	);
+
+
+
+	if (model) {
+
+		updateLetters(time);
+
+
+		updatePupil(
+			topPupil,
+			topControl,
+			1.0
+		);
+
+
+		updatePupil(
+			botPupil,
+			botControl,
+			0.92
+		);
+
+	}
+
+
+
+	renderer.render(
+		scene,
+		camera
+	);
+
+}
+
+
 
 animate();
 
-window.addEventListener('resize', ()=>{
-  camera.aspect = innerWidth / innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
-});
+
+
+/* ==================================================
+   RESIZE
+   ================================================== */
+
+window.addEventListener(
+	"resize",
+
+	() => {
+
+		camera.aspect =
+			window.innerWidth /
+			window.innerHeight;
+
+
+		camera.updateProjectionMatrix();
+
+
+		renderer.setSize(
+			window.innerWidth,
+			window.innerHeight
+		);
+
+	}
+);
+
 </script>
+
 </body>
 </html>
