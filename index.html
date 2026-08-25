@@ -4,43 +4,39 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Bruno Lopes 3D Logo</title>
-
 <style>
-	html, body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-		overflow: hidden;
-		background: #fff4e0;
-	}
-
-	#app {
-		position: relative;
-		width: 100%;
-		height: 100%;
-		overflow: hidden;
-	}
-
-	canvas {
-		display: block;
-		width: 100%;
-		height: 100%;
-	}
-
-	.hint {
-		position: absolute;
-		left: 16px;
-		bottom: 14px;
-		font: 12px/1.2 Arial, sans-serif;
-		opacity: .35;
-		pointer-events: none;
-	}
+html,body{
+	margin:0;
+	width:100%;
+	height:100%;
+	overflow:hidden;
+	background:#fff4e0;
+}
+#app{
+	position:relative;
+	width:100%;
+	height:100%;
+	overflow:hidden;
+}
+canvas{
+	display:block;
+	width:100%;
+	height:100%;
+}
+.hint{
+	position:absolute;
+	left:16px;
+	bottom:14px;
+	font:12px/1.2 Arial,sans-serif;
+	opacity:.35;
+	pointer-events:none;
+}
 </style>
 </head>
-
 <body>
+
 <div id="app">
-	<div class="hint">move the mouse • eyes follow • letters repel</div>
+	<div class="hint" id="hint">loading…</div>
 </div>
 
 <script type="module">
@@ -54,6 +50,7 @@ import { GLTFLoader } from "https://esm.sh/three@0.180.0/examples/jsm/loaders/GL
    ================================================== */
 
 const app = document.querySelector("#app");
+const hint = document.querySelector("#hint");
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xfff4e0);
@@ -65,11 +62,10 @@ const camera = new THREE.PerspectiveCamera(
 	100
 );
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const renderer = new THREE.WebGLRenderer({ antialias:true });
 
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.setSize(innerWidth, innerHeight);
-
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
@@ -81,27 +77,27 @@ app.prepend(renderer.domElement);
    LIGHTS
    ================================================== */
 
-const front = new THREE.DirectionalLight(0xffffff, 3.3);
-front.position.set(0, 1, 8);
+const front = new THREE.DirectionalLight(0xffffff,3.2);
+front.position.set(0,1,8);
 scene.add(front);
 
 const hemi = new THREE.HemisphereLight(
 	0xfff5e8,
-	0x504968,
+	0x514d66,
 	1.35
 );
 scene.add(hemi);
 
-const rimBlue = new THREE.DirectionalLight(0x7895ff, 2.5);
-rimBlue.position.set(-5, 3, -5);
+const rimBlue = new THREE.DirectionalLight(0x7896ff,2.4);
+rimBlue.position.set(-5,3,-5);
 scene.add(rimBlue);
 
-const rimPink = new THREE.DirectionalLight(0xff91ba, 2.3);
-rimPink.position.set(5, -2, -5);
+const rimPink = new THREE.DirectionalLight(0xff8eb7,2.2);
+rimPink.position.set(5,-2,-5);
 scene.add(rimPink);
 
-const mouseLight = new THREE.PointLight(0xffffff, 4.5, 20);
-mouseLight.position.set(0, 0, 5);
+const mouseLight = new THREE.PointLight(0xffffff,4.0,20);
+mouseLight.position.set(0,0,5);
 scene.add(mouseLight);
 
 
@@ -112,13 +108,13 @@ scene.add(mouseLight);
 const pointer = new THREE.Vector2();
 const smoothPointer = new THREE.Vector2();
 
-window.addEventListener("pointermove", (event) => {
+window.addEventListener("pointermove",(event)=>{
 	pointer.x = (event.clientX / innerWidth) * 2 - 1;
 	pointer.y = -(event.clientY / innerHeight) * 2 + 1;
-}, { passive: true });
+},{passive:true});
 
-window.addEventListener("pointerleave", () => {
-	pointer.set(0, 0);
+window.addEventListener("pointerleave",()=>{
+	pointer.set(0,0);
 });
 
 
@@ -131,11 +127,11 @@ let model = null;
 let topControl = null;
 let botControl = null;
 
-let topWhite = null;
-let botWhite = null;
-
 let topPupil = null;
 let botPupil = null;
+
+let topWhite = null;
+let botWhite = null;
 
 const letters = [];
 
@@ -147,63 +143,48 @@ let logoHeight = 1;
    HELPERS
    ================================================== */
 
-function find(root, name) {
-	return root.getObjectByName(name);
+function get(name){
+	return model ? model.getObjectByName(name) : null;
 }
 
-function rememberBase(object) {
+function rememberBase(object){
 
 	object.userData.basePosition = object.position.clone();
 	object.userData.baseRotation = object.rotation.clone();
 
-	object.userData.velocity = new THREE.Vector3();
-	object.userData.angularVelocity = new THREE.Vector3();
-
 	object.userData.phase = Math.random() * Math.PI * 2;
-	object.userData.speed = 0.55 + Math.random() * 0.35;
+	object.userData.speedX = 0.20 + Math.random() * 0.16;
+	object.userData.speedZ = 0.18 + Math.random() * 0.15;
+	object.userData.speedY = 0.14 + Math.random() * 0.10;
+
+	object.userData.repulsion = new THREE.Vector3();
+	object.userData.collision = new THREE.Vector3();
+
+	object.userData.rotOffset = new THREE.Vector3();
 }
 
+function normalizeEye(control,white,pupil){
 
-/*
-   IMPORTANT FIX FOR YOUR GLB:
+	if(!control) return;
 
-   I inspected Name1.glb.
+	/*
+		Your exported eye hierarchy is asymmetrical.
+		Attach both visible eye pieces directly to the control
+		while keeping their world transforms.
+	*/
 
-   Bottom eye exported as:
-   O_BOT_CONTROL
-      O.Bot
-      O.Bot.White
-         O.Bot.Pupil
-
-   Top eye exported as:
-   O_TOP_CONTROL
-      O.Top
-      O.Top.Pupil
-         O.Top.White
-
-   So the hierarchy is not symmetrical.
-
-   Here we re-parent White and Pupil directly to their O control,
-   while preserving their world transforms.
-*/
-
-function normalizeEyeHierarchy(control, white, pupil) {
-
-	if (!control) return;
-
-	if (white) {
+	if(white){
 		control.attach(white);
 	}
 
-	if (pupil) {
+	if(pupil){
 		control.attach(pupil);
 	}
 }
 
+function addLetter(object){
 
-function addLetter(object) {
-
-	if (!object) return;
+	if(!object) return;
 
 	rememberBase(object);
 
@@ -213,22 +194,20 @@ function addLetter(object) {
 	box.getSize(size);
 
 	/*
-	   Collision radius in the visual plane.
-	   Slightly smaller than the actual letter size so
-	   collisions feel soft instead of rigid.
+		Visual plane is X / Z in Blender local coordinates.
 	*/
 	object.userData.radius =
-		Math.max(size.x, size.y) * 0.38;
+		Math.max(size.x,size.z) * 0.34;
 
 	letters.push(object);
 }
 
 
 /* ==================================================
-   FRAME MODEL
+   FRAME
    ================================================== */
 
-function frameModel() {
+function frameModel(){
 
 	const box = new THREE.Box3().setFromObject(model);
 	const center = new THREE.Vector3();
@@ -245,20 +224,18 @@ function frameModel() {
 	logoWidth = size.x;
 	logoHeight = size.y;
 
-	const maxDim = Math.max(size.x, size.y);
+	const maxDim = Math.max(size.x,size.y);
 
 	const fov = THREE.MathUtils.degToRad(camera.fov);
 
 	let distance =
 		maxDim / (2 * Math.tan(fov / 2));
 
-	distance *= 1.42;
+	distance *= 1.48;
 
-	camera.position.set(0, 0, distance);
-
-	camera.near = Math.max(.01, distance / 100);
+	camera.position.set(0,0,distance);
+	camera.near = Math.max(.01,distance/100);
 	camera.far = distance * 100;
-
 	camera.updateProjectionMatrix();
 }
 
@@ -267,49 +244,40 @@ function frameModel() {
    LOAD
    ================================================== */
 
-const loader = new GLTFLoader();
-
-loader.load(
+new GLTFLoader().load(
 	"./Name1.glb",
 
-	(gltf) => {
+	(gltf)=>{
 
 		model = gltf.scene;
 
 		/*
-		   This is the orientation that displayed the
-		   lettering facing the camera in the last version.
+			This is the orientation that faces the camera.
 		*/
 		model.rotation.x = Math.PI / 2;
 
 		scene.add(model);
 
+		topControl = get("O_TOP_CONTROL");
+		botControl = get("O_BOT_CONTROL");
 
-		topControl = find(model, "O_TOP_CONTROL");
-		botControl = find(model, "O_BOT_CONTROL");
+		topWhite = get("O.Top.White");
+		botWhite = get("O.Bot.White");
 
-		topWhite = find(model, "O.Top.White");
-		botWhite = find(model, "O.Bot.White");
+		topPupil = get("O.Top.Pupil");
+		botPupil = get("O.Bot.Pupil");
 
-		topPupil = find(model, "O.Top.Pupil");
-		botPupil = find(model, "O.Bot.Pupil");
-
-
-		/*
-		   FIX EYE HIERARCHY BEFORE STORING BASE POSITIONS.
-		*/
-		normalizeEyeHierarchy(
+		normalizeEye(
 			topControl,
 			topWhite,
 			topPupil
 		);
 
-		normalizeEyeHierarchy(
+		normalizeEye(
 			botControl,
 			botWhite,
 			botPupil
 		);
-
 
 		[
 			"B",
@@ -320,241 +288,275 @@ loader.load(
 			"P",
 			"E",
 			"S"
-		].forEach((name) => {
-			addLetter(find(model, name));
+		].forEach(name=>{
+			addLetter(get(name));
 		});
-
 
 		addLetter(topControl);
 		addLetter(botControl);
 
-
-		if (topPupil) rememberBase(topPupil);
-		if (botPupil) rememberBase(botPupil);
-
+		if(topPupil) rememberBase(topPupil);
+		if(botPupil) rememberBase(botPupil);
 
 		frameModel();
 
+		hint.textContent =
+			`eyes: ${topPupil ? "✓" : "✗"} ${botPupil ? "✓" : "✗"} • move the mouse`;
 
-		console.log("TOP CONTROL:", topControl);
-		console.log("TOP WHITE:", topWhite);
-		console.log("TOP PUPIL:", topPupil);
-
-		console.log("BOT CONTROL:", botControl);
-		console.log("BOT WHITE:", botWhite);
-		console.log("BOT PUPIL:", botPupil);
+		console.log("TOP CONTROL",topControl);
+		console.log("TOP PUPIL",topPupil);
+		console.log("BOT CONTROL",botControl);
+		console.log("BOT PUPIL",botPupil);
 	},
 
 	undefined,
 
-	(error) => {
+	(error)=>{
 		console.error(error);
-		document.querySelector(".hint").textContent =
-			"Could not load Name1.glb";
+		hint.textContent = "could not load Name1.glb";
 	}
 );
 
 
 /* ==================================================
-   EYES — REAL CURSOR DIRECTION
+   EYES
+   REAL RAY / PLANE TRACKING
    ================================================== */
 
-const projectedEye = new THREE.Vector3();
+const raycaster = new THREE.Raycaster();
 
-function updateEye(pupil, control, strength = 1) {
+const eyeWorld = new THREE.Vector3();
+const hitWorld = new THREE.Vector3();
+const cameraDirection = new THREE.Vector3();
 
-	if (
+const eyePlane = new THREE.Plane();
+
+function updateEye(pupil,control){
+
+	if(
 		!pupil ||
 		!control ||
 		!pupil.userData.basePosition
-	) {
+	){
 		return;
 	}
 
-
 	/*
-	   Find where THIS eye is on screen.
-	   Then look from the eye toward the actual cursor.
-
-	   This is much better than simply using global
-	   pointer.x / pointer.y.
+		1. Shoot a ray from the camera through the mouse.
 	*/
 
-	control.getWorldPosition(projectedEye);
-	projectedEye.project(camera);
-
-	let dx =
-		smoothPointer.x - projectedEye.x;
-
-	let dy =
-		smoothPointer.y - projectedEye.y;
-
+	raycaster.setFromCamera(
+		smoothPointer,
+		camera
+	);
 
 	/*
-	   0.45 NDC distance = full eye movement.
+		2. Make a plane through THIS eye,
+		   always facing the camera.
 	*/
-	const gazeRange = 0.45;
 
-	dx =
-		THREE.MathUtils.clamp(
-			dx / gazeRange,
-			-1,
-			1
+	control.getWorldPosition(eyeWorld);
+
+	camera.getWorldDirection(cameraDirection);
+
+	eyePlane.setFromNormalAndCoplanarPoint(
+		cameraDirection,
+		eyeWorld
+	);
+
+	const hit =
+		raycaster.ray.intersectPlane(
+			eyePlane,
+			hitWorld
 		);
 
-	dy =
-		THREE.MathUtils.clamp(
-			dy / gazeRange,
-			-1,
-			1
-		);
-
-
-	const len =
-		Math.sqrt(dx * dx + dy * dy);
-
-	if (len > 1) {
-		dx /= len;
-		dy /= len;
-	}
-
-
-	const base = pupil.userData.basePosition;
-
-	const maxX = 0.11;
-	const maxZ = 0.085;
+	if(!hit) return;
 
 
 	/*
-	   The logo root is rotated +90° in X.
-	   Local X = screen horizontal.
-	   Local Z = inverted screen vertical.
+		3. Convert cursor hit point into the eye control's
+		   LOCAL coordinates.
+
+		   This removes all ambiguity caused by Blender /
+		   glTF axis conversion.
 	*/
+
+	const localHit =
+		control.worldToLocal(
+			hitWorld.clone()
+		);
+
+
+	/*
+		In your GLB:
+		X = horizontal across eye
+		Z = vertical across eye
+		Y = depth
+	*/
+
+	let dx = localHit.x;
+	let dz = localHit.z;
+
+
+	/*
+		Normalize direction.
+	*/
+
+	const distance =
+		Math.sqrt(
+			dx*dx +
+			dz*dz
+		) || 0.0001;
+
+	dx /= distance;
+	dz /= distance;
+
+
+	/*
+		Large enough to be VERY visible.
+	*/
+
+	const maxX = 0.115;
+	const maxZ = 0.095;
+
+
+	const base =
+		pupil.userData.basePosition;
+
 
 	const targetX =
-		base.x + dx * maxX;
+		base.x +
+		dx * maxX;
+
 
 	const targetZ =
-		base.z - dy * maxZ;
+		base.z +
+		dz * maxZ;
 
 
 	pupil.position.x +=
-		(targetX - pupil.position.x) * 0.24;
+		(targetX - pupil.position.x)
+		* 0.28;
+
 
 	pupil.position.z +=
-		(targetZ - pupil.position.z) * 0.24;
+		(targetZ - pupil.position.z)
+		* 0.28;
 
 
 	/*
-	   Pressure on the O when the pupil reaches its edge.
+		The O gets a tiny reaction when the pupil
+		is pressing toward an edge.
 	*/
 
-	const pressure =
-		THREE.MathUtils.smoothstep(
-			Math.sqrt(dx * dx + dy * dy),
-			0.68,
-			1
-		);
+	const br =
+		control.userData.baseRotation;
 
-
-	const br = control.userData.baseRotation;
-
-	if (br) {
+	if(br){
 
 		const targetRy =
 			br.y -
-			dx * pressure * 0.12 * strength;
+			dx * 0.055;
 
 		const targetRx =
 			br.x +
-			dy * pressure * 0.06 * strength;
-
+			dz * 0.035;
 
 		control.rotation.y +=
-			(targetRy - control.rotation.y) * 0.09;
+			(targetRy - control.rotation.y)
+			* 0.05;
 
 		control.rotation.x +=
-			(targetRx - control.rotation.x) * 0.09;
+			(targetRx - control.rotation.x)
+			* 0.05;
 	}
 }
 
 
 /* ==================================================
-   LETTER MOVEMENT
+   CALM FLOAT
+   NO SPRING
    ================================================== */
 
 const tempWorld = new THREE.Vector3();
 const tempScreen = new THREE.Vector3();
 
-function updateLetterForces(time) {
+function updateLetterTargets(time){
 
-	for (const letter of letters) {
+	for(const letter of letters){
 
-		const base = letter.userData.basePosition;
-		const velocity = letter.userData.velocity;
+		const base =
+			letter.userData.basePosition;
+
+		const phase =
+			letter.userData.phase;
 
 
 		/*
-		   1. SOFT HOME SPRING
+			Bounded drifting target.
 
-		   Strong enough that it does NOT become a tornado.
-		   The logo stretches and breathes, but tends to
-		   reform BRUNO LOPES.
+			This is NOT a spring.
+			No velocity overshoot.
+			The letter simply follows a slowly wandering position.
 		*/
 
-		velocity.x +=
-			(base.x - letter.position.x) * 0.018;
+		const driftX =
+			Math.sin(
+				time *
+				letter.userData.speedX +
+				phase
+			)
+			*
+			logoWidth
+			*
+			0.022;
 
-		velocity.y +=
-			(base.y - letter.position.y) * 0.018;
 
-		velocity.z +=
-			(base.z - letter.position.z) * 0.022;
+		const driftZ =
+			Math.cos(
+				time *
+				letter.userData.speedZ +
+				phase * 1.3
+			)
+			*
+			logoHeight
+			*
+			0.026;
+
+
+		const driftY =
+			Math.sin(
+				time *
+				letter.userData.speedY +
+				phase * .7
+			)
+			*
+			0.04;
 
 
 		/*
-		   2. SMALL AUTONOMOUS FLOAT
-
-		   No accumulating hurricane.
-		*/
-
-		const phase = letter.userData.phase;
-		const speed = letter.userData.speed;
-
-		velocity.x +=
-			Math.sin(time * speed + phase)
-			* 0.00045;
-
-		velocity.z +=
-			Math.cos(time * speed * .83 + phase)
-			* 0.00055;
-
-		velocity.y +=
-			Math.sin(time * speed * .62 + phase)
-			* 0.00020;
-
-
-		/*
-		   3. MOUSE REPULSION
+			Mouse repulsion offset.
 		*/
 
 		letter.getWorldPosition(tempWorld);
 		tempScreen.copy(tempWorld).project(camera);
 
 		const dx =
-			tempScreen.x - smoothPointer.x;
+			tempScreen.x -
+			smoothPointer.x;
 
 		const dy =
-			tempScreen.y - smoothPointer.y;
+			tempScreen.y -
+			smoothPointer.y;
 
 		const distance =
-			Math.sqrt(dx * dx + dy * dy);
+			Math.sqrt(dx*dx + dy*dy);
 
-		const radius = 0.35;
+		const radius = 0.34;
 
 		let influence =
 			THREE.MathUtils.clamp(
-				1 - distance / radius,
+				1 - distance/radius,
 				0,
 				1
 			);
@@ -562,176 +564,268 @@ function updateLetterForces(time) {
 		influence *= influence;
 
 
-		if (influence > 0) {
+		const repulsion =
+			letter.userData.repulsion;
 
-			const safeLength =
+
+		let targetRepX = 0;
+		let targetRepZ = 0;
+		let targetRepY = 0;
+
+
+		if(influence > 0){
+
+			const safe =
 				distance || 0.001;
 
-			const dirX = dx / safeLength;
-			const dirY = dy / safeLength;
+			const dirX =
+				dx / safe;
 
-			const force =
-				influence * 0.009;
+			const dirY =
+				dy / safe;
 
+			targetRepX =
+				dirX *
+				influence *
+				logoWidth *
+				0.055;
 
-			velocity.x += dirX * force;
+			targetRepZ =
+				-dirY *
+				influence *
+				logoHeight *
+				0.060;
+
+			targetRepY =
+				influence *
+				0.08;
+
 
 			/*
-			   Local Z corresponds to screen vertical
-			   after our root rotation.
-			*/
-			velocity.z -= dirY * force;
-
-			velocity.y +=
-				influence * 0.0018;
-
-
-			/*
-			   Strong 3D rotation close to cursor,
-			   but damped instead of endlessly spinning.
+				More obvious 3D rotation near mouse.
 			*/
 
-			letter.userData.angularVelocity.y +=
-				dirX * influence * 0.006;
+			letter.userData.rotOffset.x +=
+				(
+					dirY * influence * 0.18 -
+					letter.userData.rotOffset.x
+				) * 0.08;
 
-			letter.userData.angularVelocity.x +=
-				dirY * influence * 0.004;
+			letter.userData.rotOffset.y +=
+				(
+					dirX * influence * 0.25 -
+					letter.userData.rotOffset.y
+				) * 0.08;
 
-			letter.userData.angularVelocity.z +=
-				(dirX - dirY)
-				* influence
-				* 0.003;
+			letter.userData.rotOffset.z +=
+				(
+					(dirX-dirY) *
+					influence *
+					0.12 -
+					letter.userData.rotOffset.z
+				) * 0.07;
 		}
+		else{
+
+			letter.userData.rotOffset.multiplyScalar(
+				0.94
+			);
+		}
+
+
+		/*
+			Repulsion decays smoothly.
+			Again: no spring / no bounce.
+		*/
+
+		repulsion.x +=
+			(targetRepX - repulsion.x)
+			* 0.12;
+
+		repulsion.z +=
+			(targetRepZ - repulsion.z)
+			* 0.12;
+
+		repulsion.y +=
+			(targetRepY - repulsion.y)
+			* 0.10;
+
+
+		const collision =
+			letter.userData.collision;
+
+
+		const targetX =
+			base.x +
+			driftX +
+			repulsion.x +
+			collision.x;
+
+
+		const targetZ =
+			base.z +
+			driftZ +
+			repulsion.z +
+			collision.z;
+
+
+		const targetY =
+			base.y +
+			driftY +
+			repulsion.y;
+
+
+		/*
+			Exponential smoothing instead of physical spring.
+		*/
+
+		letter.position.x +=
+			(targetX - letter.position.x)
+			* 0.055;
+
+		letter.position.z +=
+			(targetZ - letter.position.z)
+			* 0.055;
+
+		letter.position.y +=
+			(targetY - letter.position.y)
+			* 0.050;
+
+
+		/*
+			Collision offset slowly disappears.
+		*/
+
+		collision.multiplyScalar(0.91);
+
+
+		const br =
+			letter.userData.baseRotation;
+
+		const ro =
+			letter.userData.rotOffset;
+
+
+		const idleRX =
+			Math.sin(
+				time * .25 + phase
+			) * .035;
+
+
+		const idleRY =
+			Math.cos(
+				time * .22 + phase
+			) * .045;
+
+
+		const idleRZ =
+			Math.sin(
+				time * .19 + phase * 1.4
+			) * .028;
+
+
+		letter.rotation.x +=
+			(
+				br.x +
+				idleRX +
+				ro.x -
+				letter.rotation.x
+			)
+			* 0.045;
+
+
+		letter.rotation.y +=
+			(
+				br.y +
+				idleRY +
+				ro.y -
+				letter.rotation.y
+			)
+			* 0.045;
+
+
+		letter.rotation.z +=
+			(
+				br.z +
+				idleRZ +
+				ro.z -
+				letter.rotation.z
+			)
+			* 0.045;
 	}
 }
 
 
 /* ==================================================
-   LETTER-TO-LETTER COLLISION
+   SOFT COLLISIONS
    ================================================== */
 
-/*
-   Only 10 interactive objects, so simple pairwise
-   collision is extremely cheap.
+function solveCollisions(){
 
-   This is intentionally a SOFT collision, like pieces
-   of clay floating in zero gravity.
-
-   They push each other apart instead of passing
-   straight through each other.
-*/
-
-function solveCollisions() {
-
-	for (let i = 0; i < letters.length; i++) {
+	for(let i=0;i<letters.length;i++){
 
 		const a = letters[i];
 
-		for (
-			let j = i + 1;
-			j < letters.length;
-			j++
-		) {
+		for(let j=i+1;j<letters.length;j++){
 
 			const b = letters[j];
 
-
-			/*
-			   Layout plane = local X / Z.
-			*/
-
-			let dx =
+			const dx =
 				b.position.x -
 				a.position.x;
 
-			let dz =
+			const dz =
 				b.position.z -
 				a.position.z;
 
 			let distance =
 				Math.sqrt(
-					dx * dx +
-					dz * dz
+					dx*dx +
+					dz*dz
 				);
-
 
 			const minDistance =
 				(
 					a.userData.radius +
 					b.userData.radius
 				)
-				* 0.78;
+				* 0.72;
 
-
-			if (
+			if(
 				distance <
 				minDistance
-			) {
+			){
 
-				if (distance < 0.0001) {
+				if(distance < 0.0001){
 					distance = 0.0001;
-					dx = 0.0001;
 				}
 
-
-				const nx = dx / distance;
-				const nz = dz / distance;
+				const nx = dx/distance;
+				const nz = dz/distance;
 
 				const overlap =
-					minDistance - distance;
-
-
-				/*
-				   Position correction.
-				*/
-
-				const correction =
-					overlap * 0.028;
-
-
-				a.position.x -=
-					nx * correction;
-
-				a.position.z -=
-					nz * correction;
-
-				b.position.x +=
-					nx * correction;
-
-				b.position.z +=
-					nz * correction;
-
+					minDistance -
+					distance;
 
 				/*
-				   Soft collision impulse.
+					Push target offsets apart.
+					No bounce impulse.
 				*/
 
-				const impulse =
-					overlap * 0.006;
+				const push =
+					overlap * 0.055;
 
+				a.userData.collision.x -=
+					nx * push;
 
-				a.userData.velocity.x -=
-					nx * impulse;
+				a.userData.collision.z -=
+					nz * push;
 
-				a.userData.velocity.z -=
-					nz * impulse;
+				b.userData.collision.x +=
+					nx * push;
 
-				b.userData.velocity.x +=
-					nx * impulse;
-
-				b.userData.velocity.z +=
-					nz * impulse;
-
-
-				/*
-				   Little rotational bump.
-				*/
-
-				a.userData.angularVelocity.y -=
-					impulse * 0.7;
-
-				b.userData.angularVelocity.y +=
-					impulse * 0.7;
+				b.userData.collision.z +=
+					nz * push;
 			}
 		}
 	}
@@ -739,73 +833,22 @@ function solveCollisions() {
 
 
 /* ==================================================
-   INTEGRATE MOVEMENT
+   LIGHT FOLLOWS MOUSE
    ================================================== */
 
-function integrateLetters() {
-
-	for (const letter of letters) {
-
-		const velocity =
-			letter.userData.velocity;
-
-		const av =
-			letter.userData.angularVelocity;
-
-
-		/*
-		   High damping = calm floating,
-		   not hurricane.
-		*/
-
-		velocity.multiplyScalar(0.90);
-		av.multiplyScalar(0.88);
-
-
-		letter.position.add(velocity);
-
-
-		letter.rotation.x += av.x;
-		letter.rotation.y += av.y;
-		letter.rotation.z += av.z;
-
-
-		/*
-		   Keep depth reasonably close to original.
-		*/
-
-		const base =
-			letter.userData.basePosition;
-
-		letter.position.y =
-			THREE.MathUtils.clamp(
-				letter.position.y,
-				base.y - 0.14,
-				base.y + 0.14
-			);
-	}
-}
-
-
-/* ==================================================
-   MOUSE LIGHT
-   ================================================== */
-
-function updateMouseLight() {
+function updateMouseLight(){
 
 	mouseLight.position.x +=
 		(
 			smoothPointer.x * 4.5 -
 			mouseLight.position.x
-		)
-		* 0.06;
+		) * 0.06;
 
 	mouseLight.position.y +=
 		(
 			smoothPointer.y * 3 -
 			mouseLight.position.y
-		)
-		* 0.06;
+		) * 0.06;
 
 	mouseLight.position.z = 5;
 }
@@ -817,49 +860,51 @@ function updateMouseLight() {
 
 const clock = new THREE.Clock();
 
-function animate() {
+function animate(){
 
 	requestAnimationFrame(animate);
 
-	const time = clock.getElapsedTime();
+	const time =
+		clock.getElapsedTime();
 
-	smoothPointer.lerp(pointer, 0.11);
+	smoothPointer.lerp(
+		pointer,
+		0.12
+	);
 
-
-	if (model) {
-
-		updateLetterForces(time);
+	if(model){
 
 		/*
-		   Two collision passes make it much more stable
-		   without needing a physics engine.
+			First determine calm target movement,
+			then resolve overlap.
 		*/
+
+		updateLetterTargets(time);
+
 		solveCollisions();
 		solveCollisions();
 
-		integrateLetters();
-
-
 		/*
-		   Eye update AFTER letter movement.
+			Eyes last, so tracking isn't overwritten.
 		*/
+
 		updateEye(
 			topPupil,
-			topControl,
-			1
+			topControl
 		);
 
 		updateEye(
 			botPupil,
-			botControl,
-			.95
+			botControl
 		);
 	}
 
-
 	updateMouseLight();
 
-	renderer.render(scene, camera);
+	renderer.render(
+		scene,
+		camera
+	);
 }
 
 animate();
@@ -869,10 +914,11 @@ animate();
    RESIZE
    ================================================== */
 
-window.addEventListener("resize", () => {
+window.addEventListener("resize",()=>{
 
 	camera.aspect =
-		innerWidth / innerHeight;
+		innerWidth /
+		innerHeight;
 
 	camera.updateProjectionMatrix();
 
