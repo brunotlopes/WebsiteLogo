@@ -3,164 +3,175 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Bruno Lopes — Final Logo Test</title>
+<title>Bruno Lopes — Motion Playground</title>
 
 <style>
-	html,body{
-		margin:0;
-		width:100%;
-		height:100%;
-		overflow:hidden;
-		background:#fff4e0;
-		font-family:Arial,sans-serif;
-	}
+html,body{
+	margin:0;
+	width:100%;
+	height:100%;
+	overflow:hidden;
+	background:#fff4e0;
+	font-family:Arial,sans-serif;
+}
 
-	.site{
-		position:relative;
-		width:100%;
-		height:100%;
-		background:#fff4e0;
-	}
+.site{
+	position:relative;
+	width:100%;
+	height:100%;
+	background:#fff4e0;
+}
 
-	.sidebar{
-		position:absolute;
-		left:0;
-		top:0;
-		width:420px;
-		height:100%;
-	}
+.sidebar{
+	position:absolute;
+	left:0;
+	top:0;
+	width:420px;
+	height:100%;
+}
 
-	.logo-slot{
-		position:absolute;
-		left:52px;
-		top:44px;
-		width:310px;
-		height:205px;
-	}
+.logo-slot{
+	position:absolute;
+	left:52px;
+	top:44px;
+	width:310px;
+	height:205px;
+}
 
-	.logo-slot canvas{
-		position:absolute;
-		inset:0;
-		display:block;
-		width:100%;
-		height:100%;
-	}
+.logo-slot canvas{
+	position:absolute;
+	inset:0;
+	display:block;
+	width:100%;
+	height:100%;
+}
 
-	.eye-layer{
-		position:absolute;
-		inset:0;
-		pointer-events:none;
-		z-index:5;
-	}
+.eye-layer{
+	position:absolute;
+	inset:0;
+	pointer-events:none;
+	z-index:5;
+}
 
-	.dom-pupil{
-		position:absolute;
-		width:12px;
-		height:12px;
-		border-radius:50%;
-		background:#0d0d0d;
-		transform:translate(-50%,-50%);
-		will-change:left,top,transform;
-		pointer-events:none;
-		box-shadow:0 1px 1px rgba(0,0,0,.16);
-	}
+/* more organic / ceramic-looking DOM pupil */
+.dom-pupil{
+	position:absolute;
+	width:12px;
+	height:12px;
+	transform:translate(-50%,-50%);
+	will-change:left,top,transform,width,height,border-radius;
+	pointer-events:none;
 
-	.fake-menu{
-		position:absolute;
-		left:68px;
-		top:258px;
-		font-size:16px;
-		line-height:2.35;
-		opacity:.68;
-		pointer-events:none;
-	}
+	background:
+		radial-gradient(circle at 34% 28%, rgba(255,255,255,.72) 0 7%, transparent 8%),
+		radial-gradient(circle at 58% 62%, #121212 0 40%, #050505 72%, #000 100%);
 
-	.fake-menu b{
-		display:block;
-		font-size:19px;
-		margin-bottom:6px;
-	}
+	border-radius:58% 42% 55% 45% / 46% 57% 43% 54%;
+	box-shadow:
+		inset 1px 1px 2px rgba(255,255,255,.10),
+		inset -2px -2px 3px rgba(0,0,0,.45),
+		0 1px 1px rgba(0,0,0,.12);
+}
 
-	.fake-content{
-		position:absolute;
-		left:470px;
-		right:55px;
-		top:55px;
-		height:calc(100% - 110px);
-		border:2px solid rgba(0,0,0,.68);
-		border-radius:36px;
-		opacity:.16;
-		pointer-events:none;
-	}
+.fake-menu{
+	position:absolute;
+	left:68px;
+	top:258px;
+	font-size:16px;
+	line-height:2.35;
+	opacity:.68;
+	pointer-events:none;
+}
 
-	.panel{
-		position:absolute;
-		top:14px;
-		right:14px;
-		width:285px;
-		padding:14px;
-		background:rgba(255,255,255,.94);
-		border:1px solid rgba(0,0,0,.12);
-		border-radius:12px;
-		box-shadow:0 8px 30px rgba(0,0,0,.08);
-		backdrop-filter:blur(10px);
-		z-index:10;
-	}
+.fake-menu b{
+	display:block;
+	font-size:19px;
+	margin-bottom:6px;
+}
 
-	.panel h3{
-		margin:0 0 10px;
-		font-size:13px;
-	}
+.fake-content{
+	position:absolute;
+	left:470px;
+	right:55px;
+	top:55px;
+	height:calc(100% - 110px);
+	border:2px solid rgba(0,0,0,.68);
+	border-radius:36px;
+	opacity:.16;
+	pointer-events:none;
+}
 
-	.row{
-		display:grid;
-		grid-template-columns:105px 1fr 48px;
-		gap:8px;
-		align-items:center;
-		margin:6px 0;
-	}
+.panel{
+	position:absolute;
+	top:14px;
+	right:14px;
+	width:292px;
+	max-height:calc(100vh - 28px);
+	overflow:auto;
+	box-sizing:border-box;
+	padding:14px;
+	background:rgba(255,255,255,.95);
+	border:1px solid rgba(0,0,0,.12);
+	border-radius:12px;
+	box-shadow:0 8px 30px rgba(0,0,0,.08);
+	backdrop-filter:blur(10px);
+	z-index:10;
+}
 
-	.row label{
-		font-size:11px;
-		opacity:.72;
-	}
+.panel h3{
+	margin:0 0 10px;
+	font-size:13px;
+}
 
-	.row input[type="range"]{
-		width:100%;
-	}
+.section-title{
+	margin:11px 0 5px;
+	padding-top:8px;
+	border-top:1px solid rgba(0,0,0,.1);
+	font-size:10px;
+	font-weight:700;
+	letter-spacing:.05em;
+	opacity:.55;
+}
 
-	.val{
-		font-size:10px;
-		text-align:right;
-		opacity:.62;
-	}
+.row{
+	display:grid;
+	grid-template-columns:108px 1fr 46px;
+	gap:7px;
+	align-items:center;
+	margin:6px 0;
+}
 
-	.section-title{
-		margin:11px 0 5px;
-		padding-top:8px;
-		border-top:1px solid rgba(0,0,0,.1);
-		font-size:10px;
-		font-weight:700;
-		letter-spacing:.04em;
-		opacity:.55;
-	}
+.row label{
+	font-size:11px;
+	opacity:.72;
+}
 
-	.check{
-		margin-top:8px;
-		font-size:11px;
-		display:flex;
-		align-items:center;
-		gap:7px;
-	}
+.row input[type="range"]{
+	width:100%;
+}
 
-	.status{
-		position:absolute;
-		left:14px;
-		bottom:12px;
-		font-size:11px;
-		opacity:.35;
-		z-index:20;
-	}
+.val{
+	font-size:10px;
+	text-align:right;
+	opacity:.62;
+}
+
+.check{
+	margin-top:8px;
+	font-size:11px;
+	display:flex;
+	align-items:center;
+	gap:7px;
+}
+
+.status{
+	position:absolute;
+	left:14px;
+	bottom:12px;
+	font-size:11px;
+	opacity:.35;
+	z-index:20;
+}
 </style>
 </head>
 
@@ -189,10 +200,9 @@
 	<div class="fake-content"></div>
 
 	<div class="panel">
-		<h3>Logo calibration</h3>
+		<h3>Logo playground</h3>
 
 		<div class="section-title">CERAMIC / LIGHT</div>
-
 		<div class="row"><label>Exposure</label><input id="exposure" type="range" min=".2" max="2" step=".01" value=".40"><span class="val" id="exposureVal"></span></div>
 		<div class="row"><label>Env</label><input id="env" type="range" min="0" max="2" step=".01" value="0"><span class="val" id="envVal"></span></div>
 		<div class="row"><label>Normal</label><input id="normal" type="range" min="0" max="3" step=".01" value="1.96"><span class="val" id="normalVal"></span></div>
@@ -204,28 +214,36 @@
 		<div class="row"><label>Hemi</label><input id="hemi" type="range" min="0" max="5" step=".05" value="0"><span class="val" id="hemiVal"></span></div>
 		<div class="row"><label>Logo zoom</label><input id="zoom" type="range" min=".75" max="1.8" step=".01" value="1.12"><span class="val" id="zoomVal"></span></div>
 
-		<div class="section-title">EYES — DOM OVERLAY</div>
-
+		<div class="section-title">EYES</div>
 		<div class="row"><label>Top X %</label><input id="topX" type="range" min="0" max="100" step=".1" value="78"><span class="val" id="topXVal"></span></div>
 		<div class="row"><label>Top Y %</label><input id="topY" type="range" min="0" max="100" step=".1" value="33"><span class="val" id="topYVal"></span></div>
 		<div class="row"><label>Bottom X %</label><input id="botX" type="range" min="0" max="100" step=".1" value="32"><span class="val" id="botXVal"></span></div>
 		<div class="row"><label>Bottom Y %</label><input id="botY" type="range" min="0" max="100" step=".1" value="62"><span class="val" id="botYVal"></span></div>
 		<div class="row"><label>Eye move</label><input id="eyeMove" type="range" min="0" max="16" step=".5" value="6"><span class="val" id="eyeMoveVal"></span></div>
-		<div class="row"><label>Pupil size</label><input id="pupilSize" type="range" min="5" max="20" step=".5" value="11"><span class="val" id="pupilSizeVal"></span></div>
+		<div class="row"><label>Pupil size</label><input id="pupilSize" type="range" min="5" max="22" step=".5" value="11"><span class="val" id="pupilSizeVal"></span></div>
+		<div class="row"><label>Pupil squash</label><input id="pupilSquash" type="range" min="0" max=".45" step=".01" value=".14"><span class="val" id="pupilSquashVal"></span></div>
+		<div class="row"><label>Pupil wobble</label><input id="pupilWobble" type="range" min="0" max="12" step=".25" value="2.5"><span class="val" id="pupilWobbleVal"></span></div>
 
-		<div class="section-title">LETTER FLOAT</div>
-
-		<div class="row"><label>Float pos</label><input id="floatPos" type="range" min="0" max="8" step=".25" value="1.75"><span class="val" id="floatPosVal"></span></div>
-		<div class="row"><label>Float rot</label><input id="floatRot" type="range" min="0" max="8" step=".25" value="2.25"><span class="val" id="floatRotVal"></span></div>
+		<div class="section-title">LETTER MOTION</div>
+		<div class="row"><label>Float pos</label><input id="floatPos" type="range" min="0" max="10" step=".25" value="2.5"><span class="val" id="floatPosVal"></span></div>
+		<div class="row"><label>Float rot</label><input id="floatRot" type="range" min="0" max="12" step=".25" value="3.5"><span class="val" id="floatRotVal"></span></div>
+		<div class="row"><label>Speed</label><input id="motionSpeed" type="range" min=".1" max="3" step=".05" value="1"><span class="val" id="motionSpeedVal"></span></div>
+		<div class="row"><label>Bounce</label><input id="bounce" type="range" min="0" max="10" step=".25" value="1.5"><span class="val" id="bounceVal"></span></div>
+		<div class="row"><label>Wobble</label><input id="wobble" type="range" min="0" max="12" step=".25" value="2"><span class="val" id="wobbleVal"></span></div>
+		<div class="row"><label>Depth</label><input id="depth" type="range" min="0" max="10" step=".25" value="1"><span class="val" id="depthVal"></span></div>
+		<div class="row"><label>Mouse push</label><input id="mousePush" type="range" min="0" max="18" step=".5" value="3"><span class="val" id="mousePushVal"></span></div>
+		<div class="row"><label>Mouse radius</label><input id="mouseRadius" type="range" min="30" max="220" step="5" value="100"><span class="val" id="mouseRadiusVal"></span></div>
+		<div class="row"><label>Chaos</label><input id="chaos" type="range" min="0" max="1.5" step=".05" value=".25"><span class="val" id="chaosVal"></span></div>
 
 		<div class="check">
 			<input id="pauseFloat" type="checkbox">
-			<label for="pauseFloat">pause float</label>
+			<label for="pauseFloat">pause motion</label>
 		</div>
 	</div>
 
 	<div class="status" id="status">loading…</div>
 </div>
+
 
 <script type="module">
 
@@ -245,7 +263,7 @@ const status = document.querySelector("#status");
 
 
 /* ==================================================
-   THREE.JS
+   THREE
    ================================================== */
 
 const scene = new THREE.Scene();
@@ -272,7 +290,7 @@ const camera = new THREE.PerspectiveCamera(
 
 
 /* ==================================================
-   ENVIRONMENT / LIGHTS
+   LIGHT
    ================================================== */
 
 const pmrem = new THREE.PMREMGenerator(renderer);
@@ -281,11 +299,7 @@ const envRT = pmrem.fromScene(room,.04);
 room.dispose();
 scene.environment = envRT.texture;
 
-const hemi = new THREE.HemisphereLight(
-	0xfff7ec,
-	0x4d4c5f,
-	0
-);
+const hemi = new THREE.HemisphereLight(0xfff7ec,0x4d4c5f,0);
 scene.add(hemi);
 
 const key = new THREE.DirectionalLight(0xffffff,2.80);
@@ -312,32 +326,35 @@ let zoomFactor = 1.12;
 const ceramicMaterials = [];
 const floatObjects = [];
 
-let topX = 78;
-let topY = 33;
-let botX = 32;
-let botY = 62;
+let topX=78, topY=33, botX=32, botY=62;
+let eyeMove=6, pupilSize=11, pupilSquash=.14, pupilWobble=2.5;
 
-let eyeMove = 6;
-let pupilSize = 11;
-let floatPos = 1.75;
-let floatRot = 2.25;
+let floatPos=2.5;
+let floatRot=3.5;
+let motionSpeed=1;
+let bounce=1.5;
+let wobble=2;
+let depth=1;
+let mousePush=3;
+let mouseRadius=100;
+let chaos=.25;
 
 
 /* ==================================================
-   POINTER — SIMPLE / RELIABLE DOM VERSION
+   POINTER
    ================================================== */
 
-let mouseX = innerWidth / 2;
-let mouseY = innerHeight / 2;
+let mouseX = innerWidth/2;
+let mouseY = innerHeight/2;
 
 window.addEventListener("pointermove",(e)=>{
-	mouseX = e.clientX;
-	mouseY = e.clientY;
+	mouseX=e.clientX;
+	mouseY=e.clientY;
 },{passive:true});
 
 window.addEventListener("mousemove",(e)=>{
-	mouseX = e.clientX;
-	mouseY = e.clientY;
+	mouseX=e.clientX;
+	mouseY=e.clientY;
 },{passive:true});
 
 
@@ -350,65 +367,51 @@ function get(name){
 }
 
 function resizeRenderer(){
-	const r = slot.getBoundingClientRect();
-
-	renderer.setSize(
-		r.width,
-		r.height,
-		false
-	);
-
-	camera.aspect = r.width/r.height;
+	const r=slot.getBoundingClientRect();
+	renderer.setSize(r.width,r.height,false);
+	camera.aspect=r.width/r.height;
 	camera.updateProjectionMatrix();
 }
 
 function frameModel(object){
-
-	const box = new THREE.Box3().setFromObject(object);
-	const center = new THREE.Vector3();
-	const size = new THREE.Vector3();
+	const box=new THREE.Box3().setFromObject(object);
+	const center=new THREE.Vector3();
+	const size=new THREE.Vector3();
 
 	box.getCenter(center);
 	box.getSize(size);
-
 	object.position.sub(center);
 
-	const centered = new THREE.Box3().setFromObject(object);
+	const centered=new THREE.Box3().setFromObject(object);
 	centered.getSize(size);
 
-	const maxDim = Math.max(size.x,size.y,size.z);
-	const fov = THREE.MathUtils.degToRad(camera.fov);
+	const maxDim=Math.max(size.x,size.y,size.z);
+	const fov=THREE.MathUtils.degToRad(camera.fov);
 
-	baseCameraDistance =
-		maxDim /
-		(2*Math.tan(fov/2));
+	baseCameraDistance=
+		maxDim/(2*Math.tan(fov/2));
 
-	baseCameraDistance *= 1.08;
+	baseCameraDistance*=1.08;
 
-	camera.position.set(
-		0,
-		0,
-		baseCameraDistance/zoomFactor
-	);
-
-	camera.near = Math.max(.01,baseCameraDistance/100);
-	camera.far = baseCameraDistance*100;
+	camera.position.set(0,0,baseCameraDistance/zoomFactor);
+	camera.near=Math.max(.01,baseCameraDistance/100);
+	camera.far=baseCameraDistance*100;
 	camera.updateProjectionMatrix();
 }
 
 
 /* ==================================================
-   CERAMIC MATERIAL
+   CERAMIC
    ================================================== */
 
 function makeCeramicMaterial(source){
 
-	const material = new THREE.MeshPhysicalMaterial({
-		color: source.color ? source.color.clone() : new THREE.Color(0xffffff),
-		map: source.map || null,
-		normalMap: source.normalMap || null,
-		roughnessMap: source.roughnessMap || null,
-		aoMap: source.aoMap || null,
+	const material=new THREE.MeshPhysicalMaterial({
+		color:source.color ? source.color.clone() : new THREE.Color(0xffffff),
+		map:source.map || null,
+		normalMap:source.normalMap || null,
+		roughnessMap:source.roughnessMap || null,
+		aoMap:source.aoMap || null,
 
 		metalness:0,
 		roughness:.51,
@@ -423,39 +426,32 @@ function makeCeramicMaterial(source){
 	}
 
 	ceramicMaterials.push(material);
-
 	return material;
 }
 
 function setupMaterials(){
-
 	model.traverse((obj)=>{
-
 		if(!obj.isMesh || !obj.material) return;
 
-		const source =
+		const source=
 			Array.isArray(obj.material)
 				? obj.material[0]
 				: obj.material;
 
-		/*
-		   Keep eye-white material untouched.
-		   Only convert the blue clay material.
-		*/
-		if(source.name === "Logo_Master"){
-			obj.material = makeCeramicMaterial(source);
+		if(source.name==="Logo_Master"){
+			obj.material=makeCeramicMaterial(source);
 		}
 	});
 }
 
 
 /* ==================================================
-   SUBTLE LETTER FLOAT
+   FLOAT OBJECTS
    ================================================== */
 
 function setupFloatObjects(){
 
-	const names = [
+	const names=[
 		"B","R","U","N",
 		"L","P","E","S",
 		"O_TOP_CONTROL",
@@ -464,95 +460,226 @@ function setupFloatObjects(){
 
 	names.forEach((name,index)=>{
 
-		const obj = get(name);
+		const obj=get(name);
 		if(!obj) return;
 
-		obj.userData.baseP = obj.position.clone();
-		obj.userData.baseR = obj.rotation.clone();
-		obj.userData.phase = index*.72 + Math.random()*.45;
-		obj.userData.speed = .26 + Math.random()*.18;
+		obj.userData.baseP=obj.position.clone();
+		obj.userData.baseR=obj.rotation.clone();
+
+		obj.userData.phase=index*.79+Math.random()*.55;
+		obj.userData.speed=.22+Math.random()*.18;
+		obj.userData.seedA=Math.random()*20;
+		obj.userData.seedB=Math.random()*20;
 
 		floatObjects.push(obj);
 	});
 }
 
-function updateFloat(time){
 
-	if(document.querySelector("#pauseFloat").checked){
-		return;
-	}
+/* ==================================================
+   PROJECT OBJECT TO SLOT PIXELS
+   ================================================== */
 
-	const rect = slot.getBoundingClientRect();
+const tmpWorld=new THREE.Vector3();
+const tmpNdc=new THREE.Vector3();
 
-	/*
-	   Tiny world-space amount derived from desired pixel amplitude.
-	*/
-	const amount =
-		(floatPos / Math.max(rect.width,1)) * 1.15;
+function objectScreenPosition(obj){
 
-	const rot =
-		THREE.MathUtils.degToRad(floatRot);
+	obj.getWorldPosition(tmpWorld);
+	tmpNdc.copy(tmpWorld).project(camera);
 
-	floatObjects.forEach((obj)=>{
+	const r=slot.getBoundingClientRect();
 
-		const bP = obj.userData.baseP;
-		const bR = obj.userData.baseR;
-		const p = obj.userData.phase;
-		const s = obj.userData.speed;
+	return {
+		x:r.left+(tmpNdc.x*.5+.5)*r.width,
+		y:r.top+(-tmpNdc.y*.5+.5)*r.height
+	};
+}
 
-		const tx = bP.x + Math.sin(time*s + p) * amount;
-		const ty = bP.y + Math.sin(time*s*.61 + p) * amount*.18;
-		const tz = bP.z + Math.cos(time*s*.78 + p) * amount;
 
-		obj.position.x += (tx-obj.position.x)*.025;
-		obj.position.y += (ty-obj.position.y)*.025;
-		obj.position.z += (tz-obj.position.z)*.025;
+/* ==================================================
+   LETTER MOTION
+   ================================================== */
 
-		const rx = bR.x + Math.sin(time*s*.52+p)*rot;
-		const ry = bR.y + Math.cos(time*s*.47+p)*rot;
-		const rz = bR.z + Math.sin(time*s*.41+p*1.2)*rot*.45;
+function updateMotion(time){
 
-		obj.rotation.x += (rx-obj.rotation.x)*.022;
-		obj.rotation.y += (ry-obj.rotation.y)*.022;
-		obj.rotation.z += (rz-obj.rotation.z)*.022;
+	if(document.querySelector("#pauseFloat").checked) return;
+
+	const rect=slot.getBoundingClientRect();
+
+	/* approximate conversion from pixels to model-space */
+	const posAmount=(floatPos/Math.max(rect.width,1))*1.35;
+	const bounceAmount=(bounce/Math.max(rect.height,1))*1.65;
+	const depthAmount=(depth/Math.max(rect.width,1))*2.1;
+
+	const baseRot=THREE.MathUtils.degToRad(floatRot);
+	const wobbleRot=THREE.MathUtils.degToRad(wobble);
+
+	floatObjects.forEach((obj,index)=>{
+
+		const bp=obj.userData.baseP;
+		const br=obj.userData.baseR;
+		const phase=obj.userData.phase;
+		const speed=obj.userData.speed*motionSpeed;
+
+		/*
+		   independent drifting
+		*/
+		let tx=
+			bp.x+
+			Math.sin(time*speed+phase)*posAmount;
+
+		let tz=
+			bp.z+
+			Math.cos(time*speed*.79+phase*1.2)*posAmount;
+
+		let ty=
+			bp.y+
+			Math.sin(time*speed*.51+phase*.8)*depthAmount;
+
+		/*
+		   optional bounce = more rhythmic vertical accent
+		   kept separate from general float.
+		*/
+		tz +=
+			Math.abs(
+				Math.sin(time*speed*1.45+phase)
+			)*bounceAmount;
+
+		/*
+		   low-frequency chaos, bounded rather than cumulative.
+		*/
+		tx +=
+			Math.sin(time*.31*motionSpeed+obj.userData.seedA)
+			*posAmount*chaos;
+
+		tz +=
+			Math.cos(time*.27*motionSpeed+obj.userData.seedB)
+			*posAmount*chaos;
+
+		/*
+		   cursor repulsion in screen space.
+		*/
+		if(mousePush>0){
+
+			const screen=objectScreenPosition(obj);
+
+			let dx=screen.x-mouseX;
+			let dy=screen.y-mouseY;
+
+			const dist=Math.hypot(dx,dy)||1;
+
+			if(dist<mouseRadius){
+
+				const influence=
+					1-dist/mouseRadius;
+
+				dx/=dist;
+				dy/=dist;
+
+				const pushWorld=
+					(mousePush/Math.max(rect.width,1))
+					*1.9
+					*influence*influence;
+
+				tx += dx*pushWorld;
+				tz -= dy*pushWorld;
+				ty += pushWorld*.28;
+			}
+		}
+
+		/*
+		   direct eased target = no spring overshoot.
+		*/
+		obj.position.x += (tx-obj.position.x)*.045;
+		obj.position.y += (ty-obj.position.y)*.040;
+		obj.position.z += (tz-obj.position.z)*.045;
+
+		/*
+		   rotations
+		*/
+		const rx=
+			br.x+
+			Math.sin(time*speed*.51+phase)*baseRot+
+			Math.sin(time*speed*.93+phase*.4)*wobbleRot*.35;
+
+		const ry=
+			br.y+
+			Math.cos(time*speed*.46+phase)*baseRot+
+			Math.cos(time*speed*.87+phase*.7)*wobbleRot*.45;
+
+		const rz=
+			br.z+
+			Math.sin(time*speed*.38+phase*1.1)*baseRot*.55+
+			Math.sin(time*speed*1.2+phase)*wobbleRot*.25;
+
+		obj.rotation.x += (rx-obj.rotation.x)*.038;
+		obj.rotation.y += (ry-obj.rotation.y)*.038;
+		obj.rotation.z += (rz-obj.rotation.z)*.034;
 	});
 }
 
 
 /* ==================================================
-   DOM EYES — NO CONNECTION TO GLB
+   DOM PUPILS
    ================================================== */
 
-function updateDOMEye(el,xPct,yPct){
+function updateDOMEye(el,xPct,yPct,time,phase){
 
-	const rect = slot.getBoundingClientRect();
+	const rect=slot.getBoundingClientRect();
 
-	const baseX = rect.width * (xPct/100);
-	const baseY = rect.height * (yPct/100);
+	const baseX=rect.width*(xPct/100);
+	const baseY=rect.height*(yPct/100);
 
-	const screenX = rect.left + baseX;
-	const screenY = rect.top + baseY;
+	const screenX=rect.left+baseX;
+	const screenY=rect.top+baseY;
 
-	let dx = mouseX-screenX;
-	let dy = mouseY-screenY;
+	let dx=mouseX-screenX;
+	let dy=mouseY-screenY;
 
-	const len = Math.hypot(dx,dy) || 1;
+	const dist=Math.hypot(dx,dy)||1;
+	dx/=dist;
+	dy/=dist;
 
-	dx /= len;
-	dy /= len;
+	const gazeStrength=THREE.MathUtils.clamp(dist/80,0,1);
 
-	const x = baseX + dx*eyeMove;
-	const y = baseY + dy*eyeMove;
+	const wobX=
+		Math.sin(time*1.4+phase)*pupilWobble*.18;
 
-	el.style.left = x+"px";
-	el.style.top = y+"px";
-	el.style.width = pupilSize+"px";
-	el.style.height = pupilSize+"px";
+	const wobY=
+		Math.cos(time*1.1+phase)*pupilWobble*.18;
+
+	const move=eyeMove*gazeStrength;
+
+	const x=baseX+dx*move+wobX;
+	const y=baseY+dy*move+wobY;
+
+	const angle=Math.atan2(dy,dx);
+	const squash=1+pupilSquash*gazeStrength;
+	const squashY=1-pupilSquash*.55*gazeStrength;
+
+	el.style.left=x+"px";
+	el.style.top=y+"px";
+	el.style.width=pupilSize+"px";
+	el.style.height=pupilSize+"px";
+
+	el.style.transform=
+		`translate(-50%,-50%) rotate(${angle}rad) scale(${squash},${squashY})`;
+
+	/*
+	   subtle organic morph — keeps it from feeling like a perfect CSS dot
+	*/
+	const morph=
+		50+Math.sin(time*1.6+phase)*5;
+
+	el.style.borderRadius=
+		`${morph}% ${100-morph}% ${morph+3}% ${97-morph}% / `+
+		`${46+Math.cos(time*1.2+phase)*5}% 56% 44% 54%`;
 }
 
 
 /* ==================================================
-   LOAD NEW GLB — EXPECTS NO BLACK PUPILS
+   LOAD
    ================================================== */
 
 new GLTFLoader().load(
@@ -560,9 +687,8 @@ new GLTFLoader().load(
 
 	(gltf)=>{
 
-		model = gltf.scene;
-
-		model.rotation.x = Math.PI/2;
+		model=gltf.scene;
+		model.rotation.x=Math.PI/2;
 		scene.add(model);
 
 		setupMaterials();
@@ -571,15 +697,15 @@ new GLTFLoader().load(
 		resizeRenderer();
 		frameModel(model);
 
-		status.textContent =
-			"new pupil-free GLB ✓ • DOM eyes ✓ • subtle float ✓";
+		status.textContent=
+			"DOM eyes ✓ • motion playground ✓ • pupil-free GLB ✓";
 	},
 
 	undefined,
 
 	(error)=>{
 		console.error(error);
-		status.textContent = "could not load Name1.glb";
+		status.textContent="could not load Name1.glb";
 	}
 );
 
@@ -590,12 +716,12 @@ new GLTFLoader().load(
 
 function bind(id,valId,cb,digits=2){
 
-	const input = document.getElementById(id);
-	const val = document.getElementById(valId);
+	const input=document.getElementById(id);
+	const val=document.getElementById(valId);
 
 	function update(){
-		const v = parseFloat(input.value);
-		val.textContent = v.toFixed(digits);
+		const v=parseFloat(input.value);
+		val.textContent=v.toFixed(digits);
 		cb(v);
 	}
 
@@ -603,6 +729,7 @@ function bind(id,valId,cb,digits=2){
 	update();
 }
 
+/* light */
 bind("exposure","exposureVal",v=>renderer.toneMappingExposure=v);
 bind("env","envVal",v=>ceramicMaterials.forEach(m=>m.envMapIntensity=v));
 bind("normal","normalVal",v=>ceramicMaterials.forEach(m=>{if(m.normalMap)m.normalScale.set(v,v)}));
@@ -618,53 +745,51 @@ bind("zoom","zoomVal",v=>{
 	if(model) camera.position.z=baseCameraDistance/zoomFactor;
 });
 
+/* eyes */
 bind("topX","topXVal",v=>topX=v,1);
 bind("topY","topYVal",v=>topY=v,1);
 bind("botX","botXVal",v=>botX=v,1);
 bind("botY","botYVal",v=>botY=v,1);
-
 bind("eyeMove","eyeMoveVal",v=>eyeMove=v,1);
 bind("pupilSize","pupilSizeVal",v=>pupilSize=v,1);
-bind("floatPos","floatPosVal",v=>floatPos=v,2);
-bind("floatRot","floatRotVal",v=>floatRot=v,2);
+bind("pupilSquash","pupilSquashVal",v=>pupilSquash=v);
+bind("pupilWobble","pupilWobbleVal",v=>pupilWobble=v,1);
+
+/* motion */
+bind("floatPos","floatPosVal",v=>floatPos=v,1);
+bind("floatRot","floatRotVal",v=>floatRot=v,1);
+bind("motionSpeed","motionSpeedVal",v=>motionSpeed=v);
+bind("bounce","bounceVal",v=>bounce=v,1);
+bind("wobble","wobbleVal",v=>wobble=v,1);
+bind("depth","depthVal",v=>depth=v,1);
+bind("mousePush","mousePushVal",v=>mousePush=v,1);
+bind("mouseRadius","mouseRadiusVal",v=>mouseRadius=v,0);
+bind("chaos","chaosVal",v=>chaos=v);
 
 
 /* ==================================================
    LOOP
    ================================================== */
 
-const clock = new THREE.Clock();
+const clock=new THREE.Clock();
 
 function animate(){
 
 	requestAnimationFrame(animate);
 
-	const time = clock.getElapsedTime();
+	const time=clock.getElapsedTime();
 
 	if(model){
-		updateFloat(time);
+		updateMotion(time);
 	}
 
-	updateDOMEye(
-		topPupil,
-		topX,
-		topY
-	);
+	updateDOMEye(topPupil,topX,topY,time,0);
+	updateDOMEye(botPupil,botX,botY,time,1.7);
 
-	updateDOMEye(
-		botPupil,
-		botX,
-		botY
-	);
-
-	renderer.render(
-		scene,
-		camera
-	);
+	renderer.render(scene,camera);
 }
 
 animate();
-
 
 window.addEventListener("resize",()=>{
 	resizeRenderer();
