@@ -3,38 +3,138 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Bruno Lopes — Eye Test</title>
+<title>Bruno Lopes — Visual Calibration</title>
+
 <style>
-html,body{
-	margin:0;
-	width:100%;
-	height:100%;
-	overflow:hidden;
-	background:#fff4e0;
-}
-#app{
-	position:relative;
-	width:100%;
-	height:100%;
-}
-canvas{
-	display:block;
-	width:100%;
-	height:100%;
-}
-.status{
-	position:absolute;
-	left:14px;
-	bottom:12px;
-	font:11px Arial,sans-serif;
-	opacity:.35;
-	pointer-events:none;
-}
+	html, body {
+		margin: 0;
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+		background: #fff4e0;
+		font-family: Arial, sans-serif;
+	}
+
+	#app {
+		position: relative;
+		width: 100%;
+		height: 100%;
+	}
+
+	canvas {
+		display: block;
+		width: 100%;
+		height: 100%;
+	}
+
+	.panel {
+		position: absolute;
+		top: 16px;
+		right: 16px;
+		width: 250px;
+		padding: 14px 14px 10px;
+		background: rgba(255,255,255,.9);
+		border: 1px solid rgba(0,0,0,.12);
+		border-radius: 12px;
+		box-shadow: 0 8px 30px rgba(0,0,0,.08);
+		backdrop-filter: blur(10px);
+	}
+
+	.panel h3 {
+		margin: 0 0 10px;
+		font-size: 13px;
+		font-weight: 700;
+	}
+
+	.row {
+		display: grid;
+		grid-template-columns: 92px 1fr 42px;
+		gap: 8px;
+		align-items: center;
+		margin: 8px 0;
+	}
+
+	.row label {
+		font-size: 11px;
+		opacity: .7;
+	}
+
+	.row input[type="range"] {
+		width: 100%;
+	}
+
+	.val {
+		font-size: 10px;
+		text-align: right;
+		opacity: .6;
+	}
+
+	.status {
+		position: absolute;
+		left: 14px;
+		bottom: 12px;
+		font-size: 11px;
+		opacity: .3;
+		pointer-events: none;
+	}
 </style>
 </head>
-<body>
 
+<body>
 <div id="app">
+
+	<div class="panel">
+		<h3>Visual calibration</h3>
+
+		<div class="row">
+			<label>Exposure</label>
+			<input id="exposure" type="range" min="0.4" max="2.0" step="0.01" value="1.0">
+			<div class="val" id="exposureVal">1.00</div>
+		</div>
+
+		<div class="row">
+			<label>Env</label>
+			<input id="env" type="range" min="0" max="3" step="0.01" value="1.1">
+			<div class="val" id="envVal">1.10</div>
+		</div>
+
+		<div class="row">
+			<label>Normal</label>
+			<input id="normal" type="range" min="0" max="3" step="0.01" value="1.2">
+			<div class="val" id="normalVal">1.20</div>
+		</div>
+
+		<div class="row">
+			<label>Roughness</label>
+			<input id="roughness" type="range" min="0" max="1" step="0.01" value="0.62">
+			<div class="val" id="roughnessVal">0.62</div>
+		</div>
+
+		<div class="row">
+			<label>Key light</label>
+			<input id="key" type="range" min="0" max="8" step="0.05" value="3.6">
+			<div class="val" id="keyVal">3.60</div>
+		</div>
+
+		<div class="row">
+			<label>Blue rim</label>
+			<input id="blue" type="range" min="0" max="8" step="0.05" value="2.5">
+			<div class="val" id="blueVal">2.50</div>
+		</div>
+
+		<div class="row">
+			<label>Pink rim</label>
+			<input id="pink" type="range" min="0" max="8" step="0.05" value="2.0">
+			<div class="val" id="pinkVal">2.00</div>
+		</div>
+
+		<div class="row">
+			<label>Hemi</label>
+			<input id="hemi" type="range" min="0" max="5" step="0.05" value="1.4">
+			<div class="val" id="hemiVal">1.40</div>
+		</div>
+	</div>
+
 	<div class="status" id="status">loading…</div>
 </div>
 
@@ -42,6 +142,12 @@ canvas{
 
 import * as THREE from "https://esm.sh/three@0.180.0";
 import { GLTFLoader } from "https://esm.sh/three@0.180.0/examples/jsm/loaders/GLTFLoader.js";
+import { RoomEnvironment } from "https://esm.sh/three@0.180.0/examples/jsm/environments/RoomEnvironment.js";
+
+
+/* ==================================================
+   SCENE
+   ================================================== */
 
 const app = document.querySelector("#app");
 const status = document.querySelector("#status");
@@ -57,11 +163,12 @@ const camera = new THREE.PerspectiveCamera(
 );
 
 const renderer = new THREE.WebGLRenderer({
-	antialias:true
+	antialias: true
 });
 
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-renderer.setSize(innerWidth,innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
@@ -70,64 +177,61 @@ app.prepend(renderer.domElement);
 
 
 /* ==================================================
-   SIMPLE STATIC LIGHTING
+   ENVIRONMENT
    ================================================== */
 
-scene.add(
-	new THREE.HemisphereLight(
-		0xfff8ef,
-		0x55556a,
-		1.5
-	)
-);
+const pmrem = new THREE.PMREMGenerator(renderer);
+const room = new RoomEnvironment();
 
-const front = new THREE.DirectionalLight(
-	0xffffff,
-	3.7
-);
-front.position.set(1,2.5,7);
-scene.add(front);
+const envRT = pmrem.fromScene(room, 0.04);
+scene.environment = envRT.texture;
 
-const rimA = new THREE.DirectionalLight(
-	0x8ca5ff,
-	2.0
-);
-rimA.position.set(-5,3,-4);
-scene.add(rimA);
-
-const rimB = new THREE.DirectionalLight(
-	0xff9bb8,
-	1.7
-);
-rimB.position.set(5,-2,-4);
-scene.add(rimB);
+room.dispose();
 
 
 /* ==================================================
-   POINTER
+   LIGHTING
    ================================================== */
 
-const pointer = new THREE.Vector2();
-const smoothPointer = new THREE.Vector2();
-
-window.addEventListener(
-	"pointermove",
-	(event)=>{
-		pointer.x =
-			(event.clientX / innerWidth) * 2 - 1;
-
-		pointer.y =
-			-(event.clientY / innerHeight) * 2 + 1;
-	},
-	{passive:true}
+const hemiLight = new THREE.HemisphereLight(
+	0xfff7ec,
+	0x4d4c5f,
+	1.4
 );
+scene.add(hemiLight);
 
-window.addEventListener(
-	"pointerleave",
-	()=>{
-		pointer.set(0,0);
-	}
+const keyLight = new THREE.DirectionalLight(
+	0xffffff,
+	3.6
 );
+keyLight.position.set(
+	1.2,
+	2.7,
+	7
+);
+scene.add(keyLight);
+
+const blueRim = new THREE.DirectionalLight(
+	0x7d95ff,
+	2.5
+);
+blueRim.position.set(
+	-5,
+	3,
+	-4
+);
+scene.add(blueRim);
+
+const pinkRim = new THREE.DirectionalLight(
+	0xff8fb4,
+	2.0
+);
+pinkRim.position.set(
+	5,
+	-2,
+	-4
+);
+scene.add(pinkRim);
 
 
 /* ==================================================
@@ -135,54 +239,31 @@ window.addEventListener(
    ================================================== */
 
 let model = null;
+const calibratedMaterials = [];
 
-let topPupil = null;
-let botPupil = null;
+function frameModel(object) {
 
-let topBase = null;
-let botBase = null;
+	const box = new THREE.Box3().setFromObject(object);
 
-
-/* ==================================================
-   FRAME MODEL
-   ================================================== */
-
-function frameModel(object){
-
-	const box =
-		new THREE.Box3().setFromObject(object);
-
-	const center =
-		new THREE.Vector3();
-
-	const size =
-		new THREE.Vector3();
+	const center = new THREE.Vector3();
+	const size = new THREE.Vector3();
 
 	box.getCenter(center);
 	box.getSize(size);
 
 	object.position.sub(center);
 
-	const box2 =
-		new THREE.Box3().setFromObject(object);
+	const centered = new THREE.Box3().setFromObject(object);
+	centered.getSize(size);
 
-	box2.getSize(size);
+	const maxDim = Math.max(size.x, size.y, size.z);
 
-	const maxDim =
-		Math.max(
-			size.x,
-			size.y,
-			size.z
-		);
-
-	const fov =
-		THREE.MathUtils.degToRad(camera.fov);
+	const fov = THREE.MathUtils.degToRad(camera.fov);
 
 	let distance =
-		maxDim /
-		(2 * Math.tan(fov/2));
+		maxDim / (2 * Math.tan(fov / 2));
 
-	distance *= 1.35;
+	distance *= 1.32;
 
 	camera.position.set(
 		0,
@@ -190,207 +271,203 @@ function frameModel(object){
 		distance
 	);
 
-	camera.near =
-		Math.max(.01,distance/100);
-
-	camera.far =
-		distance*100;
+	camera.near = Math.max(.01, distance / 100);
+	camera.far = distance * 100;
 
 	camera.updateProjectionMatrix();
 }
 
 
-/* ==================================================
-   LOAD
-   ================================================== */
+function registerMaterial(material) {
+
+	if (!material) return;
+
+	/*
+	   Clone so calibration only affects this viewer,
+	   not any shared references unexpectedly.
+	*/
+	const mat = material;
+
+	if ("envMapIntensity" in mat) {
+		mat.envMapIntensity = 1.1;
+	}
+
+	if ("roughness" in mat) {
+		mat.roughness = 0.62;
+	}
+
+	if (mat.normalMap) {
+		mat.normalScale.set(1.2, 1.2);
+	}
+
+	mat.needsUpdate = true;
+
+	calibratedMaterials.push(mat);
+}
+
 
 new GLTFLoader().load(
 
 	"./Name1.glb",
 
-	(gltf)=>{
+	(gltf) => {
 
 		model = gltf.scene;
 
-		/*
-		   Correct orientation of your export.
-		*/
-		model.rotation.x =
-			Math.PI / 2;
+		model.rotation.x = Math.PI / 2;
 
 		scene.add(model);
 
+		model.traverse((obj) => {
 
-		topPupil =
-			model.getObjectByName(
-				"O.Top.Pupil"
-			);
+			if (!obj.isMesh) return;
 
-		botPupil =
-			model.getObjectByName(
-				"O.Bot.Pupil"
-			);
-
-
-		if(topPupil){
-			topBase =
-				topPupil.position.clone();
-		}
-
-		if(botPupil){
-			botBase =
-				botPupil.position.clone();
-		}
-
+			if (Array.isArray(obj.material)) {
+				obj.material.forEach(registerMaterial);
+			}
+			else {
+				registerMaterial(obj.material);
+			}
+		});
 
 		frameModel(model);
 
-
 		status.textContent =
-			`original pupils: ${topPupil ? "✓" : "✗"} ${botPupil ? "✓" : "✗"} • X/Z tracking`;
-
-		console.log(
-			"TOP PUPIL",
-			topPupil,
-			topBase
-		);
-
-		console.log(
-			"BOT PUPIL",
-			botPupil,
-			botBase
-		);
+			`${calibratedMaterials.length} materials • static calibration`;
 	},
 
 	undefined,
 
-	(error)=>{
+	(error) => {
 		console.error(error);
-		status.textContent =
-			"could not load Name1.glb";
+		status.textContent = "could not load Name1.glb";
 	}
 );
 
 
 /* ==================================================
-   DIRECT EYE TRACKING
+   UI
    ================================================== */
 
-/*
-   I inspected the exported GLB itself.
+function bindRange(
+	id,
+	valueId,
+	callback
+) {
+	const input = document.getElementById(id);
+	const value = document.getElementById(valueId);
 
-   In the GLB:
-   WHITE and PUPIL have the same X and Z.
-   The pupil differs from the white mainly on Y.
+	const update = () => {
+		const v = parseFloat(input.value);
+		value.textContent = v.toFixed(2);
+		callback(v);
+	};
 
-   Therefore:
-   X = horizontal across eye
-   Z = vertical across eye
-   Y = depth
-
-   So we preserve Y completely and move only X/Z.
-*/
-
-function updatePupil(
-	pupil,
-	base
-){
-
-	if(!pupil || !base){
-		return;
-	}
-
-	/*
-	   Deliberately obvious movement for testing.
-	   Once confirmed, we can reduce these values.
-	*/
-	const maxX = 0.10;
-	const maxZ = 0.085;
-
-
-	let x =
-		smoothPointer.x *
-		maxX;
-
-
-	let z =
-		-smoothPointer.y *
-		maxZ;
-
-
-	/*
-	   Elliptical clamp.
-	*/
-	const nx =
-		x / maxX;
-
-	const nz =
-		z / maxZ;
-
-	const len =
-		Math.sqrt(
-			nx*nx +
-			nz*nz
-		);
-
-
-	if(len > 1){
-		x /= len;
-		z /= len;
-	}
-
-
-	const targetX =
-		base.x + x;
-
-	const targetZ =
-		base.z + z;
-
-
-	pupil.position.x +=
-		(
-			targetX -
-			pupil.position.x
-		) * 0.30;
-
-
-	pupil.position.z +=
-		(
-			targetZ -
-			pupil.position.z
-		) * 0.30;
-
-
-	/*
-	   Never touch depth.
-	*/
-	pupil.position.y =
-		base.y;
+	input.addEventListener("input", update);
+	update();
 }
+
+
+bindRange(
+	"exposure",
+	"exposureVal",
+	(v) => {
+		renderer.toneMappingExposure = v;
+	}
+);
+
+
+bindRange(
+	"env",
+	"envVal",
+	(v) => {
+
+		calibratedMaterials.forEach((mat) => {
+
+			if ("envMapIntensity" in mat) {
+				mat.envMapIntensity = v;
+			}
+
+		});
+	}
+);
+
+
+bindRange(
+	"normal",
+	"normalVal",
+	(v) => {
+
+		calibratedMaterials.forEach((mat) => {
+
+			if (mat.normalMap) {
+				mat.normalScale.set(v, v);
+			}
+
+		});
+	}
+);
+
+
+bindRange(
+	"roughness",
+	"roughnessVal",
+	(v) => {
+
+		calibratedMaterials.forEach((mat) => {
+
+			if ("roughness" in mat) {
+				mat.roughness = v;
+			}
+
+		});
+	}
+);
+
+
+bindRange(
+	"key",
+	"keyVal",
+	(v) => {
+		keyLight.intensity = v;
+	}
+);
+
+
+bindRange(
+	"blue",
+	"blueVal",
+	(v) => {
+		blueRim.intensity = v;
+	}
+);
+
+
+bindRange(
+	"pink",
+	"pinkVal",
+	(v) => {
+		pinkRim.intensity = v;
+	}
+);
+
+
+bindRange(
+	"hemi",
+	"hemiVal",
+	(v) => {
+		hemiLight.intensity = v;
+	}
+);
 
 
 /* ==================================================
    LOOP
    ================================================== */
 
-function animate(){
+function animate() {
 
 	requestAnimationFrame(animate);
-
-	smoothPointer.lerp(
-		pointer,
-		0.16
-	);
-
-	updatePupil(
-		topPupil,
-		topBase
-	);
-
-	updatePupil(
-		botPupil,
-		botBase
-	);
 
 	renderer.render(
 		scene,
@@ -407,10 +484,10 @@ animate();
 
 window.addEventListener(
 	"resize",
-	()=>{
+	() => {
+
 		camera.aspect =
-			innerWidth /
-			innerHeight;
+			innerWidth / innerHeight;
 
 		camera.updateProjectionMatrix();
 
