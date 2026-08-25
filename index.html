@@ -1,929 +1,178 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Bruno Lopes — 3D Logo + DOM Eyes</title>
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bruno Lopes — Raw DOM Eye Test</title>
 <style>
-	html, body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-		overflow: hidden;
-		background: #fff4e0;
-		font-family: Arial, sans-serif;
-	}
-
-	.site {
-		position: relative;
-		width: 100%;
-		height: 100%;
-		background: #fff4e0;
-	}
-
-	.sidebar {
-		position: absolute;
-		left: 0;
-		top: 0;
-		width: 420px;
-		height: 100%;
-	}
-
-	.logo-slot {
-		position: absolute;
-		left: 52px;
-		top: 44px;
-		width: 310px;
-		height: 205px;
-	}
-
-	.logo-slot canvas {
-		position: absolute;
-		inset: 0;
-		display: block;
-		width: 100%;
-		height: 100%;
-	}
-
-	.eye-overlay {
-		position: absolute;
-		inset: 0;
-		pointer-events: none;
-		overflow: visible;
-	}
-
-	.dom-pupil {
-		position: absolute;
-		left: 0;
-		top: 0;
-		width: 14px;
-		height: 14px;
-		border-radius: 50%;
-		background: #111;
-		transform: translate(-50%, -50%);
-		will-change: transform, left, top;
-		box-shadow: 0 1px 1px rgba(0,0,0,.18);
-	}
-
-	.fake-menu {
-		position: absolute;
-		left: 68px;
-		top: 258px;
-		font-size: 16px;
-		line-height: 2.35;
-		opacity: .68;
-		pointer-events: none;
-	}
-
-	.fake-menu b {
-		display: block;
-		font-size: 19px;
-		margin-bottom: 6px;
-	}
-
-	.fake-content {
-		position: absolute;
-		left: 470px;
-		right: 55px;
-		top: 55px;
-		height: calc(100% - 110px);
-		border: 2px solid rgba(0,0,0,.68);
-		border-radius: 36px;
-		opacity: .16;
-		pointer-events: none;
-	}
-
-	.panel {
-		position: absolute;
-		top: 14px;
-		right: 14px;
-		width: 270px;
-		padding: 14px;
-		background: rgba(255,255,255,.94);
-		border: 1px solid rgba(0,0,0,.12);
-		border-radius: 12px;
-		box-shadow: 0 8px 30px rgba(0,0,0,.08);
-		backdrop-filter: blur(10px);
-		z-index: 10;
-	}
-
-	.panel h3 {
-		margin: 0 0 10px;
-		font-size: 13px;
-	}
-
-	.row {
-		display: grid;
-		grid-template-columns: 100px 1fr 44px;
-		gap: 8px;
-		align-items: center;
-		margin: 7px 0;
-	}
-
-	.row label {
-		font-size: 11px;
-		opacity: .72;
-	}
-
-	.row input[type="range"] {
-		width: 100%;
-	}
-
-	.val {
-		font-size: 10px;
-		text-align: right;
-		opacity: .62;
-	}
-
-	.check {
-		margin-top: 9px;
-		padding-top: 9px;
-		border-top: 1px solid rgba(0,0,0,.1);
-		font-size: 11px;
-		display: flex;
-		align-items: center;
-		gap: 7px;
-	}
-
-	.status {
-		position: absolute;
-		left: 14px;
-		bottom: 12px;
-		font-size: 11px;
-		opacity: .35;
-		z-index: 20;
-	}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff4e0;font-family:Arial,sans-serif}
+.site{position:relative;width:100%;height:100%}
+.sidebar{position:absolute;left:0;top:0;width:420px;height:100%}
+.logo-slot{position:absolute;left:52px;top:44px;width:310px;height:205px}
+.logo-slot canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.pupil{
+	position:absolute;
+	width:14px;height:14px;border-radius:50%;
+	background:#080808;
+	z-index:9999;
+	pointer-events:none;
+	transform:translate(-50%,-50%);
+	box-shadow:0 0 0 1px rgba(255,255,255,.18);
+}
+.fake-menu{position:absolute;left:68px;top:258px;font-size:16px;line-height:2.35;opacity:.68;pointer-events:none}
+.fake-menu b{display:block;font-size:19px;margin-bottom:6px}
+.fake-content{position:absolute;left:470px;right:55px;top:55px;height:calc(100% - 110px);border:2px solid rgba(0,0,0,.68);border-radius:36px;opacity:.16}
+.panel{position:absolute;right:14px;top:14px;width:290px;padding:14px;background:rgba(255,255,255,.95);border:1px solid rgba(0,0,0,.12);border-radius:12px;z-index:10000}
+.panel h3{font-size:13px;margin:0 0 10px}
+.row{display:grid;grid-template-columns:105px 1fr 48px;gap:8px;align-items:center;margin:6px 0}
+.row label{font-size:11px;opacity:.72}.row input{width:100%}.val{font-size:10px;text-align:right;opacity:.65}
+.debug{margin-top:10px;padding-top:10px;border-top:1px solid #ddd;font:11px/1.45 monospace;white-space:pre-line}
+.status{position:absolute;left:14px;bottom:12px;font-size:11px;opacity:.4}
 </style>
 </head>
-
 <body>
 <div class="site">
-
 	<div class="sidebar">
 		<div class="logo-slot" id="logoSlot">
-			<div class="eye-overlay" id="eyeOverlay">
-				<div class="dom-pupil" id="topPupil"></div>
-				<div class="dom-pupil" id="botPupil"></div>
-			</div>
+			<div class="pupil" id="p1"></div>
+			<div class="pupil" id="p2"></div>
 		</div>
-
-		<div class="fake-menu">
-			<b>MOTION GRAPHICS * VFX</b>
-			Showreel<br>
-			Playground<br>
-			Futster<br>
-			Gobelins JPO<br>
-			Universal Music France<br>
-			Museum D'Orsay
-		</div>
+		<div class="fake-menu"><b>MOTION GRAPHICS * VFX</b>Showreel<br>Playground<br>Futster<br>Gobelins JPO<br>Universal Music France<br>Museum D'Orsay</div>
 	</div>
-
 	<div class="fake-content"></div>
 
 	<div class="panel">
-		<h3>Ceramic calibration</h3>
+		<h3>RAW DOM eye test</h3>
 
-		<div class="row">
-			<label>Exposure</label>
-			<input id="exposure" type="range" min=".2" max="2" step=".01" value=".40">
-			<div class="val" id="exposureVal">0.40</div>
-		</div>
+		<div class="row"><label>Top X %</label><input id="topX" type="range" min="0" max="100" step=".1" value="70"><span class="val" id="topXv"></span></div>
+		<div class="row"><label>Top Y %</label><input id="topY" type="range" min="0" max="100" step=".1" value="35"><span class="val" id="topYv"></span></div>
+		<div class="row"><label>Bottom X %</label><input id="botX" type="range" min="0" max="100" step=".1" value="47"><span class="val" id="botXv"></span></div>
+		<div class="row"><label>Bottom Y %</label><input id="botY" type="range" min="0" max="100" step=".1" value="70"><span class="val" id="botYv"></span></div>
+		<div class="row"><label>Eye movement</label><input id="move" type="range" min="0" max="35" step=".5" value="20"><span class="val" id="movev"></span></div>
+		<div class="row"><label>Pupil size</label><input id="size" type="range" min="4" max="30" step=".5" value="14"><span class="val" id="sizev"></span></div>
 
-		<div class="row">
-			<label>Env</label>
-			<input id="env" type="range" min="0" max="2" step=".01" value="0">
-			<div class="val" id="envVal">0.00</div>
-		</div>
-
-		<div class="row">
-			<label>Normal</label>
-			<input id="normal" type="range" min="0" max="3" step=".01" value="1.96">
-			<div class="val" id="normalVal">1.96</div>
-		</div>
-
-		<div class="row">
-			<label>Roughness</label>
-			<input id="roughness" type="range" min="0" max="1" step=".01" value=".51">
-			<div class="val" id="roughnessVal">0.51</div>
-		</div>
-
-		<div class="row">
-			<label>Clearcoat</label>
-			<input id="clearcoat" type="range" min="0" max="1" step=".01" value=".03">
-			<div class="val" id="clearcoatVal">0.03</div>
-		</div>
-
-		<div class="row">
-			<label>Key light</label>
-			<input id="key" type="range" min="0" max="8" step=".05" value="2.80">
-			<div class="val" id="keyVal">2.80</div>
-		</div>
-
-		<div class="row">
-			<label>Blue rim</label>
-			<input id="blue" type="range" min="0" max="8" step=".05" value="5.20">
-			<div class="val" id="blueVal">5.20</div>
-		</div>
-
-		<div class="row">
-			<label>Pink rim</label>
-			<input id="pink" type="range" min="0" max="8" step=".05" value="1.95">
-			<div class="val" id="pinkVal">1.95</div>
-		</div>
-
-		<div class="row">
-			<label>Hemi</label>
-			<input id="hemi" type="range" min="0" max="5" step=".05" value="0">
-			<div class="val" id="hemiVal">0.00</div>
-		</div>
-
-		<div class="row">
-			<label>Logo zoom</label>
-			<input id="zoom" type="range" min=".75" max="1.8" step=".01" value="1.12">
-			<div class="val" id="zoomVal">1.12</div>
-		</div>
-
-		<div class="row">
-			<label>Eye move</label>
-			<input id="eyeMove" type="range" min="0" max="20" step=".5" value="7">
-			<div class="val" id="eyeMoveVal">7.0</div>
-		</div>
-
-		<div class="row">
-			<label>Pupil scale</label>
-			<input id="pupilScale" type="range" min=".4" max="1.5" step=".02" value=".88">
-			<div class="val" id="pupilScaleVal">0.88</div>
-		</div>
-
-		<div class="row">
-			<label>Float pos</label>
-			<input id="floatPos" type="range" min="0" max="12" step=".5" value="3">
-			<div class="val" id="floatPosVal">3.0</div>
-		</div>
-
-		<div class="row">
-			<label>Float rot</label>
-			<input id="floatRot" type="range" min="0" max="10" step=".5" value="3">
-			<div class="val" id="floatRotVal">3.0</div>
-		</div>
-
-		<div class="check">
-			<input id="pauseFloat" type="checkbox">
-			<label for="pauseFloat">pause letter float</label>
-		</div>
+		<div class="debug" id="debug">waiting for pointer…</div>
 	</div>
 
-	<div class="status" id="status">loading…</div>
+	<div class="status" id="status">loading GLB…</div>
 </div>
 
 <script type="module">
-
 import * as THREE from "https://esm.sh/three@0.180.0";
 import { GLTFLoader } from "https://esm.sh/three@0.180.0/examples/jsm/loaders/GLTFLoader.js";
-import { RoomEnvironment } from "https://esm.sh/three@0.180.0/examples/jsm/environments/RoomEnvironment.js";
 
+const slot=document.querySelector("#logoSlot");
+const p1=document.querySelector("#p1");
+const p2=document.querySelector("#p2");
+const debug=document.querySelector("#debug");
+const status=document.querySelector("#status");
 
-/* ==================================================
-   BASIC RENDERER
-   ================================================== */
+const ui={};
+for(const id of ["topX","topY","botX","botY","move","size"]){
+	ui[id]=document.querySelector("#"+id);
+	const out=document.querySelector("#"+id+"v");
+	const update=()=>out.textContent=parseFloat(ui[id].value).toFixed(1);
+	ui[id].addEventListener("input",update); update();
+}
 
-const slot = document.querySelector("#logoSlot");
-const status = document.querySelector("#status");
+/* This pointer test is intentionally independent from Three.js. */
+let mouseX=window.innerWidth/2, mouseY=window.innerHeight/2;
+let eventCount=0;
 
-const topPupilDOM = document.querySelector("#topPupil");
-const botPupilDOM = document.querySelector("#botPupil");
+function receivePointer(e){
+	mouseX=e.clientX;
+	mouseY=e.clientY;
+	eventCount++;
+}
+window.addEventListener("pointermove",receivePointer,{passive:true});
+window.addEventListener("mousemove",receivePointer,{passive:true});
 
-const scene = new THREE.Scene();
-
-const renderer = new THREE.WebGLRenderer({
-	antialias: true,
-	alpha: true
-});
-
-renderer.setClearColor(0x000000, 0);
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = .40;
-
+/* Minimal 3D: only so the real logo remains visible behind the DOM test. */
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(28,1,.01,100);
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setClearColor(0x000000,0);
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=.40;
 slot.prepend(renderer.domElement);
 
-const camera = new THREE.PerspectiveCamera(
-	28,
-	1,
-	.01,
-	100
-);
+scene.add(new THREE.HemisphereLight(0xfff7ec,0x4d4c5f,0));
+const key=new THREE.DirectionalLight(0xffffff,2.8); key.position.set(1.2,3.5,7); scene.add(key);
+const blue=new THREE.DirectionalLight(0x7d95ff,5.2); blue.position.set(-5,3,-4); scene.add(blue);
+const pink=new THREE.DirectionalLight(0xff8fb4,1.95); pink.position.set(5,-2,-4); scene.add(pink);
 
+let model=null;
 
-/* ==================================================
-   ENVIRONMENT + LIGHTING
-   ================================================== */
-
-const pmrem = new THREE.PMREMGenerator(renderer);
-const room = new RoomEnvironment();
-const envRT = pmrem.fromScene(room, .04);
-room.dispose();
-
-scene.environment = envRT.texture;
-
-const hemi = new THREE.HemisphereLight(
-	0xfff7ec,
-	0x4d4c5f,
-	0
-);
-scene.add(hemi);
-
-const key = new THREE.DirectionalLight(0xffffff, 2.80);
-key.position.set(1.2, 3.5, 7);
-scene.add(key);
-
-const blue = new THREE.DirectionalLight(0x7d95ff, 5.20);
-blue.position.set(-5, 3, -4);
-scene.add(blue);
-
-const pink = new THREE.DirectionalLight(0xff8fb4, 1.95);
-pink.position.set(5, -2, -4);
-scene.add(pink);
-
-
-/* ==================================================
-   POINTER
-   ================================================== */
-
-const pointerPx = new THREE.Vector2(0, 0);
-const smoothPointerPx = new THREE.Vector2(0, 0);
-
-window.addEventListener("pointermove", (event) => {
-
-	const rect = slot.getBoundingClientRect();
-
-	/*
-	   Pointer in actual PIXELS inside the logo slot.
-	   This is why the HTML pupil movement is reliable.
-	*/
-	pointerPx.x = event.clientX - rect.left;
-	pointerPx.y = event.clientY - rect.top;
-
-}, { passive: true });
-
-window.addEventListener("pointerleave", () => {
-
-	const rect = slot.getBoundingClientRect();
-
-	pointerPx.set(
-		rect.width * .5,
-		rect.height * .5
-	);
-});
-
-
-/* ==================================================
-   MODEL
-   ================================================== */
-
-let model = null;
-let topWhite = null;
-let botWhite = null;
-let topOriginalPupil = null;
-let botOriginalPupil = null;
-
-let baseCameraDistance = 1;
-let zoomFactor = 1.12;
-
-const ceramicMaterials = [];
-const floatObjects = [];
-
-let eyeMovePx = 7;
-let pupilScale = .88;
-let floatPosPx = 3;
-let floatRotDeg = 3;
-
-
-/* ==================================================
-   HELPERS
-   ================================================== */
-
-function get(name) {
-	return model ? model.getObjectByName(name) : null;
-}
-
-function resizeRenderer() {
-
-	const rect = slot.getBoundingClientRect();
-
-	renderer.setSize(
-		rect.width,
-		rect.height,
-		false
-	);
-
-	camera.aspect = rect.width / rect.height;
-	camera.updateProjectionMatrix();
-
-	if (pointerPx.lengthSq() === 0) {
-		pointerPx.set(rect.width * .5, rect.height * .5);
-		smoothPointerPx.copy(pointerPx);
-	}
-}
-
-function frameModel(object) {
-
-	const box = new THREE.Box3().setFromObject(object);
-	const center = new THREE.Vector3();
-	const size = new THREE.Vector3();
-
-	box.getCenter(center);
-	box.getSize(size);
-
-	object.position.sub(center);
-
-	const centered = new THREE.Box3().setFromObject(object);
-	centered.getSize(size);
-
-	const maxDim = Math.max(size.x, size.y, size.z);
-	const fov = THREE.MathUtils.degToRad(camera.fov);
-
-	baseCameraDistance =
-		maxDim / (2 * Math.tan(fov / 2));
-
-	baseCameraDistance *= 1.08;
-
-	camera.position.set(
-		0,
-		0,
-		baseCameraDistance / zoomFactor
-	);
-
-	camera.near = Math.max(.01, baseCameraDistance / 100);
-	camera.far = baseCameraDistance * 100;
+function resize(){
+	const r=slot.getBoundingClientRect();
+	renderer.setSize(r.width,r.height,false);
+	camera.aspect=r.width/r.height;
 	camera.updateProjectionMatrix();
 }
-
-function makeCeramicMaterial(source) {
-
-	const material = new THREE.MeshPhysicalMaterial({
-		color: source.color ? source.color.clone() : new THREE.Color(0xffffff),
-		map: source.map || null,
-		normalMap: source.normalMap || null,
-		roughnessMap: source.roughnessMap || null,
-		aoMap: source.aoMap || null,
-
-		metalness: 0,
-		roughness: .51,
-		clearcoat: .03,
-		clearcoatRoughness: .85,
-		ior: 1.45,
-		envMapIntensity: 0
-	});
-
-	if (material.normalMap) {
-		material.normalScale.set(1.96, 1.96);
-	}
-
-	ceramicMaterials.push(material);
-	return material;
+function frame(obj){
+	const box=new THREE.Box3().setFromObject(obj), center=new THREE.Vector3(), size=new THREE.Vector3();
+	box.getCenter(center); box.getSize(size); obj.position.sub(center);
+	const b2=new THREE.Box3().setFromObject(obj); b2.getSize(size);
+	const max=Math.max(size.x,size.y,size.z);
+	let d=max/(2*Math.tan(THREE.MathUtils.degToRad(camera.fov)/2))*1.08;
+	camera.position.set(0,0,d); camera.near=Math.max(.01,d/100); camera.far=d*100; camera.updateProjectionMatrix();
 }
 
-function setupMaterials() {
+new GLTFLoader().load("./Name1.glb",g=>{
+	model=g.scene;
+	model.rotation.x=Math.PI/2;
+	scene.add(model);
+	/* hide only GLB pupils if names exist */
+	const a=model.getObjectByName("O.Top.Pupil"), b=model.getObjectByName("O.Bot.Pupil");
+	if(a)a.visible=false;if(b)b.visible=false;
+	resize(); frame(model);
+	status.textContent="GLB loaded ✓ • DOM eyes independent";
+},undefined,e=>{console.error(e);status.textContent="GLB load failed — DOM test still works";});
 
-	model.traverse((obj) => {
+function eyePosition(el, xPct, yPct, rect, movement, pupilSize){
+	const baseX=rect.width*(xPct/100);
+	const baseY=rect.height*(yPct/100);
 
-		if (!obj.isMesh || !obj.material) return;
+	/* direction from each eye toward actual browser mouse */
+	const eyeScreenX=rect.left+baseX;
+	const eyeScreenY=rect.top+baseY;
+	let dx=mouseX-eyeScreenX, dy=mouseY-eyeScreenY;
+	const len=Math.hypot(dx,dy)||1;
+	dx/=len;dy/=len;
 
-		const source =
-			Array.isArray(obj.material)
-				? obj.material[0]
-				: obj.material;
-
-		if (source.name === "Logo_Master") {
-			obj.material = makeCeramicMaterial(source);
-		}
-	});
+	el.style.left=(baseX+dx*movement)+"px";
+	el.style.top=(baseY+dy*movement)+"px";
+	el.style.width=pupilSize+"px";
+	el.style.height=pupilSize+"px";
 }
 
-function setupFloatObjects() {
+function loop(){
+	requestAnimationFrame(loop);
 
-	/*
-	   O groups move as one object so the eye whites stay
-	   attached to the letters.
-	*/
-	const names = [
-		"B", "R", "U", "N",
-		"L", "P", "E", "S",
-		"O_TOP_CONTROL",
-		"O_BOT_CONTROL"
-	];
+	const rect=slot.getBoundingClientRect();
+	const move=parseFloat(ui.move.value);
+	const size=parseFloat(ui.size.value);
 
-	names.forEach((name, index) => {
+	eyePosition(p1,parseFloat(ui.topX.value),parseFloat(ui.topY.value),rect,move,size);
+	eyePosition(p2,parseFloat(ui.botX.value),parseFloat(ui.botY.value),rect,move,size);
 
-		const obj = get(name);
-		if (!obj) return;
+	debug.textContent=
+`POINTER EVENTS: ${eventCount}
+mouse X: ${Math.round(mouseX)}
+mouse Y: ${Math.round(mouseY)}
+slot: ${Math.round(rect.width)} × ${Math.round(rect.height)}
 
-		obj.userData.floatBasePosition = obj.position.clone();
-		obj.userData.floatBaseRotation = obj.rotation.clone();
-		obj.userData.floatPhase = index * .83 + Math.random() * .7;
-		obj.userData.floatSpeed = .35 + Math.random() * .25;
+Move mouse anywhere.
+The numbers above MUST change.`;
 
-		floatObjects.push(obj);
-	});
+	renderer.render(scene,camera);
 }
+loop();
 
-
-/* ==================================================
-   PROJECT 3D OBJECT TO PIXELS IN THE LOGO SLOT
-   ================================================== */
-
-const worldPos = new THREE.Vector3();
-const ndc = new THREE.Vector3();
-
-function objectToSlotPx(object) {
-
-	if (!object) return null;
-
-	object.getWorldPosition(worldPos);
-
-	ndc.copy(worldPos).project(camera);
-
-	const rect = slot.getBoundingClientRect();
-
-	return {
-		x: (ndc.x * .5 + .5) * rect.width,
-		y: (-ndc.y * .5 + .5) * rect.height
-	};
-}
-
-
-/* ==================================================
-   ESTIMATE EYE SIZE IN SCREEN PIXELS
-   ================================================== */
-
-const corners = [
-	new THREE.Vector3(), new THREE.Vector3(),
-	new THREE.Vector3(), new THREE.Vector3(),
-	new THREE.Vector3(), new THREE.Vector3(),
-	new THREE.Vector3(), new THREE.Vector3()
-];
-
-function projectedObjectSize(object) {
-
-	if (!object) return 16;
-
-	const box = new THREE.Box3().setFromObject(object);
-	const min = box.min;
-	const max = box.max;
-
-	corners[0].set(min.x, min.y, min.z);
-	corners[1].set(max.x, min.y, min.z);
-	corners[2].set(min.x, max.y, min.z);
-	corners[3].set(max.x, max.y, min.z);
-	corners[4].set(min.x, min.y, max.z);
-	corners[5].set(max.x, min.y, max.z);
-	corners[6].set(min.x, max.y, max.z);
-	corners[7].set(max.x, max.y, max.z);
-
-	const rect = slot.getBoundingClientRect();
-
-	let minX = Infinity;
-	let minY = Infinity;
-	let maxX = -Infinity;
-	let maxY = -Infinity;
-
-	for (const corner of corners) {
-
-		const p = corner.clone().project(camera);
-
-		const x = (p.x * .5 + .5) * rect.width;
-		const y = (-p.y * .5 + .5) * rect.height;
-
-		minX = Math.min(minX, x);
-		minY = Math.min(minY, y);
-		maxX = Math.max(maxX, x);
-		maxY = Math.max(maxY, y);
-	}
-
-	return Math.min(
-		maxX - minX,
-		maxY - minY
-	);
-}
-
-
-/* ==================================================
-   HTML/CSS PUPIL TRACKING
-   ================================================== */
-
-function updateDOMPupil(dom, whiteObject) {
-
-	if (!dom || !whiteObject) return;
-
-	const center = objectToSlotPx(whiteObject);
-	if (!center) return;
-
-	const eyeSize = projectedObjectSize(whiteObject);
-
-	/*
-	   Pointer direction FROM this eye to mouse.
-	*/
-	let dx = smoothPointerPx.x - center.x;
-	let dy = smoothPointerPx.y - center.y;
-
-	const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-
-	dx /= dist;
-	dy /= dist;
-
-	/*
-	   Distance-sensitive gaze:
-	   very close to the eye = smaller motion,
-	   elsewhere in the page = full eye range.
-	*/
-	const gazeStrength = THREE.MathUtils.clamp(
-		dist / 90,
-		0,
-		1
-	);
-
-	const move = Math.min(
-		eyeMovePx,
-		eyeSize * .18
-	) * gazeStrength;
-
-	const x = center.x + dx * move;
-	const y = center.y + dy * move;
-
-	const pupilDiameter = Math.max(
-		5,
-		eyeSize * .34 * pupilScale
-	);
-
-	dom.style.left = `${x}px`;
-	dom.style.top = `${y}px`;
-	dom.style.width = `${pupilDiameter}px`;
-	dom.style.height = `${pupilDiameter}px`;
-}
-
-
-/* ==================================================
-   SUBTLE LETTER FLOAT
-   ================================================== */
-
-function updateFloat(time) {
-
-	if (document.querySelector("#pauseFloat").checked) {
-		return;
-	}
-
-	const rect = slot.getBoundingClientRect();
-
-	/*
-	   convert desired pixel motion into an intentionally
-	   tiny local-space factor.
-	*/
-	const posAmount =
-		(floatPosPx / Math.max(rect.width, 1)) * 1.7;
-
-	const rotAmount =
-		THREE.MathUtils.degToRad(floatRotDeg);
-
-	floatObjects.forEach((obj, index) => {
-
-		const baseP = obj.userData.floatBasePosition;
-		const baseR = obj.userData.floatBaseRotation;
-		const phase = obj.userData.floatPhase;
-		const speed = obj.userData.floatSpeed;
-
-		const tx =
-			baseP.x +
-			Math.sin(time * speed + phase) * posAmount;
-
-		const ty =
-			baseP.y +
-			Math.cos(time * speed * .71 + phase) * posAmount * .25;
-
-		const tz =
-			baseP.z +
-			Math.cos(time * speed * .83 + phase) * posAmount;
-
-		obj.position.x += (tx - obj.position.x) * .035;
-		obj.position.y += (ty - obj.position.y) * .035;
-		obj.position.z += (tz - obj.position.z) * .035;
-
-		const rx =
-			baseR.x +
-			Math.sin(time * speed * .63 + phase) * rotAmount;
-
-		const ry =
-			baseR.y +
-			Math.cos(time * speed * .57 + phase) * rotAmount;
-
-		const rz =
-			baseR.z +
-			Math.sin(time * speed * .49 + phase * 1.3) * rotAmount * .55;
-
-		obj.rotation.x += (rx - obj.rotation.x) * .03;
-		obj.rotation.y += (ry - obj.rotation.y) * .03;
-		obj.rotation.z += (rz - obj.rotation.z) * .03;
-	});
-}
-
-
-/* ==================================================
-   LOAD GLB
-   ================================================== */
-
-new GLTFLoader().load(
-
-	"./Name1.glb",
-
-	(gltf) => {
-
-		model = gltf.scene;
-
-		model.rotation.x = Math.PI / 2;
-		scene.add(model);
-
-		topWhite = get("O.Top.White");
-		botWhite = get("O.Bot.White");
-
-		topOriginalPupil = get("O.Top.Pupil");
-		botOriginalPupil = get("O.Bot.Pupil");
-
-		/*
-		   Hide exported black pupils.
-		   HTML circles will replace them visually.
-		*/
-		if (topOriginalPupil) topOriginalPupil.visible = false;
-		if (botOriginalPupil) botOriginalPupil.visible = false;
-
-		setupMaterials();
-		setupFloatObjects();
-
-		resizeRenderer();
-		frameModel(model);
-		model.updateMatrixWorld(true);
-
-		status.textContent =
-			`DOM eyes ${topWhite ? "✓" : "✗"} ${botWhite ? "✓" : "✗"} • subtle float`;
-
-	},
-
-	undefined,
-
-	(error) => {
-		console.error(error);
-		status.textContent = "could not load Name1.glb";
-	}
-);
-
-
-/* ==================================================
-   CALIBRATION UI
-   ================================================== */
-
-function bindRange(id, valId, cb, digits = 2) {
-
-	const input = document.getElementById(id);
-	const val = document.getElementById(valId);
-
-	function update() {
-		const v = parseFloat(input.value);
-		val.textContent = v.toFixed(digits);
-		cb(v);
-	}
-
-	input.addEventListener("input", update);
-	update();
-}
-
-bindRange("exposure", "exposureVal", (v) => {
-	renderer.toneMappingExposure = v;
-});
-
-bindRange("env", "envVal", (v) => {
-	ceramicMaterials.forEach((mat) => {
-		mat.envMapIntensity = v;
-	});
-});
-
-bindRange("normal", "normalVal", (v) => {
-	ceramicMaterials.forEach((mat) => {
-		if (mat.normalMap) {
-			mat.normalScale.set(v, v);
-		}
-	});
-});
-
-bindRange("roughness", "roughnessVal", (v) => {
-	ceramicMaterials.forEach((mat) => {
-		mat.roughness = v;
-	});
-});
-
-bindRange("clearcoat", "clearcoatVal", (v) => {
-	ceramicMaterials.forEach((mat) => {
-		mat.clearcoat = v;
-	});
-});
-
-bindRange("key", "keyVal", (v) => {
-	key.intensity = v;
-});
-
-bindRange("blue", "blueVal", (v) => {
-	blue.intensity = v;
-});
-
-bindRange("pink", "pinkVal", (v) => {
-	pink.intensity = v;
-});
-
-bindRange("hemi", "hemiVal", (v) => {
-	hemi.intensity = v;
-});
-
-bindRange("zoom", "zoomVal", (v) => {
-
-	zoomFactor = v;
-
-	if (model) {
-		camera.position.z =
-			baseCameraDistance / zoomFactor;
-	}
-});
-
-bindRange("eyeMove", "eyeMoveVal", (v) => {
-	eyeMovePx = v;
-}, 1);
-
-bindRange("pupilScale", "pupilScaleVal", (v) => {
-	pupilScale = v;
-});
-
-bindRange("floatPos", "floatPosVal", (v) => {
-	floatPosPx = v;
-}, 1);
-
-bindRange("floatRot", "floatRotVal", (v) => {
-	floatRotDeg = v;
-}, 1);
-
-
-/* ==================================================
-   LOOP
-   ================================================== */
-
-const clock = new THREE.Clock();
-
-function animate() {
-
-	requestAnimationFrame(animate);
-
-	const time = clock.getElapsedTime();
-
-	smoothPointerPx.lerp(
-		pointerPx,
-		.14
-	);
-
-	if (model) {
-
-		updateFloat(time);
-
-		model.updateMatrixWorld(true);
-
-		updateDOMPupil(
-			topPupilDOM,
-			topWhite
-		);
-
-		updateDOMPupil(
-			botPupilDOM,
-			botWhite
-		);
-	}
-
-	renderer.render(
-		scene,
-		camera
-	);
-}
-
-animate();
-
-
-window.addEventListener("resize", () => {
-
-	resizeRenderer();
-
-	if (model) {
-		frameModel(model);
-	}
-});
-
-resizeRenderer();
-
+window.addEventListener("resize",()=>{resize();if(model)frame(model)});
+resize();
 </script>
 </body>
 </html>
