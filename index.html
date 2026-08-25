@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Bruno Lopes — 3D Logo</title>
+<title>Bruno Lopes 3D Logo</title>
 
 <style>
 	html, body {
@@ -40,11 +40,9 @@
 </head>
 
 <body>
-
 <div id="app">
 	<div class="status" id="status">loading…</div>
 </div>
-
 
 <script type="module">
 
@@ -73,14 +71,8 @@ const renderer = new THREE.WebGLRenderer({
 	antialias: true
 });
 
-renderer.setPixelRatio(
-	Math.min(devicePixelRatio, 2)
-);
-
-renderer.setSize(
-	innerWidth,
-	innerHeight
-);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
 
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -93,74 +85,27 @@ app.prepend(renderer.domElement);
    LIGHTING
    ================================================== */
 
-/* front fill */
-const frontLight = new THREE.DirectionalLight(
-	0xffffff,
-	3.0
-);
+const front = new THREE.DirectionalLight(0xffffff, 3.0);
+front.position.set(0, 1.0, 8);
+scene.add(front);
 
-frontLight.position.set(
-	0,
-	1,
-	8
-);
-
-scene.add(frontLight);
-
-
-/* ambient fill */
-const hemiLight = new THREE.HemisphereLight(
+const hemi = new THREE.HemisphereLight(
 	0xfff5e8,
-	0x4b4860,
+	0x4d4960,
 	1.25
 );
+scene.add(hemi);
 
-scene.add(hemiLight);
-
-
-/* cool backlight */
-const rimBlue = new THREE.DirectionalLight(
-	0x7895ff,
-	2.5
-);
-
-rimBlue.position.set(
-	-5,
-	3,
-	-5
-);
-
+const rimBlue = new THREE.DirectionalLight(0x7895ff, 2.3);
+rimBlue.position.set(-5, 3, -5);
 scene.add(rimBlue);
 
-
-/* warm backlight */
-const rimPink = new THREE.DirectionalLight(
-	0xff8cb6,
-	2.2
-);
-
-rimPink.position.set(
-	5,
-	-2,
-	-5
-);
-
+const rimPink = new THREE.DirectionalLight(0xff8eb8, 2.0);
+rimPink.position.set(5, -2, -5);
 scene.add(rimPink);
 
-
-/* subtle light that follows the pointer */
-const cursorLight = new THREE.PointLight(
-	0xffffff,
-	3.8,
-	20
-);
-
-cursorLight.position.set(
-	0,
-	0,
-	5
-);
-
+const cursorLight = new THREE.PointLight(0xffffff, 2.8, 20);
+cursorLight.position.set(0, 0, 5);
 scene.add(cursorLight);
 
 
@@ -171,31 +116,18 @@ scene.add(cursorLight);
 const pointer = new THREE.Vector2(0, 0);
 const smoothPointer = new THREE.Vector2(0, 0);
 
-window.addEventListener(
-	"pointermove",
-	(event) => {
+window.addEventListener("pointermove", (event) => {
+	pointer.x = (event.clientX / innerWidth) * 2 - 1;
+	pointer.y = -(event.clientY / innerHeight) * 2 + 1;
+}, { passive: true });
 
-		pointer.x =
-			(event.clientX / innerWidth) * 2 - 1;
-
-		pointer.y =
-			-(
-				(event.clientY / innerHeight) * 2 - 1
-			);
-	},
-	{ passive: true }
-);
-
-window.addEventListener(
-	"pointerleave",
-	() => {
-		pointer.set(0, 0);
-	}
-);
+window.addEventListener("pointerleave", () => {
+	pointer.set(0, 0);
+});
 
 
 /* ==================================================
-   MODEL REFERENCES
+   MODEL
    ================================================== */
 
 let model = null;
@@ -209,7 +141,7 @@ let botPupil = null;
 let topWhite = null;
 let botWhite = null;
 
-const bodies = [];
+const letters = [];
 
 let logoWidth = 1;
 let logoHeight = 1;
@@ -220,185 +152,104 @@ let logoHeight = 1;
    ================================================== */
 
 function get(name) {
-	return model
-		? model.getObjectByName(name)
-		: null;
+	return model ? model.getObjectByName(name) : null;
 }
 
+function rememberBase(object) {
+	object.userData.basePosition = object.position.clone();
+	object.userData.baseRotation = object.rotation.clone();
 
-function saveBase(object) {
+	object.userData.phase = Math.random() * Math.PI * 2;
 
-	object.userData.basePosition =
-		object.position.clone();
+	object.userData.repulsion = new THREE.Vector3();
+	object.userData.collision = new THREE.Vector3();
 
-	object.userData.baseRotation =
-		object.rotation.clone();
-
-	object.userData.velocity =
-		new THREE.Vector3(
-			THREE.MathUtils.randFloatSpread(0.002),
-			THREE.MathUtils.randFloatSpread(0.001),
-			THREE.MathUtils.randFloatSpread(0.002)
-		);
-
-	object.userData.angularVelocity =
-		new THREE.Vector3(
-			THREE.MathUtils.randFloatSpread(0.001),
-			THREE.MathUtils.randFloatSpread(0.001),
-			THREE.MathUtils.randFloatSpread(0.001)
-		);
-
-	object.userData.phase =
-		Math.random() * Math.PI * 2;
+	object.userData.rotOffset = new THREE.Vector3();
 }
 
-
-function addBody(object) {
-
+function addLetter(object) {
 	if (!object) return;
 
-	saveBase(object);
+	rememberBase(object);
 
-	const box =
-		new THREE.Box3()
-			.setFromObject(object);
-
-	const size =
-		new THREE.Vector3();
-
+	const box = new THREE.Box3().setFromObject(object);
+	const size = new THREE.Vector3();
 	box.getSize(size);
 
-	/*
-	   Soft collision radius.
-	   X/Z are the logo plane in Blender-local space.
-	*/
 	object.userData.radius =
-		Math.max(
-			size.x,
-			size.y
-		) * 0.34;
+		Math.max(size.x, size.y, size.z) * 0.30;
 
-	bodies.push(object);
+	letters.push(object);
 }
 
 
 /* ==================================================
-   FRAME MODEL
+   FRAME
    ================================================== */
 
 function frameModel() {
 
-	const box =
-		new THREE.Box3()
-			.setFromObject(model);
+	const box = new THREE.Box3().setFromObject(model);
 
-	const center =
-		new THREE.Vector3();
-
-	const size =
-		new THREE.Vector3();
+	const center = new THREE.Vector3();
+	const size = new THREE.Vector3();
 
 	box.getCenter(center);
 	box.getSize(size);
 
 	model.position.sub(center);
 
-	const centeredBox =
-		new THREE.Box3()
-			.setFromObject(model);
-
-	centeredBox.getSize(size);
+	const centered = new THREE.Box3().setFromObject(model);
+	centered.getSize(size);
 
 	logoWidth = size.x;
 	logoHeight = size.y;
 
-	const maxDim =
-		Math.max(
-			size.x,
-			size.y
-		);
+	const maxDim = Math.max(size.x, size.y);
 
-	const fov =
-		THREE.MathUtils.degToRad(
-			camera.fov
-		);
+	const fov = THREE.MathUtils.degToRad(camera.fov);
 
 	let distance =
-		maxDim /
-		(
-			2 *
-			Math.tan(fov / 2)
-		);
+		maxDim / (2 * Math.tan(fov / 2));
 
-	distance *= 1.50;
+	distance *= 1.38;
 
-	camera.position.set(
-		0,
-		0,
-		distance
-	);
-
-	camera.near =
-		Math.max(
-			0.01,
-			distance / 100
-		);
-
-	camera.far =
-		distance * 100;
-
+	camera.position.set(0, 0, distance);
+	camera.near = Math.max(.01, distance / 100);
+	camera.far = distance * 100;
 	camera.updateProjectionMatrix();
 }
 
 
 /* ==================================================
-   LOAD GLB
+   LOAD
    ================================================== */
 
-const loader = new GLTFLoader();
-
-loader.load(
+new GLTFLoader().load(
 
 	"./Name1.glb",
 
 	(gltf) => {
 
-		model =
-			gltf.scene;
-
+		model = gltf.scene;
 
 		/*
-		   Correct orientation for this exported Blender file.
+		   Orientation that displayed the logo facing camera.
 		*/
-		model.rotation.x =
-			Math.PI / 2;
+		model.rotation.x = Math.PI / 2;
 
 		scene.add(model);
 
+		topControl = get("O_TOP_CONTROL");
+		botControl = get("O_BOT_CONTROL");
 
-		/* NEW, CORRECT HIERARCHY */
-		topControl =
-			get("O_TOP_CONTROL");
+		topPupil = get("O.Top.Pupil");
+		botPupil = get("O.Bot.Pupil");
 
-		botControl =
-			get("O_BOT_CONTROL");
-
-		topWhite =
-			get("O.Top.White");
-
-		botWhite =
-			get("O.Bot.White");
-
-		topPupil =
-			get("O.Top.Pupil");
-
-		botPupil =
-			get("O.Bot.Pupil");
+		topWhite = get("O.Top.White");
+		botWhite = get("O.Bot.White");
 
 
-		/*
-		   Regular letters.
-		*/
 		[
 			"B",
 			"R",
@@ -408,275 +259,169 @@ loader.load(
 			"P",
 			"E",
 			"S"
-		].forEach(
-			(name) => {
-				addBody(
-					get(name)
-				);
-			}
-		);
+		].forEach(name => {
+			addLetter(get(name));
+		});
 
+		addLetter(topControl);
+		addLetter(botControl);
 
-		/*
-		   Each O is one floating body.
-		   White + pupil are already children
-		   of the control in the corrected GLB.
-		*/
-		addBody(topControl);
-		addBody(botControl);
-
-
-		if (topPupil) {
-			saveBase(topPupil);
-		}
-
-		if (botPupil) {
-			saveBase(botPupil);
-		}
-
+		if (topPupil) rememberBase(topPupil);
+		if (botPupil) rememberBase(botPupil);
 
 		frameModel();
 
-
 		status.textContent =
-			`eyes ${topPupil ? "✓" : "✗"} ${botPupil ? "✓" : "✗"} • zero gravity`;
+			`eyes ${topPupil ? "✓" : "✗"} ${botPupil ? "✓" : "✗"} • calm float`;
 
-
-		console.log(
-			"TOP:",
-			topControl,
-			topWhite,
-			topPupil
-		);
-
-		console.log(
-			"BOT:",
-			botControl,
-			botWhite,
-			botPupil
-		);
+		console.log("TOP", topControl, topWhite, topPupil);
+		console.log("BOT", botControl, botWhite, botPupil);
 	},
 
 	undefined,
 
 	(error) => {
-
 		console.error(error);
-
-		status.textContent =
-			"could not load Name1.glb";
+		status.textContent = "could not load Name1.glb";
 	}
 );
 
 
 /* ==================================================
-   EYES
+   EYES — GLB LOCAL X/Y
    ================================================== */
 
 /*
-   With the corrected GLB hierarchy this is simple:
+   Confirmed directly in Blender for this GLB:
+   local X = left/right across the eye
+   local Y = up/down across the eye
+   local Z = depth
 
-   pupil is a direct child of the O control.
-
-   We calculate where the eye is on screen,
-   then move the pupil toward the cursor.
+   Therefore we move ONLY local X/Y and preserve Z.
 */
 
-const eyeScreen =
-	new THREE.Vector3();
+const eyeWorld = new THREE.Vector3();
+const eyeScreen = new THREE.Vector3();
 
-function updateEye(
-	pupil,
-	control
-) {
+function updateEye(pupil, control, white) {
+	if (!pupil || !control || !pupil.userData.basePosition) return;
 
-	if (
-		!pupil ||
-		!control ||
-		!pupil.userData.basePosition
-	) {
-		return;
+	control.getWorldPosition(eyeWorld);
+	eyeScreen.copy(eyeWorld).project(camera);
+
+	let dx = smoothPointer.x - eyeScreen.x;
+	let dy = smoothPointer.y - eyeScreen.y;
+
+	// How far from the eye the mouse can be before gaze is fully extended.
+	const gazeRange = 0.55;
+	dx = THREE.MathUtils.clamp(dx / gazeRange, -1, 1);
+	dy = THREE.MathUtils.clamp(dy / gazeRange, -1, 1);
+
+	// Elliptical clamp keeps pupil inside the eye.
+	const len = Math.sqrt(dx * dx + dy * dy);
+	if (len > 1) {
+		dx /= len;
+		dy /= len;
 	}
 
+	const base = pupil.userData.basePosition;
 
-	control.getWorldPosition(
-		eyeScreen
-	);
+	// Derive movement from eye size so both eyes behave consistently.
+	let maxX = 0.07;
+	let maxY = 0.07;
 
-	eyeScreen.project(
-		camera
-	);
-
-
-	let dx =
-		smoothPointer.x -
-		eyeScreen.x;
-
-	let dy =
-		smoothPointer.y -
-		eyeScreen.y;
-
-
-	/*
-	   Cursor distance needed for pupil to
-	   reach the edge of the eye.
-	*/
-	const gazeDistance =
-		0.42;
-
-
-	dx =
-		THREE.MathUtils.clamp(
-			dx / gazeDistance,
-			-1,
-			1
-		);
-
-
-	dy =
-		THREE.MathUtils.clamp(
-			dy / gazeDistance,
-			-1,
-			1
-		);
-
-
-	const length =
-		Math.sqrt(
-			dx * dx +
-			dy * dy
-		);
-
-
-	if (length > 1) {
-
-		dx /= length;
-		dy /= length;
+	if (white) {
+		const box = new THREE.Box3().setFromObject(white);
+		const size = new THREE.Vector3();
+		box.getSize(size);
+		const radius = Math.max(size.x, size.y, size.z) * 0.16;
+		maxX = radius;
+		maxY = radius;
 	}
 
+	const targetX = base.x + dx * maxX;
+	const targetY = base.y + dy * maxY;
 
-	const base =
-		pupil.userData.basePosition;
+	// Smooth gaze, but no spring / overshoot.
+	pupil.position.x += (targetX - pupil.position.x) * 0.22;
+	pupil.position.y += (targetY - pupil.position.y) * 0.22;
 
-
-	/*
-	   IMPORTANT:
-	   in the new GLB the pupil and white have
-	   matching X/Z centers and Y is depth.
-
-	   So:
-	   X = screen horizontal
-	   Z = screen vertical
-	*/
-
-	const maxX =
-		0.075;
-
-	const maxZ =
-		0.060;
-
-
-	const targetX =
-		base.x +
-		dx * maxX;
-
-
-	const targetZ =
-		base.z -
-		dy * maxZ;
-
-
-	pupil.position.x +=
-		(
-			targetX -
-			pupil.position.x
-		) * 0.30;
-
-
-	pupil.position.z +=
-		(
-			targetZ -
-			pupil.position.z
-		) * 0.30;
+	// Critical: never alter depth.
+	pupil.position.z = base.z;
 }
 
 
 /* ==================================================
-   TRUE ZERO-GRAVITY PHYSICS
+   CALM ZERO-GRAVITY
    ================================================== */
 
 /*
-   There is NO spring back to BRUNO LOPES.
+   No velocity accumulation.
+   No spring bounce.
 
-   Each letter has:
-   - velocity
-   - very small drag
-   - mouse repulsion
-   - collisions
-   - invisible boundaries
-   - tiny random drift
+   Each letter gets:
+   - slow bounded float
+   - temporary mouse repulsion
+   - soft collision offsets
 
-   Once pushed, it keeps drifting.
+   The result stays loose, but does not explode
+   across the whole page.
 */
 
-const tempWorld =
-	new THREE.Vector3();
+const tempWorld = new THREE.Vector3();
+const tempScreen = new THREE.Vector3();
 
-const tempScreen =
-	new THREE.Vector3();
+function updateLetters(time) {
 
+	for (const letter of letters) {
 
-function applyForces(time) {
+		const base =
+			letter.userData.basePosition;
 
-	for (
-		const body
-		of bodies
-	) {
-
-		const velocity =
-			body.userData.velocity;
-
-		const angularVelocity =
-			body.userData.angularVelocity;
-
-
-		/* -----------------------------------------
-		   VERY GENTLE SPACE DRIFT
-		   ----------------------------------------- */
+		const br =
+			letter.userData.baseRotation;
 
 		const phase =
-			body.userData.phase;
+			letter.userData.phase;
 
 
-		velocity.x +=
+		/* --------------------------------------
+		   slow space drift
+		   -------------------------------------- */
+
+		const driftX =
 			Math.sin(
-				time * 0.27 +
-				phase
-			) * 0.000055;
+				time * 0.18 + phase
+			)
+			*
+			logoWidth
+			*
+			0.010;
 
 
-		velocity.z +=
+		const driftZ =
 			Math.cos(
-				time * 0.23 +
-				phase * 1.3
-			) * 0.000065;
+				time * 0.15 + phase * 1.2
+			)
+			*
+			logoHeight
+			*
+			0.012;
 
 
-		velocity.y +=
+		const driftY =
 			Math.sin(
-				time * 0.18 +
-				phase * 0.7
-			) * 0.000020;
+				time * 0.13 + phase * .8
+			)
+			*
+			0.018;
 
 
+		/* --------------------------------------
+		   mouse repulsion
+		   -------------------------------------- */
 
-		/* -----------------------------------------
-		   MOUSE REPULSOR
-		   ----------------------------------------- */
-
-		body.getWorldPosition(
-			tempWorld
-		);
+		letter.getWorldPosition(tempWorld);
 
 		tempScreen
 			.copy(tempWorld)
@@ -686,7 +431,6 @@ function applyForces(time) {
 		const dx =
 			tempScreen.x -
 			smoothPointer.x;
-
 
 		const dy =
 			tempScreen.y -
@@ -700,12 +444,8 @@ function applyForces(time) {
 			);
 
 
-		/*
-		   Wide enough that moving between letters
-		   pushes neighbouring pieces.
-		*/
 		const radius =
-			0.32;
+			0.31;
 
 
 		let influence =
@@ -722,156 +462,247 @@ function applyForces(time) {
 			influence;
 
 
-		if (
-			influence > 0
-		) {
+		let targetRepX = 0;
+		let targetRepZ = 0;
+		let targetRepY = 0;
 
-			const safeDistance =
+
+		if (influence > 0) {
+
+			const safe =
 				distance || 0.001;
 
 
 			const dirX =
-				dx /
-				safeDistance;
+				dx / safe;
 
 
 			const dirY =
-				dy /
-				safeDistance;
+				dy / safe;
 
 
 			/*
-			   Moderate impulse.
+			   Strong enough to feel like repulsion,
+			   but not enough to launch letters.
 			*/
-			const force =
-				influence *
-				0.0019;
-
-
-			velocity.x +=
-				dirX *
-				force;
-
-
-			/*
-			   Screen Y maps to local Z
-			   with opposite sign.
-			*/
-			velocity.z -=
-				dirY *
-				force;
-
-
-			/*
-			   Small depth kick.
-			*/
-			velocity.y +=
-				influence *
-				0.00045;
-
-
-			/*
-			   Give the object a real 3D tumble.
-			*/
-			angularVelocity.x +=
-				dirY *
-				influence *
-				0.0013;
-
-
-			angularVelocity.y +=
+			targetRepX =
 				dirX *
 				influence *
-				0.0020;
+				logoWidth *
+				0.025;
 
 
-			angularVelocity.z +=
+			targetRepZ =
+				-dirY *
+				influence *
+				logoHeight *
+				0.028;
+
+
+			targetRepY =
+				influence *
+				0.030;
+
+
+			/*
+			   More 3D rotation near cursor,
+			   but it eases instead of spinning forever.
+			*/
+
+			letter.userData.rotOffset.x +=
 				(
-					dirX -
-					dirY
+					dirY *
+					influence *
+					0.12 -
+					letter.userData.rotOffset.x
 				)
-				*
-				influence
-				*
-				0.0010;
+				* 0.09;
+
+
+			letter.userData.rotOffset.y +=
+				(
+					dirX *
+					influence *
+					0.18 -
+					letter.userData.rotOffset.y
+				)
+				* 0.09;
+
+
+			letter.userData.rotOffset.z +=
+				(
+					(dirX - dirY) *
+					influence *
+					0.08 -
+					letter.userData.rotOffset.z
+				)
+				* 0.08;
 		}
+		else {
 
-
-		/* -----------------------------------------
-		   SPEED LIMITS
-		   ----------------------------------------- */
-
-		const maxSpeed =
-			0.012;
-
-
-		const speed =
-			velocity.length();
-
-
-		if (
-			speed >
-			maxSpeed
-		) {
-
-			velocity.multiplyScalar(
-				maxSpeed /
-				speed
+			letter.userData.rotOffset.multiplyScalar(
+				0.93
 			);
 		}
 
 
-		const maxAngular =
-			0.016;
+		const rep =
+			letter.userData.repulsion;
 
 
-		const angularSpeed =
-			angularVelocity.length();
+		rep.x +=
+			(
+				targetRepX -
+				rep.x
+			) * 0.10;
 
 
-		if (
-			angularSpeed >
-			maxAngular
-		) {
+		rep.z +=
+			(
+				targetRepZ -
+				rep.z
+			) * 0.10;
 
-			angularVelocity.multiplyScalar(
-				maxAngular /
-					angularSpeed
-			);
-		}
+
+		rep.y +=
+			(
+				targetRepY -
+				rep.y
+			) * 0.08;
+
+
+		const collision =
+			letter.userData.collision;
+
+
+		const targetX =
+			base.x +
+			driftX +
+			rep.x +
+			collision.x;
+
+
+		const targetZ =
+			base.z +
+			driftZ +
+			rep.z +
+			collision.z;
+
+
+		const targetY =
+			base.y +
+			driftY +
+			rep.y;
+
+
+		/*
+		   Smooth following.
+		   No overshoot = no spring feel.
+		*/
+		letter.position.x +=
+			(
+				targetX -
+				letter.position.x
+			) * 0.040;
+
+
+		letter.position.z +=
+			(
+				targetZ -
+				letter.position.z
+			) * 0.040;
+
+
+		letter.position.y +=
+			(
+				targetY -
+				letter.position.y
+			) * 0.035;
+
+
+		/*
+		   collision offsets dissipate calmly
+		*/
+		collision.multiplyScalar(
+			0.88
+		);
+
+
+		/* --------------------------------------
+		   subtle 3D float rotation
+		   -------------------------------------- */
+
+		const idleRX =
+			Math.sin(
+				time * .16 +
+				phase
+			) * .030;
+
+
+		const idleRY =
+			Math.cos(
+				time * .14 +
+				phase
+			) * .038;
+
+
+		const idleRZ =
+			Math.sin(
+				time * .12 +
+				phase * 1.3
+			) * .022;
+
+
+		const ro =
+			letter.userData.rotOffset;
+
+
+		letter.rotation.x +=
+			(
+				br.x +
+				idleRX +
+				ro.x -
+				letter.rotation.x
+			) * 0.035;
+
+
+		letter.rotation.y +=
+			(
+				br.y +
+				idleRY +
+				ro.y -
+				letter.rotation.y
+			) * 0.035;
+
+
+		letter.rotation.z +=
+			(
+				br.z +
+				idleRZ +
+				ro.z -
+				letter.rotation.z
+			) * 0.035;
 	}
 }
 
 
 /* ==================================================
-   LETTER COLLISIONS
+   SOFT COLLISIONS
    ================================================== */
-
-/*
-   Soft, momentum-like collisions.
-   Letters cannot simply pass through each other.
-*/
 
 function solveCollisions() {
 
-	for (
-		let i = 0;
-		i < bodies.length;
-		i++
-	) {
+	for (let i = 0; i < letters.length; i++) {
 
-		const a =
-			bodies[i];
-
+		const a = letters[i];
 
 		for (
 			let j = i + 1;
-			j < bodies.length;
+			j < letters.length;
 			j++
 		) {
 
-			const b =
-				bodies[j];
+			const b = letters[j];
 
 
 			let dx =
@@ -895,7 +726,7 @@ function solveCollisions() {
 				(
 					a.userData.radius +
 					b.userData.radius
-				) * 0.76;
+				) * 0.64;
 
 
 			if (
@@ -907,11 +738,7 @@ function solveCollisions() {
 					distance <
 					0.0001
 				) {
-
 					distance =
-						0.0001;
-
-					dx =
 						0.0001;
 				}
 
@@ -931,302 +758,31 @@ function solveCollisions() {
 					distance;
 
 
-				/*
-				   Separate the meshes.
-				*/
-
-				const correction =
+				const push =
 					overlap *
-					0.18;
+					0.035;
 
 
-				a.position.x -=
+				a.userData.collision.x -=
 					nx *
-					correction;
+					push;
 
 
-				a.position.z -=
+				a.userData.collision.z -=
 					nz *
-					correction;
+					push;
 
 
-				b.position.x +=
+				b.userData.collision.x +=
 					nx *
-					correction;
+					push;
 
 
-				b.position.z +=
+				b.userData.collision.z +=
 					nz *
-					correction;
-
-
-				/*
-				   Exchange a little momentum.
-				*/
-
-				const av =
-					a.userData.velocity;
-
-
-				const bv =
-					b.userData.velocity;
-
-
-				const relativeVelocity =
-					(
-						bv.x -
-						av.x
-					)
-					*
-					nx
-					+
-					(
-						bv.z -
-						av.z
-					)
-					*
-					nz;
-
-
-				if (
-					relativeVelocity <
-					0
-				) {
-
-					const impulse =
-						-relativeVelocity *
-						0.55;
-
-
-					av.x -=
-						nx *
-						impulse;
-
-
-					av.z -=
-						nz *
-						impulse;
-
-
-					bv.x +=
-						nx *
-						impulse;
-
-
-					bv.z +=
-						nz *
-						impulse;
-				}
-
-
-				/*
-				   Small rotational bump.
-				*/
-
-				a.userData.angularVelocity.y -=
-					overlap *
-					0.002;
-
-
-				b.userData.angularVelocity.y +=
-					overlap *
-					0.002;
+					push;
 			}
 		}
-	}
-}
-
-
-/* ==================================================
-   INVISIBLE MENU BOUNDARIES
-   ================================================== */
-
-function solveBoundaries() {
-
-	/*
-	   Much larger than the original logo.
-	   The letters can genuinely drift around,
-	   but remain inside the menu area.
-	*/
-
-	const halfWidth =
-		logoWidth *
-		0.82;
-
-
-	const halfHeight =
-		logoHeight *
-		1.15;
-
-
-	for (
-		const body
-		of bodies
-	) {
-
-		const velocity =
-			body.userData.velocity;
-
-
-		if (
-			body.position.x <
-			-halfWidth
-		) {
-
-			body.position.x =
-				-halfWidth;
-
-			velocity.x =
-				Math.abs(
-					velocity.x
-				) * 0.72;
-		}
-
-
-		if (
-			body.position.x >
-			halfWidth
-		) {
-
-			body.position.x =
-				halfWidth;
-
-			velocity.x =
-				-Math.abs(
-					velocity.x
-				) * 0.72;
-		}
-
-
-		if (
-			body.position.z <
-			-halfHeight
-		) {
-
-			body.position.z =
-				-halfHeight;
-
-			velocity.z =
-				Math.abs(
-					velocity.z
-				) * 0.72;
-		}
-
-
-		if (
-			body.position.z >
-			halfHeight
-		) {
-
-			body.position.z =
-				halfHeight;
-
-			velocity.z =
-				-Math.abs(
-					velocity.z
-				) * 0.72;
-		}
-
-
-		/*
-		   Keep depth movement controlled.
-		*/
-
-		const baseDepth =
-			body.userData.basePosition.y;
-
-
-		const depthRange =
-			0.16;
-
-
-		if (
-			body.position.y <
-			baseDepth -
-			depthRange
-		) {
-
-			body.position.y =
-				baseDepth -
-				depthRange;
-
-			velocity.y =
-				Math.abs(
-					velocity.y
-				) * 0.65;
-		}
-
-
-		if (
-			body.position.y >
-			baseDepth +
-			depthRange
-		) {
-
-			body.position.y =
-				baseDepth +
-				depthRange;
-
-			velocity.y =
-				-Math.abs(
-					velocity.y
-				) * 0.65;
-		}
-	}
-}
-
-
-/* ==================================================
-   INTEGRATE
-   ================================================== */
-
-function integrateBodies() {
-
-	for (
-		const body
-		of bodies
-	) {
-
-		const velocity =
-			body.userData.velocity;
-
-
-		const angularVelocity =
-			body.userData.angularVelocity;
-
-
-		/*
-		   Very low drag = space feeling.
-
-		   No spring.
-		   No return to original position.
-		*/
-
-		velocity.multiplyScalar(
-			0.992
-		);
-
-
-		angularVelocity.multiplyScalar(
-			0.988
-		);
-
-
-		body.position.add(
-			velocity
-		);
-
-
-		body.rotation.x +=
-			angularVelocity.x;
-
-
-		body.rotation.y +=
-			angularVelocity.y;
-
-
-		body.rotation.z +=
-			angularVelocity.z;
 	}
 }
 
@@ -1240,17 +796,17 @@ function updateCursorLight() {
 	cursorLight.position.x +=
 		(
 			smoothPointer.x *
-			4.5 -
+			4.0 -
 			cursorLight.position.x
-		) * 0.06;
+		) * 0.05;
 
 
 	cursorLight.position.y +=
 		(
 			smoothPointer.y *
-			3 -
+			2.7 -
 			cursorLight.position.y
-		) * 0.06;
+		) * 0.05;
 
 
 	cursorLight.position.z =
@@ -1285,36 +841,27 @@ function animate() {
 
 	if (model) {
 
-		applyForces(time);
+		updateLetters(time);
 
-
-		/*
-		   Two passes gives stable soft collisions.
-		*/
 		solveCollisions();
 		solveCollisions();
 
 
-		integrateBodies();
-
-
-		solveBoundaries();
-
-
 		/*
-		   Eyes AFTER physics.
-		   Their movement remains relative to the
-		   moving O control.
+		   Eye movement is completely independent
+		   from letter axis assumptions now.
 		*/
 		updateEye(
 			topPupil,
-			topControl
+			topControl,
+			topWhite
 		);
 
 
 		updateEye(
 			botPupil,
-			botControl
+			botControl,
+			botWhite
 		);
 	}
 
