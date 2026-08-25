@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Bruno Lopes 3D Logo</title>
+<title>Bruno Lopes — 3D Logo Clean Test</title>
 
 <style>
 	html, body {
@@ -61,52 +61,90 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xfff4e0);
 
 const camera = new THREE.PerspectiveCamera(
-	30,
+	28,
 	innerWidth / innerHeight,
 	0.01,
 	100
 );
 
 const renderer = new THREE.WebGLRenderer({
-	antialias: true
+	antialias: true,
+	alpha: false
 });
 
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(
+	Math.min(devicePixelRatio, 2)
+);
+
+renderer.setSize(
+	innerWidth,
+	innerHeight
+);
 
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.0;
+renderer.toneMappingExposure = 0.95;
 
 app.prepend(renderer.domElement);
 
 
 /* ==================================================
    LIGHTING
+   STATIC + CONTROLLED
    ================================================== */
 
-const front = new THREE.DirectionalLight(0xffffff, 3.0);
-front.position.set(0, 1.0, 8);
-scene.add(front);
+/*
+   No moving lights.
+   No animation.
+   Just a clean studio setup:
+   - soft front light
+   - cool back/rim
+   - warm back/rim
+   - gentle ambient fill
+*/
 
 const hemi = new THREE.HemisphereLight(
-	0xfff5e8,
-	0x4d4960,
-	1.25
+	0xfff8ef,
+	0x4f5060,
+	1.5
 );
 scene.add(hemi);
 
-const rimBlue = new THREE.DirectionalLight(0x7895ff, 2.3);
-rimBlue.position.set(-5, 3, -5);
-scene.add(rimBlue);
 
-const rimPink = new THREE.DirectionalLight(0xff8eb8, 2.0);
-rimPink.position.set(5, -2, -5);
-scene.add(rimPink);
+const front = new THREE.DirectionalLight(
+	0xffffff,
+	3.8
+);
+front.position.set(
+	0.5,
+	2.5,
+	7
+);
+scene.add(front);
 
-const cursorLight = new THREE.PointLight(0xffffff, 2.8, 20);
-cursorLight.position.set(0, 0, 5);
-scene.add(cursorLight);
+
+const coolRim = new THREE.DirectionalLight(
+	0x8ea3ff,
+	2.4
+);
+coolRim.position.set(
+	-5,
+	3.5,
+	-4
+);
+scene.add(coolRim);
+
+
+const warmRim = new THREE.DirectionalLight(
+	0xff8fb2,
+	2.0
+);
+warmRim.position.set(
+	5,
+	-2,
+	-3
+);
+scene.add(warmRim);
 
 
 /* ==================================================
@@ -116,18 +154,31 @@ scene.add(cursorLight);
 const pointer = new THREE.Vector2(0, 0);
 const smoothPointer = new THREE.Vector2(0, 0);
 
-window.addEventListener("pointermove", (event) => {
-	pointer.x = (event.clientX / innerWidth) * 2 - 1;
-	pointer.y = -(event.clientY / innerHeight) * 2 + 1;
-}, { passive: true });
+window.addEventListener(
+	"pointermove",
+	(event) => {
 
-window.addEventListener("pointerleave", () => {
-	pointer.set(0, 0);
-});
+		pointer.x =
+			(event.clientX / innerWidth) * 2 - 1;
+
+		pointer.y =
+			-(
+				(event.clientY / innerHeight) * 2 - 1
+			);
+	},
+	{ passive: true }
+);
+
+window.addEventListener(
+	"pointerleave",
+	() => {
+		pointer.set(0, 0);
+	}
+);
 
 
 /* ==================================================
-   MODEL
+   MODEL + EYES
    ================================================== */
 
 let model = null;
@@ -135,16 +186,17 @@ let model = null;
 let topControl = null;
 let botControl = null;
 
-let topPupil = null;
-let botPupil = null;
+let topOriginalPupil = null;
+let botOriginalPupil = null;
 
 let topWhite = null;
 let botWhite = null;
 
-const letters = [];
+let topFakePupil = null;
+let botFakePupil = null;
 
-let logoWidth = 1;
-let logoHeight = 1;
+const topEyeData = {};
+const botEyeData = {};
 
 
 /* ==================================================
@@ -152,72 +204,225 @@ let logoHeight = 1;
    ================================================== */
 
 function get(name) {
-	return model ? model.getObjectByName(name) : null;
-}
-
-function rememberBase(object) {
-	object.userData.basePosition = object.position.clone();
-	object.userData.baseRotation = object.rotation.clone();
-
-	object.userData.phase = Math.random() * Math.PI * 2;
-
-	object.userData.repulsion = new THREE.Vector3();
-	object.userData.collision = new THREE.Vector3();
-
-	object.userData.rotOffset = new THREE.Vector3();
-}
-
-function addLetter(object) {
-	if (!object) return;
-
-	rememberBase(object);
-
-	const box = new THREE.Box3().setFromObject(object);
-	const size = new THREE.Vector3();
-	box.getSize(size);
-
-	object.userData.radius =
-		Math.max(size.x, size.y, size.z) * 0.30;
-
-	letters.push(object);
+	return model
+		? model.getObjectByName(name)
+		: null;
 }
 
 
-/* ==================================================
-   FRAME
-   ================================================== */
+function frameModel(object) {
 
-function frameModel() {
+	const box =
+		new THREE.Box3()
+			.setFromObject(object);
 
-	const box = new THREE.Box3().setFromObject(model);
+	const center =
+		new THREE.Vector3();
 
-	const center = new THREE.Vector3();
-	const size = new THREE.Vector3();
+	const size =
+		new THREE.Vector3();
 
 	box.getCenter(center);
 	box.getSize(size);
 
-	model.position.sub(center);
+	object.position.sub(center);
 
-	const centered = new THREE.Box3().setFromObject(model);
-	centered.getSize(size);
+	const box2 =
+		new THREE.Box3()
+			.setFromObject(object);
 
-	logoWidth = size.x;
-	logoHeight = size.y;
+	box2.getSize(size);
 
-	const maxDim = Math.max(size.x, size.y);
+	const maxDim =
+		Math.max(
+			size.x,
+			size.y,
+			size.z
+		);
 
-	const fov = THREE.MathUtils.degToRad(camera.fov);
+	const fov =
+		THREE.MathUtils.degToRad(
+			camera.fov
+		);
 
 	let distance =
-		maxDim / (2 * Math.tan(fov / 2));
+		maxDim /
+		(
+			2 *
+			Math.tan(
+				fov / 2
+			)
+		);
 
-	distance *= 1.38;
+	/*
+	   Slight breathing room.
+	*/
+	distance *= 1.35;
 
-	camera.position.set(0, 0, distance);
-	camera.near = Math.max(.01, distance / 100);
-	camera.far = distance * 100;
+	camera.position.set(
+		0,
+		0,
+		distance
+	);
+
+	camera.near =
+		Math.max(
+			0.01,
+			distance / 100
+		);
+
+	camera.far =
+		distance * 100;
+
 	camera.updateProjectionMatrix();
+}
+
+
+/* ==================================================
+   CREATE A NEW PUPIL IN THREE.JS
+   ================================================== */
+
+/*
+   We do NOT animate the exported pupil.
+
+   We use the exported pupil only as a placement/size guide,
+   hide it, and create a brand-new Three.js pupil.
+
+   This completely removes the transform/hierarchy problem
+   from the old prototypes.
+*/
+
+function makeFakePupil(
+	originalPupil,
+	whiteObject,
+	eyeData
+) {
+
+	if (
+		!originalPupil ||
+		!whiteObject
+	) {
+		return null;
+	}
+
+
+	/*
+	   Save original pupil world center.
+	*/
+	const pupilBox =
+		new THREE.Box3()
+			.setFromObject(originalPupil);
+
+	const pupilSize =
+		new THREE.Vector3();
+
+	const pupilCenter =
+		new THREE.Vector3();
+
+	pupilBox.getSize(pupilSize);
+	pupilBox.getCenter(pupilCenter);
+
+
+	/*
+	   Save white eye world center + size.
+	*/
+	const whiteBox =
+		new THREE.Box3()
+			.setFromObject(whiteObject);
+
+	const whiteSize =
+		new THREE.Vector3();
+
+	const whiteCenter =
+		new THREE.Vector3();
+
+	whiteBox.getSize(whiteSize);
+	whiteBox.getCenter(whiteCenter);
+
+
+	eyeData.baseWorld =
+		pupilCenter.clone();
+
+	eyeData.eyeCenterWorld =
+		whiteCenter.clone();
+
+
+	/*
+	   Safe movement radius based on white eye size.
+	   Conservative on purpose.
+	*/
+	const eyeDiameter =
+		Math.min(
+			Math.max(
+				whiteSize.x,
+				whiteSize.y
+			),
+			Math.max(
+				whiteSize.x,
+				whiteSize.z
+			)
+		);
+
+	eyeData.moveX =
+		eyeDiameter * 0.18;
+
+	eyeData.moveY =
+		eyeDiameter * 0.18;
+
+
+	/*
+	   Low-poly sphere:
+	   enough to read clearly,
+	   but still with a slightly faceted 3D feeling.
+	*/
+	const radius =
+		Math.max(
+			pupilSize.x,
+			pupilSize.y,
+			pupilSize.z
+		) * 0.48;
+
+
+	const geometry =
+		new THREE.IcosahedronGeometry(
+			radius,
+			2
+		);
+
+
+	const material =
+		new THREE.MeshStandardMaterial({
+			color: 0x111111,
+			roughness: 0.38,
+			metalness: 0.0
+		});
+
+
+	const pupil =
+		new THREE.Mesh(
+			geometry,
+			material
+		);
+
+
+	pupil.position.copy(
+		pupilCenter
+	);
+
+
+	scene.add(
+		pupil
+	);
+
+
+	/*
+	   Hide the exported pupil.
+	*/
+	originalPupil.visible =
+		false;
+
+
+	return pupil;
 }
 
 
@@ -231,596 +436,271 @@ new GLTFLoader().load(
 
 	(gltf) => {
 
-		model = gltf.scene;
+		model =
+			gltf.scene;
+
 
 		/*
-		   Orientation that displayed the logo facing camera.
+		   This is the orientation that has been
+		   showing the logo facing the camera.
 		*/
-		model.rotation.x = Math.PI / 2;
-
-		scene.add(model);
-
-		topControl = get("O_TOP_CONTROL");
-		botControl = get("O_BOT_CONTROL");
-
-		topPupil = get("O.Top.Pupil");
-		botPupil = get("O.Bot.Pupil");
-
-		topWhite = get("O.Top.White");
-		botWhite = get("O.Bot.White");
+		model.rotation.x =
+			Math.PI / 2;
 
 
-		[
-			"B",
-			"R",
-			"U",
-			"N",
-			"L",
-			"P",
-			"E",
-			"S"
-		].forEach(name => {
-			addLetter(get(name));
-		});
+		scene.add(
+			model
+		);
 
-		addLetter(topControl);
-		addLetter(botControl);
 
-		if (topPupil) rememberBase(topPupil);
-		if (botPupil) rememberBase(botPupil);
+		topControl =
+			get("O_TOP_CONTROL");
 
-		frameModel();
+		botControl =
+			get("O_BOT_CONTROL");
+
+		topOriginalPupil =
+			get("O.Top.Pupil");
+
+		botOriginalPupil =
+			get("O.Bot.Pupil");
+
+		topWhite =
+			get("O.Top.White");
+
+		botWhite =
+			get("O.Bot.White");
+
+
+		/*
+		   Frame FIRST so the logo has its final world transform
+		   before we read the eye positions.
+		*/
+		frameModel(
+			model
+		);
+
+
+		model.updateMatrixWorld(
+			true
+		);
+
+
+		topFakePupil =
+			makeFakePupil(
+				topOriginalPupil,
+				topWhite,
+				topEyeData
+			);
+
+
+		botFakePupil =
+			makeFakePupil(
+				botOriginalPupil,
+				botWhite,
+				botEyeData
+			);
+
 
 		status.textContent =
-			`eyes ${topPupil ? "✓" : "✗"} ${botPupil ? "✓" : "✗"} • calm float`;
+			`new pupils ${topFakePupil ? "✓" : "✗"} ${botFakePupil ? "✓" : "✗"} • logo static`;
 
-		console.log("TOP", topControl, topWhite, topPupil);
-		console.log("BOT", botControl, botWhite, botPupil);
+
+		console.log(
+			"TOP",
+			topControl,
+			topWhite,
+			topOriginalPupil
+		);
+
+		console.log(
+			"BOT",
+			botControl,
+			botWhite,
+			botOriginalPupil
+		);
 	},
 
 	undefined,
 
 	(error) => {
-		console.error(error);
-		status.textContent = "could not load Name1.glb";
+
+		console.error(
+			error
+		);
+
+		status.textContent =
+			"could not load Name1.glb";
 	}
 );
 
 
 /* ==================================================
-   EYES — GLB LOCAL X/Y
+   EYE TRACKING
    ================================================== */
 
 /*
-   Confirmed directly in Blender for this GLB:
-   local X = left/right across the eye
-   local Y = up/down across the eye
-   local Z = depth
+   Because the new pupils live directly in WORLD SPACE,
+   tracking is simple and independent from Blender axes.
 
-   Therefore we move ONLY local X/Y and preserve Z.
+   We calculate:
+   eye position on screen
+   -> direction to mouse
+   -> move along CAMERA right/up vectors.
 */
 
-const eyeWorld = new THREE.Vector3();
-const eyeScreen = new THREE.Vector3();
+const eyeScreen =
+	new THREE.Vector3();
 
-function updateEye(pupil, control, white) {
-	if (!pupil || !control || !pupil.userData.basePosition) return;
+const cameraRight =
+	new THREE.Vector3();
 
-	control.getWorldPosition(eyeWorld);
-	eyeScreen.copy(eyeWorld).project(camera);
+const cameraUp =
+	new THREE.Vector3();
 
-	let dx = smoothPointer.x - eyeScreen.x;
-	let dy = smoothPointer.y - eyeScreen.y;
+const targetWorld =
+	new THREE.Vector3();
 
-	// How far from the eye the mouse can be before gaze is fully extended.
-	const gazeRange = 0.55;
-	dx = THREE.MathUtils.clamp(dx / gazeRange, -1, 1);
-	dy = THREE.MathUtils.clamp(dy / gazeRange, -1, 1);
 
-	// Elliptical clamp keeps pupil inside the eye.
-	const len = Math.sqrt(dx * dx + dy * dy);
-	if (len > 1) {
-		dx /= len;
-		dy /= len;
+function updateFakePupil(
+	pupil,
+	eyeData
+) {
+
+	if (
+		!pupil ||
+		!eyeData.baseWorld
+	) {
+		return;
 	}
 
-	const base = pupil.userData.basePosition;
 
-	// Derive movement from eye size so both eyes behave consistently.
-	let maxX = 0.07;
-	let maxY = 0.07;
-
-	if (white) {
-		const box = new THREE.Box3().setFromObject(white);
-		const size = new THREE.Vector3();
-		box.getSize(size);
-		const radius = Math.max(size.x, size.y, size.z) * 0.16;
-		maxX = radius;
-		maxY = radius;
-	}
-
-	const targetX = base.x + dx * maxX;
-	const targetY = base.y + dy * maxY;
-
-	// Smooth gaze, but no spring / overshoot.
-	pupil.position.x += (targetX - pupil.position.x) * 0.22;
-	pupil.position.y += (targetY - pupil.position.y) * 0.22;
-
-	// Critical: never alter depth.
-	pupil.position.z = base.z;
-}
-
-
-/* ==================================================
-   CALM ZERO-GRAVITY
-   ================================================== */
-
-/*
-   No velocity accumulation.
-   No spring bounce.
-
-   Each letter gets:
-   - slow bounded float
-   - temporary mouse repulsion
-   - soft collision offsets
-
-   The result stays loose, but does not explode
-   across the whole page.
-*/
-
-const tempWorld = new THREE.Vector3();
-const tempScreen = new THREE.Vector3();
-
-function updateLetters(time) {
-
-	for (const letter of letters) {
-
-		const base =
-			letter.userData.basePosition;
-
-		const br =
-			letter.userData.baseRotation;
-
-		const phase =
-			letter.userData.phase;
-
-
-		/* --------------------------------------
-		   slow space drift
-		   -------------------------------------- */
-
-		const driftX =
-			Math.sin(
-				time * 0.18 + phase
-			)
-			*
-			logoWidth
-			*
-			0.010;
-
-
-		const driftZ =
-			Math.cos(
-				time * 0.15 + phase * 1.2
-			)
-			*
-			logoHeight
-			*
-			0.012;
-
-
-		const driftY =
-			Math.sin(
-				time * 0.13 + phase * .8
-			)
-			*
-			0.018;
-
-
-		/* --------------------------------------
-		   mouse repulsion
-		   -------------------------------------- */
-
-		letter.getWorldPosition(tempWorld);
-
-		tempScreen
-			.copy(tempWorld)
-			.project(camera);
-
-
-		const dx =
-			tempScreen.x -
-			smoothPointer.x;
-
-		const dy =
-			tempScreen.y -
-			smoothPointer.y;
-
-
-		const distance =
-			Math.sqrt(
-				dx * dx +
-				dy * dy
-			);
-
-
-		const radius =
-			0.31;
-
-
-		let influence =
-			THREE.MathUtils.clamp(
-				1 -
-				distance /
-				radius,
-				0,
-				1
-			);
-
-
-		influence *=
-			influence;
-
-
-		let targetRepX = 0;
-		let targetRepZ = 0;
-		let targetRepY = 0;
-
-
-		if (influence > 0) {
-
-			const safe =
-				distance || 0.001;
-
-
-			const dirX =
-				dx / safe;
-
-
-			const dirY =
-				dy / safe;
-
-
-			/*
-			   Strong enough to feel like repulsion,
-			   but not enough to launch letters.
-			*/
-			targetRepX =
-				dirX *
-				influence *
-				logoWidth *
-				0.025;
-
-
-			targetRepZ =
-				-dirY *
-				influence *
-				logoHeight *
-				0.028;
-
-
-			targetRepY =
-				influence *
-				0.030;
-
-
-			/*
-			   More 3D rotation near cursor,
-			   but it eases instead of spinning forever.
-			*/
-
-			letter.userData.rotOffset.x +=
-				(
-					dirY *
-					influence *
-					0.12 -
-					letter.userData.rotOffset.x
-				)
-				* 0.09;
-
-
-			letter.userData.rotOffset.y +=
-				(
-					dirX *
-					influence *
-					0.18 -
-					letter.userData.rotOffset.y
-				)
-				* 0.09;
-
-
-			letter.userData.rotOffset.z +=
-				(
-					(dirX - dirY) *
-					influence *
-					0.08 -
-					letter.userData.rotOffset.z
-				)
-				* 0.08;
-		}
-		else {
-
-			letter.userData.rotOffset.multiplyScalar(
-				0.93
-			);
-		}
-
-
-		const rep =
-			letter.userData.repulsion;
-
-
-		rep.x +=
-			(
-				targetRepX -
-				rep.x
-			) * 0.10;
-
-
-		rep.z +=
-			(
-				targetRepZ -
-				rep.z
-			) * 0.10;
-
-
-		rep.y +=
-			(
-				targetRepY -
-				rep.y
-			) * 0.08;
-
-
-		const collision =
-			letter.userData.collision;
-
-
-		const targetX =
-			base.x +
-			driftX +
-			rep.x +
-			collision.x;
-
-
-		const targetZ =
-			base.z +
-			driftZ +
-			rep.z +
-			collision.z;
-
-
-		const targetY =
-			base.y +
-			driftY +
-			rep.y;
-
-
-		/*
-		   Smooth following.
-		   No overshoot = no spring feel.
-		*/
-		letter.position.x +=
-			(
-				targetX -
-				letter.position.x
-			) * 0.040;
-
-
-		letter.position.z +=
-			(
-				targetZ -
-				letter.position.z
-			) * 0.040;
-
-
-		letter.position.y +=
-			(
-				targetY -
-				letter.position.y
-			) * 0.035;
-
-
-		/*
-		   collision offsets dissipate calmly
-		*/
-		collision.multiplyScalar(
-			0.88
+	/*
+	   Where is this eye on the screen?
+	*/
+	eyeScreen
+		.copy(
+			eyeData.eyeCenterWorld
+		)
+		.project(
+			camera
 		);
 
 
-		/* --------------------------------------
-		   subtle 3D float rotation
-		   -------------------------------------- */
-
-		const idleRX =
-			Math.sin(
-				time * .16 +
-				phase
-			) * .030;
+	let dx =
+		smoothPointer.x -
+		eyeScreen.x;
 
 
-		const idleRY =
-			Math.cos(
-				time * .14 +
-				phase
-			) * .038;
+	let dy =
+		smoothPointer.y -
+		eyeScreen.y;
 
 
-		const idleRZ =
-			Math.sin(
-				time * .12 +
-				phase * 1.3
-			) * .022;
+	/*
+	   Mouse does not need to be close to the eye.
+	   It keeps looking across the page.
+	*/
+	const gazeRange =
+		0.70;
 
 
-		const ro =
-			letter.userData.rotOffset;
+	dx =
+		THREE.MathUtils.clamp(
+			dx / gazeRange,
+			-1,
+			1
+		);
 
 
-		letter.rotation.x +=
-			(
-				br.x +
-				idleRX +
-				ro.x -
-				letter.rotation.x
-			) * 0.035;
+	dy =
+		THREE.MathUtils.clamp(
+			dy / gazeRange,
+			-1,
+			1
+		);
 
 
-		letter.rotation.y +=
-			(
-				br.y +
-				idleRY +
-				ro.y -
-				letter.rotation.y
-			) * 0.035;
+	/*
+	   Elliptical clamp.
+	*/
+	const length =
+		Math.sqrt(
+			dx * dx +
+			dy * dy
+		);
 
 
-		letter.rotation.z +=
-			(
-				br.z +
-				idleRZ +
-				ro.z -
-				letter.rotation.z
-			) * 0.035;
+	if (
+		length > 1
+	) {
+
+		dx /=
+			length;
+
+		dy /=
+			length;
 	}
-}
 
 
-/* ==================================================
-   SOFT COLLISIONS
-   ================================================== */
-
-function solveCollisions() {
-
-	for (let i = 0; i < letters.length; i++) {
-
-		const a = letters[i];
-
-		for (
-			let j = i + 1;
-			j < letters.length;
-			j++
-		) {
-
-			const b = letters[j];
+	camera.updateMatrixWorld(
+		true
+	);
 
 
-			let dx =
-				b.position.x -
-				a.position.x;
+	cameraRight
+		.setFromMatrixColumn(
+			camera.matrixWorld,
+			0
+		)
+		.normalize();
 
 
-			let dz =
-				b.position.z -
-				a.position.z;
+	cameraUp
+		.setFromMatrixColumn(
+			camera.matrixWorld,
+			1
+		)
+		.normalize();
 
 
-			let distance =
-				Math.sqrt(
-					dx * dx +
-					dz * dz
-				);
+	targetWorld
+		.copy(
+			eyeData.baseWorld
+		);
 
 
-			const minDistance =
-				(
-					a.userData.radius +
-					b.userData.radius
-				) * 0.64;
+	targetWorld
+		.addScaledVector(
+			cameraRight,
+			dx *
+			eyeData.moveX
+		);
 
 
-			if (
-				distance <
-				minDistance
-			) {
-
-				if (
-					distance <
-					0.0001
-				) {
-					distance =
-						0.0001;
-				}
+	targetWorld
+		.addScaledVector(
+			cameraUp,
+			dy *
+			eyeData.moveY
+		);
 
 
-				const nx =
-					dx /
-					distance;
-
-
-				const nz =
-					dz /
-					distance;
-
-
-				const overlap =
-					minDistance -
-					distance;
-
-
-				const push =
-					overlap *
-					0.035;
-
-
-				a.userData.collision.x -=
-					nx *
-					push;
-
-
-				a.userData.collision.z -=
-					nz *
-					push;
-
-
-				b.userData.collision.x +=
-					nx *
-					push;
-
-
-				b.userData.collision.z +=
-					nz *
-					push;
-			}
-		}
-	}
-}
-
-
-/* ==================================================
-   CURSOR LIGHT
-   ================================================== */
-
-function updateCursorLight() {
-
-	cursorLight.position.x +=
-		(
-			smoothPointer.x *
-			4.0 -
-			cursorLight.position.x
-		) * 0.05;
-
-
-	cursorLight.position.y +=
-		(
-			smoothPointer.y *
-			2.7 -
-			cursorLight.position.y
-		) * 0.05;
-
-
-	cursorLight.position.z =
-		5;
+	/*
+	   Simple interpolation.
+	   No spring.
+	   No overshoot.
+	*/
+	pupil.position.lerp(
+		targetWorld,
+		0.24
+	);
 }
 
 
 /* ==================================================
    LOOP
    ================================================== */
-
-const clock =
-	new THREE.Clock();
-
 
 function animate() {
 
@@ -829,44 +709,26 @@ function animate() {
 	);
 
 
-	const time =
-		clock.getElapsedTime();
-
-
 	smoothPointer.lerp(
 		pointer,
-		0.12
+		0.13
 	);
 
 
-	if (model) {
-
-		updateLetters(time);
-
-		solveCollisions();
-		solveCollisions();
-
-
-		/*
-		   Eye movement is completely independent
-		   from letter axis assumptions now.
-		*/
-		updateEye(
-			topPupil,
-			topControl,
-			topWhite
-		);
+	/*
+	   NO LETTER ANIMATION.
+	   Only eyes.
+	*/
+	updateFakePupil(
+		topFakePupil,
+		topEyeData
+	);
 
 
-		updateEye(
-			botPupil,
-			botControl,
-			botWhite
-		);
-	}
-
-
-	updateCursorLight();
+	updateFakePupil(
+		botFakePupil,
+		botEyeData
+	);
 
 
 	renderer.render(
@@ -903,6 +765,5 @@ window.addEventListener(
 );
 
 </script>
-
 </body>
 </html>
