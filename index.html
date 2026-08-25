@@ -3,43 +3,37 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Bruno Lopes — 3D Logo Clean Test</title>
-
+<title>Bruno Lopes — Eye Test</title>
 <style>
-	html, body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-		overflow: hidden;
-		background: #fff4e0;
-	}
-
-	#app {
-		position: relative;
-		width: 100%;
-		height: 100%;
-		overflow: hidden;
-	}
-
-	canvas {
-		display: block;
-		width: 100%;
-		height: 100%;
-	}
-
-	.status {
-		position: absolute;
-		left: 14px;
-		bottom: 12px;
-		font: 11px/1.2 Arial, sans-serif;
-		opacity: .28;
-		pointer-events: none;
-		user-select: none;
-	}
+html,body{
+	margin:0;
+	width:100%;
+	height:100%;
+	overflow:hidden;
+	background:#fff4e0;
+}
+#app{
+	position:relative;
+	width:100%;
+	height:100%;
+}
+canvas{
+	display:block;
+	width:100%;
+	height:100%;
+}
+.status{
+	position:absolute;
+	left:14px;
+	bottom:12px;
+	font:11px Arial,sans-serif;
+	opacity:.35;
+	pointer-events:none;
+}
 </style>
 </head>
-
 <body>
+
 <div id="app">
 	<div class="status" id="status">loading…</div>
 </div>
@@ -48,11 +42,6 @@
 
 import * as THREE from "https://esm.sh/three@0.180.0";
 import { GLTFLoader } from "https://esm.sh/three@0.180.0/examples/jsm/loaders/GLTFLoader.js";
-
-
-/* ==================================================
-   SCENE
-   ================================================== */
 
 const app = document.querySelector("#app");
 const status = document.querySelector("#status");
@@ -68,153 +57,100 @@ const camera = new THREE.PerspectiveCamera(
 );
 
 const renderer = new THREE.WebGLRenderer({
-	antialias: true,
-	alpha: false
+	antialias:true
 });
 
-renderer.setPixelRatio(
-	Math.min(devicePixelRatio, 2)
-);
-
-renderer.setSize(
-	innerWidth,
-	innerHeight
-);
-
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 0.95;
+renderer.toneMappingExposure = 1.0;
 
 app.prepend(renderer.domElement);
 
 
 /* ==================================================
-   LIGHTING
-   STATIC + CONTROLLED
+   SIMPLE STATIC LIGHTING
    ================================================== */
 
-/*
-   No moving lights.
-   No animation.
-   Just a clean studio setup:
-   - soft front light
-   - cool back/rim
-   - warm back/rim
-   - gentle ambient fill
-*/
-
-const hemi = new THREE.HemisphereLight(
-	0xfff8ef,
-	0x4f5060,
-	1.5
+scene.add(
+	new THREE.HemisphereLight(
+		0xfff8ef,
+		0x55556a,
+		1.5
+	)
 );
-scene.add(hemi);
-
 
 const front = new THREE.DirectionalLight(
 	0xffffff,
-	3.8
+	3.7
 );
-front.position.set(
-	0.5,
-	2.5,
-	7
-);
+front.position.set(1,2.5,7);
 scene.add(front);
 
-
-const coolRim = new THREE.DirectionalLight(
-	0x8ea3ff,
-	2.4
-);
-coolRim.position.set(
-	-5,
-	3.5,
-	-4
-);
-scene.add(coolRim);
-
-
-const warmRim = new THREE.DirectionalLight(
-	0xff8fb2,
+const rimA = new THREE.DirectionalLight(
+	0x8ca5ff,
 	2.0
 );
-warmRim.position.set(
-	5,
-	-2,
-	-3
+rimA.position.set(-5,3,-4);
+scene.add(rimA);
+
+const rimB = new THREE.DirectionalLight(
+	0xff9bb8,
+	1.7
 );
-scene.add(warmRim);
+rimB.position.set(5,-2,-4);
+scene.add(rimB);
 
 
 /* ==================================================
    POINTER
    ================================================== */
 
-const pointer = new THREE.Vector2(0, 0);
-const smoothPointer = new THREE.Vector2(0, 0);
+const pointer = new THREE.Vector2();
+const smoothPointer = new THREE.Vector2();
 
 window.addEventListener(
 	"pointermove",
-	(event) => {
-
+	(event)=>{
 		pointer.x =
 			(event.clientX / innerWidth) * 2 - 1;
 
 		pointer.y =
-			-(
-				(event.clientY / innerHeight) * 2 - 1
-			);
+			-(event.clientY / innerHeight) * 2 + 1;
 	},
-	{ passive: true }
+	{passive:true}
 );
 
 window.addEventListener(
 	"pointerleave",
-	() => {
-		pointer.set(0, 0);
+	()=>{
+		pointer.set(0,0);
 	}
 );
 
 
 /* ==================================================
-   MODEL + EYES
+   MODEL
    ================================================== */
 
 let model = null;
 
-let topControl = null;
-let botControl = null;
+let topPupil = null;
+let botPupil = null;
 
-let topOriginalPupil = null;
-let botOriginalPupil = null;
-
-let topWhite = null;
-let botWhite = null;
-
-let topFakePupil = null;
-let botFakePupil = null;
-
-const topEyeData = {};
-const botEyeData = {};
+let topBase = null;
+let botBase = null;
 
 
 /* ==================================================
-   HELPERS
+   FRAME MODEL
    ================================================== */
 
-function get(name) {
-	return model
-		? model.getObjectByName(name)
-		: null;
-}
-
-
-function frameModel(object) {
+function frameModel(object){
 
 	const box =
-		new THREE.Box3()
-			.setFromObject(object);
+		new THREE.Box3().setFromObject(object);
 
 	const center =
 		new THREE.Vector3();
@@ -228,8 +164,7 @@ function frameModel(object) {
 	object.position.sub(center);
 
 	const box2 =
-		new THREE.Box3()
-			.setFromObject(object);
+		new THREE.Box3().setFromObject(object);
 
 	box2.getSize(size);
 
@@ -241,22 +176,12 @@ function frameModel(object) {
 		);
 
 	const fov =
-		THREE.MathUtils.degToRad(
-			camera.fov
-		);
+		THREE.MathUtils.degToRad(camera.fov);
 
 	let distance =
 		maxDim /
-		(
-			2 *
-			Math.tan(
-				fov / 2
-			)
-		);
+		(2 * Math.tan(fov/2));
 
-	/*
-	   Slight breathing room.
-	*/
 	distance *= 1.35;
 
 	camera.position.set(
@@ -266,163 +191,12 @@ function frameModel(object) {
 	);
 
 	camera.near =
-		Math.max(
-			0.01,
-			distance / 100
-		);
+		Math.max(.01,distance/100);
 
 	camera.far =
-		distance * 100;
+		distance*100;
 
 	camera.updateProjectionMatrix();
-}
-
-
-/* ==================================================
-   CREATE A NEW PUPIL IN THREE.JS
-   ================================================== */
-
-/*
-   We do NOT animate the exported pupil.
-
-   We use the exported pupil only as a placement/size guide,
-   hide it, and create a brand-new Three.js pupil.
-
-   This completely removes the transform/hierarchy problem
-   from the old prototypes.
-*/
-
-function makeFakePupil(
-	originalPupil,
-	whiteObject,
-	eyeData
-) {
-
-	if (
-		!originalPupil ||
-		!whiteObject
-	) {
-		return null;
-	}
-
-
-	/*
-	   Save original pupil world center.
-	*/
-	const pupilBox =
-		new THREE.Box3()
-			.setFromObject(originalPupil);
-
-	const pupilSize =
-		new THREE.Vector3();
-
-	const pupilCenter =
-		new THREE.Vector3();
-
-	pupilBox.getSize(pupilSize);
-	pupilBox.getCenter(pupilCenter);
-
-
-	/*
-	   Save white eye world center + size.
-	*/
-	const whiteBox =
-		new THREE.Box3()
-			.setFromObject(whiteObject);
-
-	const whiteSize =
-		new THREE.Vector3();
-
-	const whiteCenter =
-		new THREE.Vector3();
-
-	whiteBox.getSize(whiteSize);
-	whiteBox.getCenter(whiteCenter);
-
-
-	eyeData.baseWorld =
-		pupilCenter.clone();
-
-	eyeData.eyeCenterWorld =
-		whiteCenter.clone();
-
-
-	/*
-	   Safe movement radius based on white eye size.
-	   Conservative on purpose.
-	*/
-	const eyeDiameter =
-		Math.min(
-			Math.max(
-				whiteSize.x,
-				whiteSize.y
-			),
-			Math.max(
-				whiteSize.x,
-				whiteSize.z
-			)
-		);
-
-	eyeData.moveX =
-		eyeDiameter * 0.18;
-
-	eyeData.moveY =
-		eyeDiameter * 0.18;
-
-
-	/*
-	   Low-poly sphere:
-	   enough to read clearly,
-	   but still with a slightly faceted 3D feeling.
-	*/
-	const radius =
-		Math.max(
-			pupilSize.x,
-			pupilSize.y,
-			pupilSize.z
-		) * 0.48;
-
-
-	const geometry =
-		new THREE.IcosahedronGeometry(
-			radius,
-			2
-		);
-
-
-	const material =
-		new THREE.MeshStandardMaterial({
-			color: 0x111111,
-			roughness: 0.38,
-			metalness: 0.0
-		});
-
-
-	const pupil =
-		new THREE.Mesh(
-			geometry,
-			material
-		);
-
-
-	pupil.position.copy(
-		pupilCenter
-	);
-
-
-	scene.add(
-		pupil
-	);
-
-
-	/*
-	   Hide the exported pupil.
-	*/
-	originalPupil.visible =
-		false;
-
-
-	return pupil;
 }
 
 
@@ -434,101 +208,64 @@ new GLTFLoader().load(
 
 	"./Name1.glb",
 
-	(gltf) => {
+	(gltf)=>{
 
-		model =
-			gltf.scene;
-
+		model = gltf.scene;
 
 		/*
-		   This is the orientation that has been
-		   showing the logo facing the camera.
+		   Correct orientation of your export.
 		*/
 		model.rotation.x =
 			Math.PI / 2;
 
-
-		scene.add(
-			model
-		);
+		scene.add(model);
 
 
-		topControl =
-			get("O_TOP_CONTROL");
+		topPupil =
+			model.getObjectByName(
+				"O.Top.Pupil"
+			);
 
-		botControl =
-			get("O_BOT_CONTROL");
-
-		topOriginalPupil =
-			get("O.Top.Pupil");
-
-		botOriginalPupil =
-			get("O.Bot.Pupil");
-
-		topWhite =
-			get("O.Top.White");
-
-		botWhite =
-			get("O.Bot.White");
-
-
-		/*
-		   Frame FIRST so the logo has its final world transform
-		   before we read the eye positions.
-		*/
-		frameModel(
-			model
-		);
-
-
-		model.updateMatrixWorld(
-			true
-		);
-
-
-		topFakePupil =
-			makeFakePupil(
-				topOriginalPupil,
-				topWhite,
-				topEyeData
+		botPupil =
+			model.getObjectByName(
+				"O.Bot.Pupil"
 			);
 
 
-		botFakePupil =
-			makeFakePupil(
-				botOriginalPupil,
-				botWhite,
-				botEyeData
-			);
+		if(topPupil){
+			topBase =
+				topPupil.position.clone();
+		}
+
+		if(botPupil){
+			botBase =
+				botPupil.position.clone();
+		}
+
+
+		frameModel(model);
 
 
 		status.textContent =
-			`new pupils ${topFakePupil ? "✓" : "✗"} ${botFakePupil ? "✓" : "✗"} • logo static`;
-
+			`original pupils: ${topPupil ? "✓" : "✗"} ${botPupil ? "✓" : "✗"} • X/Z tracking`;
 
 		console.log(
-			"TOP",
-			topControl,
-			topWhite,
-			topOriginalPupil
+			"TOP PUPIL",
+			topPupil,
+			topBase
 		);
 
 		console.log(
-			"BOT",
-			botControl,
-			botWhite,
-			botOriginalPupil
+			"BOT PUPIL",
+			botPupil,
+			botBase
 		);
 	},
 
 	undefined,
 
-	(error) => {
-
-		console.error(
-			error
-		);
-
+	(error)=>{
+		console.error(error);
 		status.textContent =
 			"could not load Name1.glb";
 	}
@@ -536,165 +273,99 @@ new GLTFLoader().load(
 
 
 /* ==================================================
-   EYE TRACKING
+   DIRECT EYE TRACKING
    ================================================== */
 
 /*
-   Because the new pupils live directly in WORLD SPACE,
-   tracking is simple and independent from Blender axes.
+   I inspected the exported GLB itself.
 
-   We calculate:
-   eye position on screen
-   -> direction to mouse
-   -> move along CAMERA right/up vectors.
+   In the GLB:
+   WHITE and PUPIL have the same X and Z.
+   The pupil differs from the white mainly on Y.
+
+   Therefore:
+   X = horizontal across eye
+   Z = vertical across eye
+   Y = depth
+
+   So we preserve Y completely and move only X/Z.
 */
 
-const eyeScreen =
-	new THREE.Vector3();
-
-const cameraRight =
-	new THREE.Vector3();
-
-const cameraUp =
-	new THREE.Vector3();
-
-const targetWorld =
-	new THREE.Vector3();
-
-
-function updateFakePupil(
+function updatePupil(
 	pupil,
-	eyeData
-) {
+	base
+){
 
-	if (
-		!pupil ||
-		!eyeData.baseWorld
-	) {
+	if(!pupil || !base){
 		return;
 	}
 
-
 	/*
-	   Where is this eye on the screen?
+	   Deliberately obvious movement for testing.
+	   Once confirmed, we can reduce these values.
 	*/
-	eyeScreen
-		.copy(
-			eyeData.eyeCenterWorld
-		)
-		.project(
-			camera
-		);
+	const maxX = 0.10;
+	const maxZ = 0.085;
 
 
-	let dx =
-		smoothPointer.x -
-		eyeScreen.x;
+	let x =
+		smoothPointer.x *
+		maxX;
 
 
-	let dy =
-		smoothPointer.y -
-		eyeScreen.y;
-
-
-	/*
-	   Mouse does not need to be close to the eye.
-	   It keeps looking across the page.
-	*/
-	const gazeRange =
-		0.70;
-
-
-	dx =
-		THREE.MathUtils.clamp(
-			dx / gazeRange,
-			-1,
-			1
-		);
-
-
-	dy =
-		THREE.MathUtils.clamp(
-			dy / gazeRange,
-			-1,
-			1
-		);
+	let z =
+		-smoothPointer.y *
+		maxZ;
 
 
 	/*
 	   Elliptical clamp.
 	*/
-	const length =
+	const nx =
+		x / maxX;
+
+	const nz =
+		z / maxZ;
+
+	const len =
 		Math.sqrt(
-			dx * dx +
-			dy * dy
+			nx*nx +
+			nz*nz
 		);
 
 
-	if (
-		length > 1
-	) {
-
-		dx /=
-			length;
-
-		dy /=
-			length;
+	if(len > 1){
+		x /= len;
+		z /= len;
 	}
 
 
-	camera.updateMatrixWorld(
-		true
-	);
+	const targetX =
+		base.x + x;
+
+	const targetZ =
+		base.z + z;
 
 
-	cameraRight
-		.setFromMatrixColumn(
-			camera.matrixWorld,
-			0
-		)
-		.normalize();
+	pupil.position.x +=
+		(
+			targetX -
+			pupil.position.x
+		) * 0.30;
 
 
-	cameraUp
-		.setFromMatrixColumn(
-			camera.matrixWorld,
-			1
-		)
-		.normalize();
-
-
-	targetWorld
-		.copy(
-			eyeData.baseWorld
-		);
-
-
-	targetWorld
-		.addScaledVector(
-			cameraRight,
-			dx *
-			eyeData.moveX
-		);
-
-
-	targetWorld
-		.addScaledVector(
-			cameraUp,
-			dy *
-			eyeData.moveY
-		);
+	pupil.position.z +=
+		(
+			targetZ -
+			pupil.position.z
+		) * 0.30;
 
 
 	/*
-	   Simple interpolation.
-	   No spring.
-	   No overshoot.
+	   Never touch depth.
 	*/
-	pupil.position.lerp(
-		targetWorld,
-		0.24
-	);
+	pupil.position.y =
+		base.y;
 }
 
 
@@ -702,41 +373,30 @@ function updateFakePupil(
    LOOP
    ================================================== */
 
-function animate() {
+function animate(){
 
-	requestAnimationFrame(
-		animate
-	);
-
+	requestAnimationFrame(animate);
 
 	smoothPointer.lerp(
 		pointer,
-		0.13
+		0.16
 	);
 
-
-	/*
-	   NO LETTER ANIMATION.
-	   Only eyes.
-	*/
-	updateFakePupil(
-		topFakePupil,
-		topEyeData
+	updatePupil(
+		topPupil,
+		topBase
 	);
 
-
-	updateFakePupil(
-		botFakePupil,
-		botEyeData
+	updatePupil(
+		botPupil,
+		botBase
 	);
-
 
 	renderer.render(
 		scene,
 		camera
 	);
 }
-
 
 animate();
 
@@ -747,15 +407,12 @@ animate();
 
 window.addEventListener(
 	"resize",
-	() => {
-
+	()=>{
 		camera.aspect =
 			innerWidth /
 			innerHeight;
 
-
 		camera.updateProjectionMatrix();
-
 
 		renderer.setSize(
 			innerWidth,
