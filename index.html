@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Bruno Lopes — Site Scale Calibration</title>
+<title>Bruno Lopes — Site Scale + Eye Fix</title>
 
 <style>
 	html,body{
@@ -15,7 +15,6 @@
 		font-family:Arial,sans-serif;
 	}
 
-	/* fake site layout, roughly matching your Cargo proportions */
 	.site{
 		position:relative;
 		width:100%;
@@ -116,15 +115,6 @@
 		opacity:.6;
 	}
 
-	.status{
-		position:absolute;
-		left:14px;
-		bottom:12px;
-		font-size:11px;
-		opacity:.35;
-		z-index:20;
-	}
-
 	.eye-test{
 		margin-top:10px;
 		padding-top:9px;
@@ -134,13 +124,24 @@
 		align-items:center;
 		gap:7px;
 	}
+
+	.status{
+		position:absolute;
+		left:14px;
+		bottom:12px;
+		font-size:11px;
+		opacity:.35;
+		z-index:20;
+	}
 </style>
 </head>
 
 <body>
 
 <div class="site">
+
 	<div class="sidebar">
+
 		<div class="logo-slot" id="logoSlot"></div>
 
 		<div class="fake-menu">
@@ -152,11 +153,13 @@
 			Universal Music France<br>
 			Museum D'Orsay
 		</div>
+
 	</div>
 
 	<div class="fake-content"></div>
 
 	<div class="panel">
+
 		<h3>Visual calibration</h3>
 
 		<div class="row">
@@ -215,17 +218,19 @@
 
 		<div class="row">
 			<label>Eye range</label>
-			<input id="eyeRange" type="range" min="0" max=".05" step=".001" value=".028">
-			<div class="val" id="eyeRangeVal">.028</div>
+			<input id="eyeRange" type="range" min="0" max=".06" step=".001" value=".030">
+			<div class="val" id="eyeRangeVal">0.030</div>
 		</div>
 
 		<div class="eye-test">
 			<input id="autoEyes" type="checkbox">
 			<label for="autoEyes">auto-orbit eyes (debug)</label>
 		</div>
+
 	</div>
 
 	<div class="status" id="status">loading…</div>
+
 </div>
 
 
@@ -237,88 +242,204 @@ import { RoomEnvironment } from "https://esm.sh/three@0.180.0/examples/jsm/envir
 
 
 /* ==================================================
-   RENDERER IN SITE-SIZED SLOT
+   SITE-SIZED RENDERER
    ================================================== */
 
-const slot = document.querySelector("#logoSlot");
-const status = document.querySelector("#status");
+const slot =
+	document.querySelector("#logoSlot");
 
-const scene = new THREE.Scene();
+const status =
+	document.querySelector("#status");
 
-/* transparent so it sits naturally in Cargo */
-const renderer = new THREE.WebGLRenderer({
-	antialias:true,
-	alpha:true
-});
+const scene =
+	new THREE.Scene();
 
-renderer.setClearColor(0x000000,0);
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = .40;
 
-slot.appendChild(renderer.domElement);
+const renderer =
+	new THREE.WebGLRenderer({
+		antialias:true,
+		alpha:true
+	});
 
-const camera = new THREE.PerspectiveCamera(
-	28,
-	1,
-	.01,
-	100
+renderer.setClearColor(
+	0x000000,
+	0
 );
+
+renderer.setPixelRatio(
+	Math.min(
+		devicePixelRatio,
+		2
+	)
+);
+
+renderer.outputColorSpace =
+	THREE.SRGBColorSpace;
+
+renderer.toneMapping =
+	THREE.ACESFilmicToneMapping;
+
+renderer.toneMappingExposure =
+	.40;
+
+slot.appendChild(
+	renderer.domElement
+);
+
+
+const camera =
+	new THREE.PerspectiveCamera(
+		28,
+		1,
+		.01,
+		100
+	);
 
 
 /* ==================================================
    ENVIRONMENT + LIGHTS
    ================================================== */
 
-const pmrem = new THREE.PMREMGenerator(renderer);
-const envRT = pmrem.fromScene(new RoomEnvironment(),.04);
-scene.environment = envRT.texture;
+const pmrem =
+	new THREE.PMREMGenerator(
+		renderer
+	);
 
-const hemi = new THREE.HemisphereLight(
-	0xfff7ec,
-	0x4d4c5f,
-	0
-);
-scene.add(hemi);
+const envRT =
+	pmrem.fromScene(
+		new RoomEnvironment(),
+		.04
+	);
 
-const key = new THREE.DirectionalLight(
-	0xffffff,
-	2.80
-);
-key.position.set(1.2,2.7,7);
-scene.add(key);
+scene.environment =
+	envRT.texture;
 
-const blue = new THREE.DirectionalLight(
-	0x7d95ff,
-	5.20
-);
-blue.position.set(-5,3,-4);
-scene.add(blue);
 
-const pink = new THREE.DirectionalLight(
-	0xff8fb4,
-	1.95
+const hemi =
+	new THREE.HemisphereLight(
+		0xfff7ec,
+		0x4d4c5f,
+		0
+	);
+
+scene.add(
+	hemi
 );
-pink.position.set(5,-2,-4);
-scene.add(pink);
+
+
+const key =
+	new THREE.DirectionalLight(
+		0xffffff,
+		2.80
+	);
+
+key.position.set(
+	1.2,
+	2.7,
+	7
+);
+
+scene.add(
+	key
+);
+
+
+const blue =
+	new THREE.DirectionalLight(
+		0x7d95ff,
+		5.20
+	);
+
+blue.position.set(
+	-5,
+	3,
+	-4
+);
+
+scene.add(
+	blue
+);
+
+
+const pink =
+	new THREE.DirectionalLight(
+		0xff8fb4,
+		1.95
+	);
+
+pink.position.set(
+	5,
+	-2,
+	-4
+);
+
+scene.add(
+	pink
+);
 
 
 /* ==================================================
    POINTER
    ================================================== */
 
-const pointer = new THREE.Vector2();
-const smoothPointer = new THREE.Vector2();
+const pointer =
+	new THREE.Vector2();
 
-window.addEventListener("pointermove",(event)=>{
-	pointer.x = (event.clientX / innerWidth) * 2 - 1;
-	pointer.y = -(event.clientY / innerHeight) * 2 + 1;
-},{passive:true});
+const smoothPointer =
+	new THREE.Vector2();
 
-window.addEventListener("pointerleave",()=>{
-	pointer.set(0,0);
-});
+
+window.addEventListener(
+	"pointermove",
+	(event) => {
+
+		/*
+		   IMPORTANT:
+		   pointer is relative to the LOGO SLOT,
+		   not the whole browser window.
+
+		   This makes the eye response correct at
+		   the real menu size.
+		*/
+
+		const rect =
+			slot.getBoundingClientRect();
+
+
+		const x =
+			(event.clientX -
+				rect.left) /
+			rect.width;
+
+
+		const y =
+			(event.clientY -
+				rect.top) /
+			rect.height;
+
+
+		pointer.x =
+			x * 2 - 1;
+
+
+		pointer.y =
+			-(y * 2 - 1);
+	},
+	{ passive:true }
+);
+
+
+window.addEventListener(
+	"pointerleave",
+	() => {
+
+		pointer.set(
+			0,
+			0
+		);
+
+	}
+);
 
 
 /* ==================================================
@@ -326,10 +447,22 @@ window.addEventListener("pointerleave",()=>{
    ================================================== */
 
 let model = null;
-let baseCameraDistance = 1;
-let zoomFactor = 1.12;
 
-const materials = [];
+let baseCameraDistance =
+	1;
+
+let zoomFactor =
+	1.12;
+
+const materials =
+	[];
+
+
+let topControl = null;
+let botControl = null;
+
+let topOriginalPupil = null;
+let botOriginalPupil = null;
 
 let topPupil = null;
 let botPupil = null;
@@ -337,14 +470,30 @@ let botPupil = null;
 let topBase = null;
 let botBase = null;
 
-let eyeRange = .028;
+let eyeRange =
+	.030;
 
-function get(name){
-	return model ? model.getObjectByName(name) : null;
+
+/* ==================================================
+   HELPERS
+   ================================================== */
+
+function get(name) {
+
+	return model
+		? model.getObjectByName(
+			name
+		)
+		: null;
+
 }
 
-function resizeRenderer(){
-	const rect = slot.getBoundingClientRect();
+
+function resizeRenderer() {
+
+	const rect =
+		slot.getBoundingClientRect();
+
 
 	renderer.setSize(
 		rect.width,
@@ -352,26 +501,59 @@ function resizeRenderer(){
 		false
 	);
 
+
 	camera.aspect =
 		rect.width /
 		rect.height;
 
+
 	camera.updateProjectionMatrix();
+
 }
 
-function frameModel(object){
 
-	const box = new THREE.Box3().setFromObject(object);
-	const center = new THREE.Vector3();
-	const size = new THREE.Vector3();
+function frameModel(object) {
 
-	box.getCenter(center);
-	box.getSize(size);
+	const box =
+		new THREE.Box3()
+			.setFromObject(
+				object
+			);
 
-	object.position.sub(center);
 
-	const box2 = new THREE.Box3().setFromObject(object);
-	box2.getSize(size);
+	const center =
+		new THREE.Vector3();
+
+
+	const size =
+		new THREE.Vector3();
+
+
+	box.getCenter(
+		center
+	);
+
+	box.getSize(
+		size
+	);
+
+
+	object.position.sub(
+		center
+	);
+
+
+	const box2 =
+		new THREE.Box3()
+			.setFromObject(
+				object
+			);
+
+
+	box2.getSize(
+		size
+	);
+
 
 	const maxDim =
 		Math.max(
@@ -380,51 +562,239 @@ function frameModel(object){
 			size.z
 		);
 
+
 	const fov =
 		THREE.MathUtils.degToRad(
 			camera.fov
 		);
 
+
 	baseCameraDistance =
 		maxDim /
-		(2*Math.tan(fov/2));
+		(
+			2 *
+			Math.tan(
+				fov / 2
+			)
+		);
 
-	/* slightly tighter framing because this is header-sized */
-	baseCameraDistance *= 1.08;
+
+	baseCameraDistance *=
+		1.08;
+
 
 	camera.position.set(
 		0,
 		0,
-		baseCameraDistance / zoomFactor
+		baseCameraDistance /
+			zoomFactor
 	);
 
+
 	camera.near =
-		Math.max(.01,baseCameraDistance/100);
+		Math.max(
+			.01,
+			baseCameraDistance /
+				100
+		);
+
 
 	camera.far =
-		baseCameraDistance*100;
+		baseCameraDistance *
+		100;
+
 
 	camera.updateProjectionMatrix();
+
 }
 
-function registerMaterial(mat){
-	if(!mat) return;
 
-	if("envMapIntensity" in mat){
-		mat.envMapIntensity = 0;
+function registerMaterial(mat) {
+
+	if (!mat) {
+		return;
 	}
 
-	if("roughness" in mat){
-		mat.roughness = .51;
+
+	if (
+		"envMapIntensity"
+		in mat
+	) {
+
+		mat.envMapIntensity =
+			0;
+
 	}
 
-	if(mat.normalMap){
-		mat.normalScale.set(1.96,1.96);
+
+	if (
+		"roughness"
+		in mat
+	) {
+
+		mat.roughness =
+			.51;
+
 	}
 
-	mat.needsUpdate = true;
 
-	materials.push(mat);
+	if (
+		mat.normalMap
+	) {
+
+		mat.normalScale.set(
+			1.96,
+			1.96
+		);
+
+	}
+
+
+	mat.needsUpdate =
+		true;
+
+
+	materials.push(
+		mat
+	);
+
+}
+
+
+/* ==================================================
+   REBUILD PUPIL AS A SIMPLE THREE.JS CIRCLE
+   ================================================== */
+
+/*
+   This is the key change.
+
+   We do NOT move the GLB pupil anymore.
+
+   We hide it and create a brand-new black circle
+   DIRECTLY under O_TOP_CONTROL / O_BOT_CONTROL.
+
+   We know the GLB eye plane is local X/Z and Y is depth.
+
+   This removes any weird transform, mesh, material,
+   parent inverse, or export issue from the pupil itself.
+*/
+
+function rebuildPupil(
+	control,
+	originalPupil
+) {
+
+	if (
+		!control ||
+		!originalPupil
+	) {
+
+		return null;
+
+	}
+
+
+	/*
+	   Measure the exported pupil.
+	*/
+
+	const worldBox =
+		new THREE.Box3()
+			.setFromObject(
+				originalPupil
+			);
+
+
+	const worldSize =
+		new THREE.Vector3();
+
+
+	worldBox.getSize(
+		worldSize
+	);
+
+
+	const radius =
+		Math.max(
+			worldSize.x,
+			worldSize.y,
+			worldSize.z
+		) *
+		0.50;
+
+
+	/*
+	   CircleGeometry starts in XY.
+	   Rotate it +90° around X so it lies in X/Z,
+	   facing along local Y — exactly like your eye.
+	*/
+
+	const geometry =
+		new THREE.CircleGeometry(
+			radius,
+			40
+		);
+
+
+	geometry.rotateX(
+		Math.PI / 2
+	);
+
+
+	const material =
+		new THREE.MeshBasicMaterial({
+			color:0x101010,
+			side:THREE.DoubleSide,
+			depthTest:true,
+			depthWrite:true
+		});
+
+
+	const pupil =
+		new THREE.Mesh(
+			geometry,
+			material
+		);
+
+
+	/*
+	   Because original pupil is already a direct child
+	   of the same CONTROL in your corrected GLB,
+	   its local position is exactly the reference we want.
+	*/
+
+	pupil.position.copy(
+		originalPupil.position
+	);
+
+
+	pupil.rotation.set(
+		0,
+		0,
+		0
+	);
+
+
+	pupil.name =
+		originalPupil.name +
+		".JS";
+
+
+	control.add(
+		pupil
+	);
+
+
+	/*
+	   Hide old GLB pupil.
+	*/
+
+	originalPupil.visible =
+		false;
+
+
+	return pupil;
+
 }
 
 
@@ -433,222 +803,525 @@ function registerMaterial(mat){
    ================================================== */
 
 new GLTFLoader().load(
+
 	"./Name1.glb",
 
-	(gltf)=>{
+	(gltf) => {
 
-		model = gltf.scene;
+		model =
+			gltf.scene;
 
-		/*
-		   Correct front-facing orientation for your export.
-		*/
-		model.rotation.x = Math.PI/2;
 
-		scene.add(model);
+		model.rotation.x =
+			Math.PI / 2;
 
-		model.traverse((obj)=>{
-			if(!obj.isMesh) return;
 
-			if(Array.isArray(obj.material)){
-				obj.material.forEach(registerMaterial);
-			}else{
-				registerMaterial(obj.material);
+		scene.add(
+			model
+		);
+
+
+		model.traverse(
+			(obj) => {
+
+				if (
+					!obj.isMesh
+				) {
+					return;
+				}
+
+
+				if (
+					Array.isArray(
+						obj.material
+					)
+				) {
+
+					obj.material.forEach(
+						registerMaterial
+					);
+
+				}
+				else {
+
+					registerMaterial(
+						obj.material
+					);
+
+				}
+
 			}
-		});
+		);
 
-		topPupil = get("O.Top.Pupil");
-		botPupil = get("O.Bot.Pupil");
+
+		topControl =
+			get(
+				"O_TOP_CONTROL"
+			);
+
+
+		botControl =
+			get(
+				"O_BOT_CONTROL"
+			);
+
+
+		topOriginalPupil =
+			get(
+				"O.Top.Pupil"
+			);
+
+
+		botOriginalPupil =
+			get(
+				"O.Bot.Pupil"
+			);
+
 
 		/*
-		   IMPORTANT:
-		   I inspected the actual GLB:
-		   pupil and white have matching X/Z.
-		   Y is the depth offset.
-		   So the pupil must move in LOCAL X/Z.
+		   Rebuild black pupils AFTER loading.
 		*/
-		if(topPupil){
-			topBase = topPupil.position.clone();
-			topPupil.matrixAutoUpdate = true;
+
+		topPupil =
+			rebuildPupil(
+				topControl,
+				topOriginalPupil
+			);
+
+
+		botPupil =
+			rebuildPupil(
+				botControl,
+				botOriginalPupil
+			);
+
+
+		if (
+			topPupil
+		) {
+
+			topBase =
+				topPupil.position.clone();
+
 		}
 
-		if(botPupil){
-			botBase = botPupil.position.clone();
-			botPupil.matrixAutoUpdate = true;
+
+		if (
+			botPupil
+		) {
+
+			botBase =
+				botPupil.position.clone();
+
 		}
+
 
 		resizeRenderer();
-		frameModel(model);
+
+		frameModel(
+			model
+		);
+
 
 		status.textContent =
-			`pupils ${topPupil ? "✓" : "✗"} ${botPupil ? "✓" : "✗"} • site-size preview`;
+			`rebuilt eyes ${topPupil ? "✓" : "✗"} ${botPupil ? "✓" : "✗"} • site-size preview`;
+
+
+		console.log(
+			"TOP JS PUPIL",
+			topPupil
+		);
+
+
+		console.log(
+			"BOT JS PUPIL",
+			botPupil
+		);
+
 	},
 
 	undefined,
 
-	(error)=>{
-		console.error(error);
-		status.textContent = "could not load Name1.glb";
+	(error) => {
+
+		console.error(
+			error
+		);
+
+
+		status.textContent =
+			"could not load Name1.glb";
+
 	}
+
 );
 
 
 /* ==================================================
-   EYE TRACKING
+   EYE MOVEMENT
    ================================================== */
 
-function updatePupil(pupil,base,time,phase){
+function updatePupil(
+	pupil,
+	base,
+	time,
+	phase
+) {
 
-	if(!pupil || !base) return;
-
-	let gx = smoothPointer.x;
-	let gy = smoothPointer.y;
-
-	/*
-	   Debug mode proves the mesh itself is moving even
-	   without pointer input.
-	*/
-	if(document.querySelector("#autoEyes").checked){
-		gx = Math.sin(time*1.7 + phase);
-		gy = Math.cos(time*1.3 + phase);
+	if (
+		!pupil ||
+		!base
+	) {
+		return;
 	}
 
+
+	let gx =
+		smoothPointer.x;
+
+
+	let gy =
+		smoothPointer.y;
+
+
 	/*
-	   Elliptical clamp.
+	   Debug mode ignores mouse and circles forever.
+
+	   If checked, the pupil MUST visibly orbit.
 	*/
+
+	if (
+		document
+			.querySelector(
+				"#autoEyes"
+			)
+			.checked
+	) {
+
+		gx =
+			Math.sin(
+				time * 1.7 +
+				phase
+			);
+
+
+		gy =
+			Math.cos(
+				time * 1.4 +
+				phase
+			);
+
+	}
+
+
 	const len =
 		Math.sqrt(
-			gx*gx +
-			gy*gy
+			gx * gx +
+			gy * gy
 		);
 
-	if(len > 1){
-		gx /= len;
-		gy /= len;
+
+	if (
+		len > 1
+	) {
+
+		gx /=
+			len;
+
+
+		gy /=
+			len;
+
 	}
+
+
+	/*
+	   Local X = horizontal
+	   Local Z = vertical
+	   Local Y = depth, untouched
+	*/
 
 	const targetX =
 		base.x +
-		gx * eyeRange;
+		gx *
+		eyeRange;
+
 
 	const targetZ =
 		base.z -
-		gy * eyeRange;
+		gy *
+		eyeRange;
 
-	/*
-	   direct local X/Z movement;
-	   local Y remains depth and is NEVER touched.
-	*/
+
 	pupil.position.x +=
-		(targetX - pupil.position.x)
-		* .30;
+		(
+			targetX -
+			pupil.position.x
+		) *
+		.32;
+
 
 	pupil.position.z +=
-		(targetZ - pupil.position.z)
-		* .30;
+		(
+			targetZ -
+			pupil.position.z
+		) *
+		.32;
 
-	pupil.position.y = base.y;
 
-	/*
-	   force matrix refresh — no ambiguity.
-	*/
-	pupil.updateMatrix();
-	pupil.updateMatrixWorld(true);
+	pupil.position.y =
+		base.y;
+
 }
 
 
 /* ==================================================
-   CALIBRATION UI
+   UI
    ================================================== */
 
-function bindRange(id,valId,cb,digits=2){
-	const input = document.getElementById(id);
-	const val = document.getElementById(valId);
+function bindRange(
+	id,
+	valId,
+	cb,
+	digits = 2
+) {
 
-	function update(){
-		const v = parseFloat(input.value);
-		val.textContent = v.toFixed(digits);
+	const input =
+		document.getElementById(
+			id
+		);
+
+
+	const val =
+		document.getElementById(
+			valId
+		);
+
+
+	function update() {
+
+		const v =
+			parseFloat(
+				input.value
+			);
+
+
+		val.textContent =
+			v.toFixed(
+				digits
+			);
+
+
 		cb(v);
+
 	}
 
-	input.addEventListener("input",update);
+
+	input.addEventListener(
+		"input",
+		update
+	);
+
+
 	update();
+
 }
 
-bindRange("exposure","exposureVal",(v)=>{
-	renderer.toneMappingExposure = v;
-});
 
-bindRange("env","envVal",(v)=>{
-	materials.forEach(mat=>{
-		if("envMapIntensity" in mat){
-			mat.envMapIntensity = v;
-		}
-	});
-});
-
-bindRange("normal","normalVal",(v)=>{
-	materials.forEach(mat=>{
-		if(mat.normalMap){
-			mat.normalScale.set(v,v);
-		}
-	});
-});
-
-bindRange("roughness","roughnessVal",(v)=>{
-	materials.forEach(mat=>{
-		if("roughness" in mat){
-			mat.roughness = v;
-		}
-	});
-});
-
-bindRange("key","keyVal",(v)=>{
-	key.intensity = v;
-});
-
-bindRange("blue","blueVal",(v)=>{
-	blue.intensity = v;
-});
-
-bindRange("pink","pinkVal",(v)=>{
-	pink.intensity = v;
-});
-
-bindRange("hemi","hemiVal",(v)=>{
-	hemi.intensity = v;
-});
-
-bindRange("zoom","zoomVal",(v)=>{
-	zoomFactor = v;
-
-	if(model){
-		camera.position.z =
-			baseCameraDistance /
-			zoomFactor;
+bindRange(
+	"exposure",
+	"exposureVal",
+	(v) => {
+		renderer.toneMappingExposure =
+			v;
 	}
-});
+);
 
-bindRange("eyeRange","eyeRangeVal",(v)=>{
-	eyeRange = v;
-},3);
+
+bindRange(
+	"env",
+	"envVal",
+	(v) => {
+
+		materials.forEach(
+			(mat) => {
+
+				if (
+					"envMapIntensity"
+					in mat
+				) {
+
+					mat.envMapIntensity =
+						v;
+
+				}
+
+			}
+		);
+
+	}
+);
+
+
+bindRange(
+	"normal",
+	"normalVal",
+	(v) => {
+
+		materials.forEach(
+			(mat) => {
+
+				if (
+					mat.normalMap
+				) {
+
+					mat.normalScale.set(
+						v,
+						v
+					);
+
+				}
+
+			}
+		);
+
+	}
+);
+
+
+bindRange(
+	"roughness",
+	"roughnessVal",
+	(v) => {
+
+		materials.forEach(
+			(mat) => {
+
+				if (
+					"roughness"
+					in mat
+				) {
+
+					mat.roughness =
+						v;
+
+				}
+
+			}
+		);
+
+	}
+);
+
+
+bindRange(
+	"key",
+	"keyVal",
+	(v) => {
+
+		key.intensity =
+			v;
+
+	}
+);
+
+
+bindRange(
+	"blue",
+	"blueVal",
+	(v) => {
+
+		blue.intensity =
+			v;
+
+	}
+);
+
+
+bindRange(
+	"pink",
+	"pinkVal",
+	(v) => {
+
+		pink.intensity =
+			v;
+
+	}
+);
+
+
+bindRange(
+	"hemi",
+	"hemiVal",
+	(v) => {
+
+		hemi.intensity =
+			v;
+
+	}
+);
+
+
+bindRange(
+	"zoom",
+	"zoomVal",
+	(v) => {
+
+		zoomFactor =
+			v;
+
+
+		if (
+			model
+		) {
+
+			camera.position.z =
+				baseCameraDistance /
+				zoomFactor;
+
+		}
+
+	}
+);
+
+
+bindRange(
+	"eyeRange",
+	"eyeRangeVal",
+	(v) => {
+
+		eyeRange =
+			v;
+
+	},
+	3
+);
 
 
 /* ==================================================
    LOOP
    ================================================== */
 
-const clock = new THREE.Clock();
+const clock =
+	new THREE.Clock();
 
-function animate(){
 
-	requestAnimationFrame(animate);
+function animate() {
 
-	const time = clock.getElapsedTime();
+	requestAnimationFrame(
+		animate
+	);
+
+
+	const time =
+		clock.getElapsedTime();
+
 
 	smoothPointer.lerp(
 		pointer,
 		.16
 	);
+
 
 	updatePupil(
 		topPupil,
@@ -657,6 +1330,7 @@ function animate(){
 		0
 	);
 
+
 	updatePupil(
 		botPupil,
 		botBase,
@@ -664,22 +1338,38 @@ function animate(){
 		1.5
 	);
 
+
 	renderer.render(
 		scene,
 		camera
 	);
+
 }
+
 
 animate();
 
 
-window.addEventListener("resize",()=>{
-	resizeRenderer();
+window.addEventListener(
+	"resize",
+	() => {
 
-	if(model){
-		frameModel(model);
+		resizeRenderer();
+
+
+		if (
+			model
+		) {
+
+			frameModel(
+				model
+			);
+
+		}
+
 	}
-});
+);
+
 
 resizeRenderer();
 
