@@ -3,176 +3,676 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Bruno Lopes — Raw DOM Eye Test</title>
+<title>Bruno Lopes — Final Logo Test</title>
+
 <style>
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff4e0;font-family:Arial,sans-serif}
-.site{position:relative;width:100%;height:100%}
-.sidebar{position:absolute;left:0;top:0;width:420px;height:100%}
-.logo-slot{position:absolute;left:52px;top:44px;width:310px;height:205px}
-.logo-slot canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
-.pupil{
-	position:absolute;
-	width:14px;height:14px;border-radius:50%;
-	background:#080808;
-	z-index:9999;
-	pointer-events:none;
-	transform:translate(-50%,-50%);
-	box-shadow:0 0 0 1px rgba(255,255,255,.18);
-}
-.fake-menu{position:absolute;left:68px;top:258px;font-size:16px;line-height:2.35;opacity:.68;pointer-events:none}
-.fake-menu b{display:block;font-size:19px;margin-bottom:6px}
-.fake-content{position:absolute;left:470px;right:55px;top:55px;height:calc(100% - 110px);border:2px solid rgba(0,0,0,.68);border-radius:36px;opacity:.16}
-.panel{position:absolute;right:14px;top:14px;width:290px;padding:14px;background:rgba(255,255,255,.95);border:1px solid rgba(0,0,0,.12);border-radius:12px;z-index:10000}
-.panel h3{font-size:13px;margin:0 0 10px}
-.row{display:grid;grid-template-columns:105px 1fr 48px;gap:8px;align-items:center;margin:6px 0}
-.row label{font-size:11px;opacity:.72}.row input{width:100%}.val{font-size:10px;text-align:right;opacity:.65}
-.debug{margin-top:10px;padding-top:10px;border-top:1px solid #ddd;font:11px/1.45 monospace;white-space:pre-line}
-.status{position:absolute;left:14px;bottom:12px;font-size:11px;opacity:.4}
+	html,body{
+		margin:0;
+		width:100%;
+		height:100%;
+		overflow:hidden;
+		background:#fff4e0;
+		font-family:Arial,sans-serif;
+	}
+
+	.site{
+		position:relative;
+		width:100%;
+		height:100%;
+		background:#fff4e0;
+	}
+
+	.sidebar{
+		position:absolute;
+		left:0;
+		top:0;
+		width:420px;
+		height:100%;
+	}
+
+	.logo-slot{
+		position:absolute;
+		left:52px;
+		top:44px;
+		width:310px;
+		height:205px;
+	}
+
+	.logo-slot canvas{
+		position:absolute;
+		inset:0;
+		display:block;
+		width:100%;
+		height:100%;
+	}
+
+	.eye-layer{
+		position:absolute;
+		inset:0;
+		pointer-events:none;
+		z-index:5;
+	}
+
+	.dom-pupil{
+		position:absolute;
+		width:12px;
+		height:12px;
+		border-radius:50%;
+		background:#0d0d0d;
+		transform:translate(-50%,-50%);
+		will-change:left,top,transform;
+		pointer-events:none;
+		box-shadow:0 1px 1px rgba(0,0,0,.16);
+	}
+
+	.fake-menu{
+		position:absolute;
+		left:68px;
+		top:258px;
+		font-size:16px;
+		line-height:2.35;
+		opacity:.68;
+		pointer-events:none;
+	}
+
+	.fake-menu b{
+		display:block;
+		font-size:19px;
+		margin-bottom:6px;
+	}
+
+	.fake-content{
+		position:absolute;
+		left:470px;
+		right:55px;
+		top:55px;
+		height:calc(100% - 110px);
+		border:2px solid rgba(0,0,0,.68);
+		border-radius:36px;
+		opacity:.16;
+		pointer-events:none;
+	}
+
+	.panel{
+		position:absolute;
+		top:14px;
+		right:14px;
+		width:285px;
+		padding:14px;
+		background:rgba(255,255,255,.94);
+		border:1px solid rgba(0,0,0,.12);
+		border-radius:12px;
+		box-shadow:0 8px 30px rgba(0,0,0,.08);
+		backdrop-filter:blur(10px);
+		z-index:10;
+	}
+
+	.panel h3{
+		margin:0 0 10px;
+		font-size:13px;
+	}
+
+	.row{
+		display:grid;
+		grid-template-columns:105px 1fr 48px;
+		gap:8px;
+		align-items:center;
+		margin:6px 0;
+	}
+
+	.row label{
+		font-size:11px;
+		opacity:.72;
+	}
+
+	.row input[type="range"]{
+		width:100%;
+	}
+
+	.val{
+		font-size:10px;
+		text-align:right;
+		opacity:.62;
+	}
+
+	.section-title{
+		margin:11px 0 5px;
+		padding-top:8px;
+		border-top:1px solid rgba(0,0,0,.1);
+		font-size:10px;
+		font-weight:700;
+		letter-spacing:.04em;
+		opacity:.55;
+	}
+
+	.check{
+		margin-top:8px;
+		font-size:11px;
+		display:flex;
+		align-items:center;
+		gap:7px;
+	}
+
+	.status{
+		position:absolute;
+		left:14px;
+		bottom:12px;
+		font-size:11px;
+		opacity:.35;
+		z-index:20;
+	}
 </style>
 </head>
+
 <body>
 <div class="site">
+
 	<div class="sidebar">
 		<div class="logo-slot" id="logoSlot">
-			<div class="pupil" id="p1"></div>
-			<div class="pupil" id="p2"></div>
+			<div class="eye-layer">
+				<div class="dom-pupil" id="topPupil"></div>
+				<div class="dom-pupil" id="botPupil"></div>
+			</div>
 		</div>
-		<div class="fake-menu"><b>MOTION GRAPHICS * VFX</b>Showreel<br>Playground<br>Futster<br>Gobelins JPO<br>Universal Music France<br>Museum D'Orsay</div>
+
+		<div class="fake-menu">
+			<b>MOTION GRAPHICS * VFX</b>
+			Showreel<br>
+			Playground<br>
+			Futster<br>
+			Gobelins JPO<br>
+			Universal Music France<br>
+			Museum D'Orsay
+		</div>
 	</div>
+
 	<div class="fake-content"></div>
 
 	<div class="panel">
-		<h3>RAW DOM eye test</h3>
+		<h3>Logo calibration</h3>
 
-		<div class="row"><label>Top X %</label><input id="topX" type="range" min="0" max="100" step=".1" value="70"><span class="val" id="topXv"></span></div>
-		<div class="row"><label>Top Y %</label><input id="topY" type="range" min="0" max="100" step=".1" value="35"><span class="val" id="topYv"></span></div>
-		<div class="row"><label>Bottom X %</label><input id="botX" type="range" min="0" max="100" step=".1" value="47"><span class="val" id="botXv"></span></div>
-		<div class="row"><label>Bottom Y %</label><input id="botY" type="range" min="0" max="100" step=".1" value="70"><span class="val" id="botYv"></span></div>
-		<div class="row"><label>Eye movement</label><input id="move" type="range" min="0" max="35" step=".5" value="20"><span class="val" id="movev"></span></div>
-		<div class="row"><label>Pupil size</label><input id="size" type="range" min="4" max="30" step=".5" value="14"><span class="val" id="sizev"></span></div>
+		<div class="section-title">CERAMIC / LIGHT</div>
 
-		<div class="debug" id="debug">waiting for pointer…</div>
+		<div class="row"><label>Exposure</label><input id="exposure" type="range" min=".2" max="2" step=".01" value=".40"><span class="val" id="exposureVal"></span></div>
+		<div class="row"><label>Env</label><input id="env" type="range" min="0" max="2" step=".01" value="0"><span class="val" id="envVal"></span></div>
+		<div class="row"><label>Normal</label><input id="normal" type="range" min="0" max="3" step=".01" value="1.96"><span class="val" id="normalVal"></span></div>
+		<div class="row"><label>Roughness</label><input id="roughness" type="range" min="0" max="1" step=".01" value=".51"><span class="val" id="roughnessVal"></span></div>
+		<div class="row"><label>Clearcoat</label><input id="clearcoat" type="range" min="0" max="1" step=".01" value=".03"><span class="val" id="clearcoatVal"></span></div>
+		<div class="row"><label>Key light</label><input id="key" type="range" min="0" max="8" step=".05" value="2.80"><span class="val" id="keyVal"></span></div>
+		<div class="row"><label>Blue rim</label><input id="blue" type="range" min="0" max="8" step=".05" value="5.20"><span class="val" id="blueVal"></span></div>
+		<div class="row"><label>Pink rim</label><input id="pink" type="range" min="0" max="8" step=".05" value="1.95"><span class="val" id="pinkVal"></span></div>
+		<div class="row"><label>Hemi</label><input id="hemi" type="range" min="0" max="5" step=".05" value="0"><span class="val" id="hemiVal"></span></div>
+		<div class="row"><label>Logo zoom</label><input id="zoom" type="range" min=".75" max="1.8" step=".01" value="1.12"><span class="val" id="zoomVal"></span></div>
+
+		<div class="section-title">EYES — DOM OVERLAY</div>
+
+		<div class="row"><label>Top X %</label><input id="topX" type="range" min="0" max="100" step=".1" value="78"><span class="val" id="topXVal"></span></div>
+		<div class="row"><label>Top Y %</label><input id="topY" type="range" min="0" max="100" step=".1" value="33"><span class="val" id="topYVal"></span></div>
+		<div class="row"><label>Bottom X %</label><input id="botX" type="range" min="0" max="100" step=".1" value="32"><span class="val" id="botXVal"></span></div>
+		<div class="row"><label>Bottom Y %</label><input id="botY" type="range" min="0" max="100" step=".1" value="62"><span class="val" id="botYVal"></span></div>
+		<div class="row"><label>Eye move</label><input id="eyeMove" type="range" min="0" max="16" step=".5" value="6"><span class="val" id="eyeMoveVal"></span></div>
+		<div class="row"><label>Pupil size</label><input id="pupilSize" type="range" min="5" max="20" step=".5" value="11"><span class="val" id="pupilSizeVal"></span></div>
+
+		<div class="section-title">LETTER FLOAT</div>
+
+		<div class="row"><label>Float pos</label><input id="floatPos" type="range" min="0" max="8" step=".25" value="1.75"><span class="val" id="floatPosVal"></span></div>
+		<div class="row"><label>Float rot</label><input id="floatRot" type="range" min="0" max="8" step=".25" value="2.25"><span class="val" id="floatRotVal"></span></div>
+
+		<div class="check">
+			<input id="pauseFloat" type="checkbox">
+			<label for="pauseFloat">pause float</label>
+		</div>
 	</div>
 
-	<div class="status" id="status">loading GLB…</div>
+	<div class="status" id="status">loading…</div>
 </div>
 
 <script type="module">
+
 import * as THREE from "https://esm.sh/three@0.180.0";
 import { GLTFLoader } from "https://esm.sh/three@0.180.0/examples/jsm/loaders/GLTFLoader.js";
+import { RoomEnvironment } from "https://esm.sh/three@0.180.0/examples/jsm/environments/RoomEnvironment.js";
 
-const slot=document.querySelector("#logoSlot");
-const p1=document.querySelector("#p1");
-const p2=document.querySelector("#p2");
-const debug=document.querySelector("#debug");
-const status=document.querySelector("#status");
 
-const ui={};
-for(const id of ["topX","topY","botX","botY","move","size"]){
-	ui[id]=document.querySelector("#"+id);
-	const out=document.querySelector("#"+id+"v");
-	const update=()=>out.textContent=parseFloat(ui[id].value).toFixed(1);
-	ui[id].addEventListener("input",update); update();
-}
+/* ==================================================
+   DOM
+   ================================================== */
 
-/* This pointer test is intentionally independent from Three.js. */
-let mouseX=window.innerWidth/2, mouseY=window.innerHeight/2;
-let eventCount=0;
+const slot = document.querySelector("#logoSlot");
+const topPupil = document.querySelector("#topPupil");
+const botPupil = document.querySelector("#botPupil");
+const status = document.querySelector("#status");
 
-function receivePointer(e){
-	mouseX=e.clientX;
-	mouseY=e.clientY;
-	eventCount++;
-}
-window.addEventListener("pointermove",receivePointer,{passive:true});
-window.addEventListener("mousemove",receivePointer,{passive:true});
 
-/* Minimal 3D: only so the real logo remains visible behind the DOM test. */
-const scene=new THREE.Scene();
-const camera=new THREE.PerspectiveCamera(28,1,.01,100);
-const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+/* ==================================================
+   THREE.JS
+   ================================================== */
+
+const scene = new THREE.Scene();
+
+const renderer = new THREE.WebGLRenderer({
+	antialias:true,
+	alpha:true
+});
+
 renderer.setClearColor(0x000000,0);
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-renderer.outputColorSpace=THREE.SRGBColorSpace;
-renderer.toneMapping=THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure=.40;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = .40;
+
 slot.prepend(renderer.domElement);
 
-scene.add(new THREE.HemisphereLight(0xfff7ec,0x4d4c5f,0));
-const key=new THREE.DirectionalLight(0xffffff,2.8); key.position.set(1.2,3.5,7); scene.add(key);
-const blue=new THREE.DirectionalLight(0x7d95ff,5.2); blue.position.set(-5,3,-4); scene.add(blue);
-const pink=new THREE.DirectionalLight(0xff8fb4,1.95); pink.position.set(5,-2,-4); scene.add(pink);
+const camera = new THREE.PerspectiveCamera(
+	28,
+	1,
+	.01,
+	100
+);
 
-let model=null;
 
-function resize(){
-	const r=slot.getBoundingClientRect();
-	renderer.setSize(r.width,r.height,false);
-	camera.aspect=r.width/r.height;
+/* ==================================================
+   ENVIRONMENT / LIGHTS
+   ================================================== */
+
+const pmrem = new THREE.PMREMGenerator(renderer);
+const room = new RoomEnvironment();
+const envRT = pmrem.fromScene(room,.04);
+room.dispose();
+scene.environment = envRT.texture;
+
+const hemi = new THREE.HemisphereLight(
+	0xfff7ec,
+	0x4d4c5f,
+	0
+);
+scene.add(hemi);
+
+const key = new THREE.DirectionalLight(0xffffff,2.80);
+key.position.set(1.2,3.5,7);
+scene.add(key);
+
+const blue = new THREE.DirectionalLight(0x7d95ff,5.20);
+blue.position.set(-5,3,-4);
+scene.add(blue);
+
+const pink = new THREE.DirectionalLight(0xff8fb4,1.95);
+pink.position.set(5,-2,-4);
+scene.add(pink);
+
+
+/* ==================================================
+   STATE
+   ================================================== */
+
+let model = null;
+let baseCameraDistance = 1;
+let zoomFactor = 1.12;
+
+const ceramicMaterials = [];
+const floatObjects = [];
+
+let topX = 78;
+let topY = 33;
+let botX = 32;
+let botY = 62;
+
+let eyeMove = 6;
+let pupilSize = 11;
+let floatPos = 1.75;
+let floatRot = 2.25;
+
+
+/* ==================================================
+   POINTER — SIMPLE / RELIABLE DOM VERSION
+   ================================================== */
+
+let mouseX = innerWidth / 2;
+let mouseY = innerHeight / 2;
+
+window.addEventListener("pointermove",(e)=>{
+	mouseX = e.clientX;
+	mouseY = e.clientY;
+},{passive:true});
+
+window.addEventListener("mousemove",(e)=>{
+	mouseX = e.clientX;
+	mouseY = e.clientY;
+},{passive:true});
+
+
+/* ==================================================
+   HELPERS
+   ================================================== */
+
+function get(name){
+	return model ? model.getObjectByName(name) : null;
+}
+
+function resizeRenderer(){
+	const r = slot.getBoundingClientRect();
+
+	renderer.setSize(
+		r.width,
+		r.height,
+		false
+	);
+
+	camera.aspect = r.width/r.height;
 	camera.updateProjectionMatrix();
 }
-function frame(obj){
-	const box=new THREE.Box3().setFromObject(obj), center=new THREE.Vector3(), size=new THREE.Vector3();
-	box.getCenter(center); box.getSize(size); obj.position.sub(center);
-	const b2=new THREE.Box3().setFromObject(obj); b2.getSize(size);
-	const max=Math.max(size.x,size.y,size.z);
-	let d=max/(2*Math.tan(THREE.MathUtils.degToRad(camera.fov)/2))*1.08;
-	camera.position.set(0,0,d); camera.near=Math.max(.01,d/100); camera.far=d*100; camera.updateProjectionMatrix();
+
+function frameModel(object){
+
+	const box = new THREE.Box3().setFromObject(object);
+	const center = new THREE.Vector3();
+	const size = new THREE.Vector3();
+
+	box.getCenter(center);
+	box.getSize(size);
+
+	object.position.sub(center);
+
+	const centered = new THREE.Box3().setFromObject(object);
+	centered.getSize(size);
+
+	const maxDim = Math.max(size.x,size.y,size.z);
+	const fov = THREE.MathUtils.degToRad(camera.fov);
+
+	baseCameraDistance =
+		maxDim /
+		(2*Math.tan(fov/2));
+
+	baseCameraDistance *= 1.08;
+
+	camera.position.set(
+		0,
+		0,
+		baseCameraDistance/zoomFactor
+	);
+
+	camera.near = Math.max(.01,baseCameraDistance/100);
+	camera.far = baseCameraDistance*100;
+	camera.updateProjectionMatrix();
 }
 
-new GLTFLoader().load("./Name1.glb",g=>{
-	model=g.scene;
-	model.rotation.x=Math.PI/2;
-	scene.add(model);
-	/* hide only GLB pupils if names exist */
-	const a=model.getObjectByName("O.Top.Pupil"), b=model.getObjectByName("O.Bot.Pupil");
-	if(a)a.visible=false;if(b)b.visible=false;
-	resize(); frame(model);
-	status.textContent="GLB loaded ✓ • DOM eyes independent";
-},undefined,e=>{console.error(e);status.textContent="GLB load failed — DOM test still works";});
 
-function eyePosition(el, xPct, yPct, rect, movement, pupilSize){
-	const baseX=rect.width*(xPct/100);
-	const baseY=rect.height*(yPct/100);
+/* ==================================================
+   CERAMIC MATERIAL
+   ================================================== */
 
-	/* direction from each eye toward actual browser mouse */
-	const eyeScreenX=rect.left+baseX;
-	const eyeScreenY=rect.top+baseY;
-	let dx=mouseX-eyeScreenX, dy=mouseY-eyeScreenY;
-	const len=Math.hypot(dx,dy)||1;
-	dx/=len;dy/=len;
+function makeCeramicMaterial(source){
 
-	el.style.left=(baseX+dx*movement)+"px";
-	el.style.top=(baseY+dy*movement)+"px";
-	el.style.width=pupilSize+"px";
-	el.style.height=pupilSize+"px";
+	const material = new THREE.MeshPhysicalMaterial({
+		color: source.color ? source.color.clone() : new THREE.Color(0xffffff),
+		map: source.map || null,
+		normalMap: source.normalMap || null,
+		roughnessMap: source.roughnessMap || null,
+		aoMap: source.aoMap || null,
+
+		metalness:0,
+		roughness:.51,
+		clearcoat:.03,
+		clearcoatRoughness:.85,
+		ior:1.45,
+		envMapIntensity:0
+	});
+
+	if(material.normalMap){
+		material.normalScale.set(1.96,1.96);
+	}
+
+	ceramicMaterials.push(material);
+
+	return material;
 }
 
-function loop(){
-	requestAnimationFrame(loop);
+function setupMaterials(){
 
-	const rect=slot.getBoundingClientRect();
-	const move=parseFloat(ui.move.value);
-	const size=parseFloat(ui.size.value);
+	model.traverse((obj)=>{
 
-	eyePosition(p1,parseFloat(ui.topX.value),parseFloat(ui.topY.value),rect,move,size);
-	eyePosition(p2,parseFloat(ui.botX.value),parseFloat(ui.botY.value),rect,move,size);
+		if(!obj.isMesh || !obj.material) return;
 
-	debug.textContent=
-`POINTER EVENTS: ${eventCount}
-mouse X: ${Math.round(mouseX)}
-mouse Y: ${Math.round(mouseY)}
-slot: ${Math.round(rect.width)} × ${Math.round(rect.height)}
+		const source =
+			Array.isArray(obj.material)
+				? obj.material[0]
+				: obj.material;
 
-Move mouse anywhere.
-The numbers above MUST change.`;
-
-	renderer.render(scene,camera);
+		/*
+		   Keep eye-white material untouched.
+		   Only convert the blue clay material.
+		*/
+		if(source.name === "Logo_Master"){
+			obj.material = makeCeramicMaterial(source);
+		}
+	});
 }
-loop();
 
-window.addEventListener("resize",()=>{resize();if(model)frame(model)});
-resize();
+
+/* ==================================================
+   SUBTLE LETTER FLOAT
+   ================================================== */
+
+function setupFloatObjects(){
+
+	const names = [
+		"B","R","U","N",
+		"L","P","E","S",
+		"O_TOP_CONTROL",
+		"O_BOT_CONTROL"
+	];
+
+	names.forEach((name,index)=>{
+
+		const obj = get(name);
+		if(!obj) return;
+
+		obj.userData.baseP = obj.position.clone();
+		obj.userData.baseR = obj.rotation.clone();
+		obj.userData.phase = index*.72 + Math.random()*.45;
+		obj.userData.speed = .26 + Math.random()*.18;
+
+		floatObjects.push(obj);
+	});
+}
+
+function updateFloat(time){
+
+	if(document.querySelector("#pauseFloat").checked){
+		return;
+	}
+
+	const rect = slot.getBoundingClientRect();
+
+	/*
+	   Tiny world-space amount derived from desired pixel amplitude.
+	*/
+	const amount =
+		(floatPos / Math.max(rect.width,1)) * 1.15;
+
+	const rot =
+		THREE.MathUtils.degToRad(floatRot);
+
+	floatObjects.forEach((obj)=>{
+
+		const bP = obj.userData.baseP;
+		const bR = obj.userData.baseR;
+		const p = obj.userData.phase;
+		const s = obj.userData.speed;
+
+		const tx = bP.x + Math.sin(time*s + p) * amount;
+		const ty = bP.y + Math.sin(time*s*.61 + p) * amount*.18;
+		const tz = bP.z + Math.cos(time*s*.78 + p) * amount;
+
+		obj.position.x += (tx-obj.position.x)*.025;
+		obj.position.y += (ty-obj.position.y)*.025;
+		obj.position.z += (tz-obj.position.z)*.025;
+
+		const rx = bR.x + Math.sin(time*s*.52+p)*rot;
+		const ry = bR.y + Math.cos(time*s*.47+p)*rot;
+		const rz = bR.z + Math.sin(time*s*.41+p*1.2)*rot*.45;
+
+		obj.rotation.x += (rx-obj.rotation.x)*.022;
+		obj.rotation.y += (ry-obj.rotation.y)*.022;
+		obj.rotation.z += (rz-obj.rotation.z)*.022;
+	});
+}
+
+
+/* ==================================================
+   DOM EYES — NO CONNECTION TO GLB
+   ================================================== */
+
+function updateDOMEye(el,xPct,yPct){
+
+	const rect = slot.getBoundingClientRect();
+
+	const baseX = rect.width * (xPct/100);
+	const baseY = rect.height * (yPct/100);
+
+	const screenX = rect.left + baseX;
+	const screenY = rect.top + baseY;
+
+	let dx = mouseX-screenX;
+	let dy = mouseY-screenY;
+
+	const len = Math.hypot(dx,dy) || 1;
+
+	dx /= len;
+	dy /= len;
+
+	const x = baseX + dx*eyeMove;
+	const y = baseY + dy*eyeMove;
+
+	el.style.left = x+"px";
+	el.style.top = y+"px";
+	el.style.width = pupilSize+"px";
+	el.style.height = pupilSize+"px";
+}
+
+
+/* ==================================================
+   LOAD NEW GLB — EXPECTS NO BLACK PUPILS
+   ================================================== */
+
+new GLTFLoader().load(
+	"./Name1.glb",
+
+	(gltf)=>{
+
+		model = gltf.scene;
+
+		model.rotation.x = Math.PI/2;
+		scene.add(model);
+
+		setupMaterials();
+		setupFloatObjects();
+
+		resizeRenderer();
+		frameModel(model);
+
+		status.textContent =
+			"new pupil-free GLB ✓ • DOM eyes ✓ • subtle float ✓";
+	},
+
+	undefined,
+
+	(error)=>{
+		console.error(error);
+		status.textContent = "could not load Name1.glb";
+	}
+);
+
+
+/* ==================================================
+   UI
+   ================================================== */
+
+function bind(id,valId,cb,digits=2){
+
+	const input = document.getElementById(id);
+	const val = document.getElementById(valId);
+
+	function update(){
+		const v = parseFloat(input.value);
+		val.textContent = v.toFixed(digits);
+		cb(v);
+	}
+
+	input.addEventListener("input",update);
+	update();
+}
+
+bind("exposure","exposureVal",v=>renderer.toneMappingExposure=v);
+bind("env","envVal",v=>ceramicMaterials.forEach(m=>m.envMapIntensity=v));
+bind("normal","normalVal",v=>ceramicMaterials.forEach(m=>{if(m.normalMap)m.normalScale.set(v,v)}));
+bind("roughness","roughnessVal",v=>ceramicMaterials.forEach(m=>m.roughness=v));
+bind("clearcoat","clearcoatVal",v=>ceramicMaterials.forEach(m=>m.clearcoat=v));
+bind("key","keyVal",v=>key.intensity=v);
+bind("blue","blueVal",v=>blue.intensity=v);
+bind("pink","pinkVal",v=>pink.intensity=v);
+bind("hemi","hemiVal",v=>hemi.intensity=v);
+
+bind("zoom","zoomVal",v=>{
+	zoomFactor=v;
+	if(model) camera.position.z=baseCameraDistance/zoomFactor;
+});
+
+bind("topX","topXVal",v=>topX=v,1);
+bind("topY","topYVal",v=>topY=v,1);
+bind("botX","botXVal",v=>botX=v,1);
+bind("botY","botYVal",v=>botY=v,1);
+
+bind("eyeMove","eyeMoveVal",v=>eyeMove=v,1);
+bind("pupilSize","pupilSizeVal",v=>pupilSize=v,1);
+bind("floatPos","floatPosVal",v=>floatPos=v,2);
+bind("floatRot","floatRotVal",v=>floatRot=v,2);
+
+
+/* ==================================================
+   LOOP
+   ================================================== */
+
+const clock = new THREE.Clock();
+
+function animate(){
+
+	requestAnimationFrame(animate);
+
+	const time = clock.getElapsedTime();
+
+	if(model){
+		updateFloat(time);
+	}
+
+	updateDOMEye(
+		topPupil,
+		topX,
+		topY
+	);
+
+	updateDOMEye(
+		botPupil,
+		botX,
+		botY
+	);
+
+	renderer.render(
+		scene,
+		camera
+	);
+}
+
+animate();
+
+
+window.addEventListener("resize",()=>{
+	resizeRenderer();
+	if(model) frameModel(model);
+});
+
+resizeRenderer();
+
 </script>
 </body>
 </html>
