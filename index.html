@@ -1,20 +1,96 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>3 Direction Test</title><style>
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff4e0;font-family:Arial}.slot{position:absolute;left:52px;top:44px;width:310px;height:205px}.slot canvas{position:absolute;inset:0;width:100%;height:100%}.p{position:absolute;width:11px;height:12px;background:radial-gradient(circle at 32% 27%,#fff 0 6%,transparent 7%),#080808;border-radius:55% 45% 52% 48%;transform:translate(-50%,-50%);z-index:4}.menu{position:absolute;left:68px;top:258px;line-height:2.35;opacity:.68}.menu b{font-size:19px}.content{position:absolute;left:470px;right:55px;top:55px;bottom:55px;border:2px solid #000;border-radius:36px;opacity:.16}.panel{position:absolute;right:14px;top:14px;width:300px;padding:14px;background:#fffffff2;border:1px solid #ddd;border-radius:13px;z-index:9}.modes{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.modes button{padding:9px 3px;border:1px solid #ccc;border-radius:8px}.modes .on{background:#111;color:white}.desc{font-size:10px;opacity:.6;margin:8px 0}.row{display:grid;grid-template-columns:100px 1fr 42px;gap:7px;align-items:center;margin:6px 0;font-size:11px}.row input{width:100%}.v{font-size:10px;opacity:.6}.status{position:absolute;left:14px;bottom:12px;font-size:11px;opacity:.4}</style></head><body>
-<div class="slot" id="slot"><div class="p" id="p1"></div><div class="p" id="p2"></div></div>
-<div class="menu"><b>MOTION GRAPHICS * VFX</b><br>Showreel<br>Playground<br>Futster<br>Gobelins JPO<br>Universal Music France<br>Museum D'Orsay</div><div class="content"></div>
-<div class="panel"><b>3 direction test</b><div class="modes"><button id="A" class="on">A · STILL</button><button id="B">B · TILT</button><button id="C">C · GRAPHIC</button></div><div class="desc" id="desc"></div><div id="controls"></div></div><div class="status" id="status">loading…</div>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bruno Lopes — Depth Read Test</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff4e0;font-family:Arial,sans-serif}
+.site{position:relative;width:100%;height:100%;background:#fff4e0}
+.slot{position:absolute;left:52px;top:44px;width:310px;height:205px}
+.slot canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.pupil{position:absolute;width:10px;height:12px;z-index:5;transform:translate(-50%,-50%);border-radius:54% 46% 50% 50%;background:radial-gradient(circle at 32% 25%,rgba(255,255,255,.85) 0 6%,transparent 7%),#080808;pointer-events:none}
+.menu{position:absolute;left:68px;top:258px;font-size:16px;line-height:2.35;opacity:.68;pointer-events:none}.menu b{font-size:19px}
+.content{position:absolute;left:470px;right:55px;top:55px;bottom:55px;border:2px solid #000;border-radius:36px;opacity:.16}
+.panel{position:absolute;right:14px;top:14px;width:305px;max-height:calc(100vh - 28px);overflow:auto;box-sizing:border-box;padding:14px;background:rgba(255,255,255,.96);border:1px solid #ddd;border-radius:13px;z-index:10}
+.panel h3{margin:0 0 5px;font-size:13px}.note{font-size:10px;line-height:1.4;opacity:.55;margin-bottom:8px}
+.section{margin:10px 0 5px;padding-top:8px;border-top:1px solid #ddd;font-size:10px;font-weight:700;opacity:.55}
+.row{display:grid;grid-template-columns:112px 1fr 43px;gap:7px;align-items:center;margin:5px 0}.row label{font-size:11px;opacity:.7}.row input{width:100%}.v{font-size:10px;text-align:right;opacity:.6}
+.status{position:absolute;left:14px;bottom:12px;font-size:11px;opacity:.38}
+</style>
+</head>
+<body>
+<div class="site">
+ <div class="slot" id="slot"><div class="pupil" id="p1"></div><div class="pupil" id="p2"></div></div>
+ <div class="menu"><b>MOTION GRAPHICS * VFX</b><br>Showreel<br>Playground<br>Futster<br>Gobelins JPO<br>Universal Music France<br>Museum D'Orsay</div>
+ <div class="content"></div>
+ <div class="panel">
+  <h3>Depth read test</h3>
+  <div class="note">No fancy shader tricks. This version tries to sell the object through perspective, side faces, lighting and contact shadow.</div>
+  <div class="section">CAMERA / FORM</div>
+  <div id="controls"></div>
+ </div>
+ <div class="status" id="status">loading…</div>
+</div>
+
 <script type="module">
-import * as THREE from "https://esm.sh/three@0.180.0";import{GLTFLoader}from"https://esm.sh/three@0.180.0/examples/jsm/loaders/GLTFLoader.js";import{RoomEnvironment}from"https://esm.sh/three@0.180.0/examples/jsm/environments/RoomEnvironment.js";
-const slot=document.querySelector("#slot"),scene=new THREE.Scene(),renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});renderer.setClearColor(0,0);renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;slot.prepend(renderer.domElement);const cam=new THREE.PerspectiveCamera(28,1,.01,100),pm=new THREE.PMREMGenerator(renderer),room=new RoomEnvironment();scene.environment=pm.fromScene(room,.04).texture;room.dispose();const hemi=new THREE.HemisphereLight(0xfff8ed,0x303040,.65),key=new THREE.DirectionalLight(0xffffff,1.7),fill=new THREE.DirectionalLight(0x8896ff,.35);key.position.set(-2,4,7);fill.position.set(5,1,2);scene.add(hemi,key,fill);
-const prof={A:{zoom:1.12,normal:.45,light:1.7,eyeMove:5.5,tilt:0,radius:105,idle:.25,topX:78,topY:33,botX:32,botY:62},B:{zoom:1.12,normal:.42,light:1.65,eyeMove:5.5,tilt:7,radius:115,idle:.35,topX:78,topY:33,botX:32,botY:62},C:{zoom:1.12,normal:.22,light:1.3,eyeMove:5,tilt:3,radius:110,idle:.18,topX:78,topY:33,botX:32,botY:62}},des={A:"Soft matte ceramic. Almost still; only eyes react.",B:"Soft ceramic + gentle cursor tilt.",C:"Graphic toon/clay shading; clearer silhouette, less realism."};let mode="A",P=prof.A,model,dist=1,mx=innerWidth/2,my=innerHeight/2;const entries=[],movers=[];addEventListener("pointermove",e=>{mx=e.clientX;my=e.clientY},{passive:true});
-function resize(){let r=slot.getBoundingClientRect();renderer.setSize(r.width,r.height,false);cam.aspect=r.width/r.height;cam.updateProjectionMatrix()}function frame(o){let b=new THREE.Box3().setFromObject(o),c=new THREE.Vector3(),s=new THREE.Vector3();b.getCenter(c);o.position.sub(c);new THREE.Box3().setFromObject(o).getSize(s);dist=Math.max(s.x,s.y,s.z)/(2*Math.tan(THREE.MathUtils.degToRad(cam.fov)/2))*1.08;cam.position.z=dist/P.zoom;cam.far=dist*100;cam.updateProjectionMatrix()}
-function mat(src){let common={color:src.color?src.color.clone():new THREE.Color("#4035df"),map:src.map||null,normalMap:src.normalMap||null};let m=mode==="C"?new THREE.MeshToonMaterial(common):new THREE.MeshStandardMaterial({...common,aoMap:src.aoMap||null,roughness:.82,metalness:0,envMapIntensity:.12});if(m.normalMap)m.normalScale.set(P.normal,P.normal);return m}function apply(){entries.forEach(e=>e.o.material=mat(e.s))}
-const wp=new THREE.Vector3(),nd=new THREE.Vector3();function sp(o){o.getWorldPosition(wp);nd.copy(wp).project(cam);let r=slot.getBoundingClientRect();return{x:r.left+(nd.x*.5+.5)*r.width,y:r.top+(-nd.y*.5+.5)*r.height}}
-function motion(t){movers.forEach(o=>{let bp=o.userData.bp,br=o.userData.br,ph=o.userData.ph,tx=bp.x,tz=bp.z,rx=br.x,ry=br.y,a=P.idle/slot.clientWidth;tx+=Math.sin(t*.32+ph)*a;tz+=Math.cos(t*.27+ph)*a;if(P.tilt){let s=sp(o),dx=s.x-mx,dy=s.y-my,d=Math.hypot(dx,dy)||1;if(d<P.radius){let f=1-d/P.radius,q=THREE.MathUtils.degToRad(P.tilt)*f;rx+=-dy/d*q;ry+=dx/d*q;tx+=dx/d*(P.tilt/slot.clientWidth)*.18*f;tz-=dy/d*(P.tilt/slot.clientWidth)*.18*f}}o.position.x+=(tx-o.position.x)*.055;o.position.z+=(tz-o.position.z)*.055;o.rotation.x+=(rx-o.rotation.x)*.05;o.rotation.y+=(ry-o.rotation.y)*.05})}
-function eye(el,xp,yp){let r=slot.getBoundingClientRect(),x=r.width*xp/100,y=r.height*yp/100,dx=mx-(r.left+x),dy=my-(r.top+y),d=Math.hypot(dx,dy)||1;dx/=d;dy/=d;el.style.left=x+dx*P.eyeMove+"px";el.style.top=y+dy*P.eyeMove+"px";el.style.transform=`translate(-50%,-50%) rotate(${Math.atan2(dy,dx)}rad) scale(1.08,.94)`}
-new GLTFLoader().load("./Name1.glb",g=>{model=g.scene;model.rotation.x=Math.PI/2;scene.add(model);model.traverse(o=>{if(o.isMesh&&o.material){let s=Array.isArray(o.material)?o.material[0]:o.material;if(s.name==="Logo_Master")entries.push({o,s})}});["B","R","U","N","L","P","E","S","O_TOP_CONTROL","O_BOT_CONTROL"].forEach((n,i)=>{let o=model.getObjectByName(n);if(o){o.userData.bp=o.position.clone();o.userData.br=o.rotation.clone();o.userData.ph=i*.7;movers.push(o)}});apply();resize();frame(model);status.textContent="3 directions ready ✓"},undefined,()=>status.textContent="could not load Name1.glb");
-const ids=["zoom","normal","light","eyeMove","tilt","radius","idle","topX","topY","botX","botY"],controls=document.querySelector("#controls");ids.forEach(id=>{controls.insertAdjacentHTML("beforeend",`<div class=row><label>${id}</label><input id=${id} type=range><span class=v id=${id}V></span></div>`)});const ranges={zoom:[.8,1.5,.01],normal:[0,1.5,.01],light:[.2,4,.05],eyeMove:[0,12,.5],tilt:[0,16,.5],radius:[40,220,5],idle:[0,3,.1],topX:[0,100,.1],topY:[0,100,.1],botX:[0,100,.1],botY:[0,100,.1]};
-function sync(){ids.forEach(id=>{let i=document.querySelector("#"+id),r=ranges[id];i.min=r[0];i.max=r[1];i.step=r[2];i.value=P[id];document.querySelector("#"+id+"V").textContent=P[id];i.oninput=()=>{P[id]=+i.value;document.querySelector("#"+id+"V").textContent=i.value;if(id==="zoom"&&model)cam.position.z=dist/P.zoom;if(id==="light")key.intensity=P.light;if(id==="normal")entries.forEach(e=>{if(e.o.material.normalMap)e.o.material.normalScale.set(P.normal,P.normal)})}});document.querySelector("#desc").textContent=des[mode];["A","B","C"].forEach(x=>document.querySelector("#"+x).classList.toggle("on",x===mode));renderer.toneMappingExposure=mode==="C"?.72:.58;hemi.intensity=mode==="C"?.9:.65;fill.intensity=mode==="C"?.18:.35;key.intensity=P.light;if(model){apply();cam.position.z=dist/P.zoom}}
-["A","B","C"].forEach(x=>document.querySelector("#"+x).onclick=()=>{mode=x;P=prof[x];sync()});sync();const clock=new THREE.Clock();function loop(){requestAnimationFrame(loop);let t=clock.getElapsedTime();if(model)motion(t);eye(p1,P.topX,P.topY);eye(p2,P.botX,P.botY);renderer.render(scene,cam)}loop();addEventListener("resize",()=>{resize();if(model)frame(model)});resize();
-</script></body></html>
+import * as THREE from "https://esm.sh/three@0.180.0";
+import {GLTFLoader} from "https://esm.sh/three@0.180.0/examples/jsm/loaders/GLTFLoader.js";
+
+const slot=document.querySelector("#slot"),status=document.querySelector("#status"),p1=document.querySelector("#p1"),p2=document.querySelector("#p2");
+const scene=new THREE.Scene();
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setClearColor(0,0);renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.78;
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;slot.prepend(renderer.domElement);
+
+const camera=new THREE.PerspectiveCamera(38,1,.01,100);
+const hemi=new THREE.HemisphereLight(0xfff6e8,0x17172a,.38);scene.add(hemi);
+const key=new THREE.DirectionalLight(0xfff8ed,3.2);key.position.set(-4.5,5.5,7);key.castShadow=true;key.shadow.mapSize.set(1024,1024);key.shadow.bias=-.0003;scene.add(key);
+const rim=new THREE.DirectionalLight(0x7c8cff,.65);rim.position.set(5,1,-3);scene.add(rim);
+
+let model,baseDist=1,mx=innerWidth/2,my=innerHeight/2;
+const movers=[],materials=[];
+const P={zoom:1.18,fov:38,baseTilt:8,perspectiveX:0,perspectiveY:0,normal:.32,roughness:.84,key:3.2,rim:.65,hemi:.38,shadow:.34,shadowBlur:2.4,mouseTilt:5,radius:110,idle:.15,eyeMove:5.5,topX:78,topY:33,botX:32,botY:62};
+addEventListener("pointermove",e=>{mx=e.clientX;my=e.clientY},{passive:true});
+
+function resize(){const r=slot.getBoundingClientRect();renderer.setSize(r.width,r.height,false);camera.aspect=r.width/r.height;camera.updateProjectionMatrix()}
+function frame(o){const b=new THREE.Box3().setFromObject(o),c=new THREE.Vector3(),s=new THREE.Vector3();b.getCenter(c);o.position.sub(c);new THREE.Box3().setFromObject(o).getSize(s);baseDist=Math.max(s.x,s.y,s.z)/(2*Math.tan(THREE.MathUtils.degToRad(camera.fov)/2))*1.08;camera.position.set(P.perspectiveX,P.perspectiveY,baseDist/P.zoom);camera.lookAt(0,0,0);camera.far=baseDist*100;camera.updateProjectionMatrix()}
+
+function materialFrom(src){
+ const m=new THREE.MeshStandardMaterial({color:src.color?src.color.clone():new THREE.Color("#4238df"),map:src.map||null,normalMap:src.normalMap||null,aoMap:src.aoMap||null,roughness:P.roughness,metalness:0});
+ if(m.normalMap)m.normalScale.set(P.normal,P.normal);materials.push(m);return m
+}
+function setup(){
+ model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;if(o.material){const s=Array.isArray(o.material)?o.material[0]:o.material;if(s.name==="Logo_Master")o.material=materialFrom(s)}}});
+ const names=["B","R","U","N","L","P","E","S","O_TOP_CONTROL","O_BOT_CONTROL"];
+ names.forEach((n,i)=>{const o=model.getObjectByName(n);if(!o)return;o.userData.bp=o.position.clone();o.userData.br=o.rotation.clone();const sign=i%2?1:-1;o.rotation.y+=THREE.MathUtils.degToRad(P.baseTilt*sign);o.rotation.x+=THREE.MathUtils.degToRad((i%3-1)*P.baseTilt*.32);o.userData.br=o.rotation.clone();o.userData.ph=i*.67;movers.push(o)});
+ makeShadow();
+}
+let shadowMesh;
+function makeShadow(){
+ const texCanvas=document.createElement("canvas");texCanvas.width=256;texCanvas.height=128;const ctx=texCanvas.getContext("2d"),g=ctx.createRadialGradient(128,64,5,128,64,120);g.addColorStop(0,"rgba(20,15,50,.42)");g.addColorStop(.48,"rgba(20,15,50,.17)");g.addColorStop(1,"rgba(20,15,50,0)");ctx.fillStyle=g;ctx.fillRect(0,0,256,128);
+ const tex=new THREE.CanvasTexture(texCanvas),mat=new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,opacity:P.shadow});
+ shadowMesh=new THREE.Mesh(new THREE.PlaneGeometry(1.5,.55),mat);shadowMesh.position.set(0,.035,-.12);shadowMesh.rotation.x=THREE.MathUtils.degToRad(-10);scene.add(shadowMesh);
+}
+const wp=new THREE.Vector3(),nd=new THREE.Vector3();
+function screenPos(o){o.getWorldPosition(wp);nd.copy(wp).project(camera);const r=slot.getBoundingClientRect();return{x:r.left+(nd.x*.5+.5)*r.width,y:r.top+(-nd.y*.5+.5)*r.height}}
+function animateLetters(t){
+ movers.forEach(o=>{const bp=o.userData.bp,br=o.userData.br,ph=o.userData.ph;let tx=bp.x,tz=bp.z,rx=br.x,ry=br.y;const tiny=P.idle/slot.clientWidth;tx+=Math.sin(t*.28+ph)*tiny;tz+=Math.cos(t*.23+ph)*tiny;
+ const s=screenPos(o);let dx=s.x-mx,dy=s.y-my,d=Math.hypot(dx,dy)||1;if(d<P.radius){const f=(1-d/P.radius),a=THREE.MathUtils.degToRad(P.mouseTilt)*f;rx+=(-dy/d)*a;ry+=(dx/d)*a}
+ o.position.x+=(tx-o.position.x)*.05;o.position.z+=(tz-o.position.z)*.05;o.rotation.x+=(rx-o.rotation.x)*.045;o.rotation.y+=(ry-o.rotation.y)*.045;
+ })
+}
+function eye(el,xp,yp){const r=slot.getBoundingClientRect(),x=r.width*xp/100,y=r.height*yp/100;let dx=mx-(r.left+x),dy=my-(r.top+y),d=Math.hypot(dx,dy)||1;dx/=d;dy/=d;el.style.left=x+dx*P.eyeMove+"px";el.style.top=y+dy*P.eyeMove+"px";el.style.transform=`translate(-50%,-50%) rotate(${Math.atan2(dy,dx)}rad) scale(1.05,.96)`}
+
+new GLTFLoader().load("./Name1.glb",g=>{model=g.scene;model.rotation.x=Math.PI/2;scene.add(model);setup();resize();frame(model);status.textContent="depth test ready ✓"},undefined,e=>{console.error(e);status.textContent="could not load Name1.glb"});
+
+const defs=[
+ ["zoom",.8,1.6,.01],["fov",22,65,1],["baseTilt",0,20,.5],["normal",0,1.5,.01],["roughness",.3,1,.01],
+ ["key",0,7,.1],["rim",0,4,.05],["hemi",0,2,.05],["shadow",0,.8,.01],["mouseTilt",0,14,.5],["radius",40,220,5],["idle",0,2,.1],
+ ["eyeMove",0,12,.5],["topX",0,100,.1],["topY",0,100,.1],["botX",0,100,.1],["botY",0,100,.1]
+];
+const controls=document.querySelector("#controls");
+defs.forEach(([id,min,max,step])=>{controls.insertAdjacentHTML("beforeend",`<div class="row"><label>${id}</label><input id="${id}" type="range" min="${min}" max="${max}" step="${step}" value="${P[id]}"><span class="v" id="${id}V">${P[id]}</span></div>`);const input=document.querySelector("#"+id);input.oninput=()=>{P[id]=+input.value;document.querySelector("#"+id+"V").textContent=input.value;if(id==="zoom"&&model)frame(model);if(id==="fov"){camera.fov=P.fov;if(model)frame(model)}if(id==="normal")materials.forEach(m=>{if(m.normalMap)m.normalScale.set(P.normal,P.normal)});if(id==="roughness")materials.forEach(m=>m.roughness=P.roughness);if(id==="key")key.intensity=P.key;if(id==="rim")rim.intensity=P.rim;if(id==="hemi")hemi.intensity=P.hemi;if(id==="shadow"&&shadowMesh)shadowMesh.material.opacity=P.shadow;if(id==="baseTilt"&&model){movers.forEach((o,i)=>{const sign=i%2?1:-1;o.userData.br.y=THREE.MathUtils.degToRad(P.baseTilt*sign);o.userData.br.x=THREE.MathUtils.degToRad((i%3-1)*P.baseTilt*.32)})}}});
+const clock=new THREE.Clock();function loop(){requestAnimationFrame(loop);const t=clock.getElapsedTime();if(model)animateLetters(t);eye(p1,P.topX,P.topY);eye(p2,P.botX,P.botY);renderer.render(scene,camera)}loop();addEventListener("resize",()=>{resize();if(model)frame(model)});resize();
+</script>
+</body></html>
