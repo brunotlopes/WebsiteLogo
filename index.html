@@ -69,11 +69,16 @@ FRONT objects render above the name.
 	top:50%;
 	transform:translate(-50%,-50%);
 	z-index:2;
-	font-size:22px;
+	font-size:24px;
+	line-height:.86;
 	letter-spacing:-1px;
 	color:var(--ink);
-	white-space:nowrap;
 	pointer-events:none;
+	text-align:center;
+}
+#name span{
+	display:block;
+	white-space:nowrap;
 }
 
 #canvas-front{
@@ -234,6 +239,31 @@ FRONT objects render above the name.
 		display:none;
 	}
 }
+
+#tune{
+	position:absolute;
+	top:14px;
+	right:14px;
+	z-index:40;
+	width:245px;
+	padding:12px;
+	background:rgba(255,255,255,.92);
+	border:1px solid rgba(0,0,0,.12);
+	border-radius:12px;
+	box-shadow:0 8px 30px rgba(0,0,0,.08);
+	font-size:11px;
+}
+#tune h4{margin:0 0 8px;font-size:12px}
+#tune .row{
+	display:grid;
+	grid-template-columns:92px 1fr 42px;
+	gap:7px;
+	align-items:center;
+	margin:6px 0;
+}
+#tune input{width:100%}
+#tune .val{font-size:10px;text-align:right;opacity:.65}
+
 </style>
 </head>
 
@@ -244,7 +274,7 @@ FRONT objects render above the name.
 	<div id="left">
 
 		<div id="stage">
-			<div id="name">BRUNO LOPES</div>
+			<div id="name"><span>BRUNO</span><span>LOPES</span></div>
 		</div>
 
 		<div id="subtitle">MOTION GRAPHICS * VFX</div>
@@ -283,7 +313,18 @@ FRONT objects render above the name.
 		slow orbit • some objects pass behind the name • hover = quick spin • click object / menu
 	</div>
 
-	<div id="debug">
+	
+	<div id="tune">
+		<h4>Orbit tuning</h4>
+		<div class="row"><label>Object size</label><input id="sizeMul" type="range" min=".6" max="2.2" step=".05" value="1.18"><span class="val" id="sizeMulVal">1.18</span></div>
+		<div class="row"><label>Orbit width</label><input id="orbitX" type="range" min="1.2" max="2.5" step=".05" value="1.78"><span class="val" id="orbitXVal">1.78</span></div>
+		<div class="row"><label>Orbit height</label><input id="orbitY" type="range" min=".6" max="1.6" step=".05" value="1.00"><span class="val" id="orbitYVal">1.00</span></div>
+		<div class="row"><label>Overlap</label><input id="overlap" type="range" min="0" max=".65" step=".01" value=".26"><span class="val" id="overlapVal">0.26</span></div>
+		<div class="row"><label>Hover boost</label><input id="hoverBoost" type="range" min="1" max="1.6" step=".02" value="1.22"><span class="val" id="hoverBoostVal">1.22</span></div>
+		<div class="row"><label>Hero size</label><input id="heroSize" type="range" min="1.5" max="4.5" step=".05" value="3.05"><span class="val" id="heroSizeVal">3.05</span></div>
+	</div>
+
+<div id="debug">
 		loading objects…
 	</div>
 
@@ -462,6 +503,18 @@ scene.add(
 	softSide
 );
 
+/*
+Objects are split between layer 0 (behind name)
+and layer 1 (in front of name).
+All lights must affect BOTH layers.
+*/
+scene.traverse(obj=>{
+	if(obj.isLight){
+		obj.layers.enable(0);
+		obj.layers.enable(1);
+	}
+});
+
 
 /* ==================================================
    ORBIT
@@ -487,6 +540,12 @@ let cardOpen =
 	false;
 
 
+let SIZE_MULTIPLIER = 1.18;
+let HOVER_BOOST = 1.22;
+let HERO_SIZE = 3.05;
+let OVERLAP_AMOUNT = .26;
+
+
 /*
 Keep the speed from the version that felt good.
 */
@@ -494,11 +553,11 @@ const ORBIT_SPEED =
 	0.12;
 
 
-const ORBIT_X =
-	1.95;
+let ORBIT_X =
+	1.78;
 
-const ORBIT_Y =
-	1.17;
+let ORBIT_Y =
+	1.00;
 
 
 /* ==================================================
@@ -687,14 +746,14 @@ function createWrapper(
 	*/
 	wrapper.userData.baseSize =
 		[
-			.67,
-			.72,
-			.78,
-			.62,
-			.76,
-			.70,
-			.74,
-			.66
+			1.00,
+			1.08,
+			1.18,
+			.92,
+			1.12,
+			1.02,
+			1.10,
+			.96
 		][index % 8];
 
 
@@ -841,14 +900,15 @@ function setSelectedTargets(
 
 				wrapper.userData.targetPos.set(
 					0,
-					.08,
-					.55
+					.05,
+					-.12
 				);
 
 
 				wrapper.userData.targetScale =
 					wrapper.userData.baseSize *
-					1.85;
+					SIZE_MULTIPLIER *
+					HERO_SIZE;
 
 
 				wrapper.userData.targetOpacity =
@@ -894,7 +954,8 @@ function setSelectedTargets(
 
 				wrapper.userData.targetScale =
 					wrapper.userData.baseSize *
-					.45;
+					SIZE_MULTIPLIER *
+					.58;
 
 
 				wrapper.userData.targetOpacity =
@@ -1247,6 +1308,61 @@ rendererFront.domElement.addEventListener(
 );
 
 
+
+/* ==================================================
+   TUNING UI
+   ================================================== */
+
+function bindRange(id, valueId, callback, digits=2){
+	const input = document.getElementById(id);
+	const value = document.getElementById(valueId);
+
+	function update(){
+		const v = parseFloat(input.value);
+		value.textContent = v.toFixed(digits);
+		callback(v);
+	}
+
+	input.addEventListener("input", update);
+	update();
+}
+
+bindRange("sizeMul","sizeMulVal",(v)=>{
+	SIZE_MULTIPLIER = v;
+
+	/*
+	   If a card is open, recompute those target scales immediately.
+	*/
+	if(cardOpen && selected !== -1){
+		setSelectedTargets(selected);
+	}
+});
+
+bindRange("orbitX","orbitXVal",(v)=>{
+	ORBIT_X = v;
+});
+
+bindRange("orbitY","orbitYVal",(v)=>{
+	ORBIT_Y = v;
+});
+
+bindRange("overlap","overlapVal",(v)=>{
+	OVERLAP_AMOUNT = v;
+});
+
+bindRange("hoverBoost","hoverBoostVal",(v)=>{
+	HOVER_BOOST = v;
+});
+
+bindRange("heroSize","heroSizeVal",(v)=>{
+	HERO_SIZE = v;
+
+	if(cardOpen && selected !== -1){
+		setSelectedTargets(selected);
+	}
+});
+
+
 /* ==================================================
    ANIMATION
    ================================================== */
@@ -1292,19 +1408,48 @@ function updateOrbit(
 					);
 
 
+				/*
+				   Deliberately allow the orbit to cut through the title.
+				   OVERLAP_AMOUNT pulls objects inward most strongly
+				   around the left/right crossing points, so some frames
+				   partially cover BRUNO / LOPES.
+				*/
+				const crossPull =
+					1 -
+					OVERLAP_AMOUNT *
+					Math.pow(
+						Math.abs(
+							Math.cos(angle)
+						),
+						1.35
+					);
+
+				const verticalPull =
+					1 -
+					OVERLAP_AMOUNT *
+					.38 *
+					Math.pow(
+						Math.abs(
+							Math.sin(angle)
+						),
+						2
+					);
+
 				wrapper.position.set(
 
 					Math.cos(angle) *
 					ORBIT_X *
 					wrapper.userData.radiusX *
-					orbitNoise,
+					orbitNoise *
+					crossPull,
 
 					Math.sin(angle) *
 					ORBIT_Y *
-					wrapper.userData.radiusY,
+					wrapper.userData.radiusY *
+					verticalPull,
 
 					depth *
-					.70
+					.86
 
 				);
 
@@ -1318,19 +1463,20 @@ function updateOrbit(
 						depth,
 						-1,
 						1,
-						.76,
-						1.15
+						.88,
+						1.28
 					);
 
 
 				const hoverScale =
 					i === hovered
-						? 1.16
+						? HOVER_BOOST
 						: 1;
 
 
 				const targetScale =
 					wrapper.userData.baseSize *
+					SIZE_MULTIPLIER *
 					depthScale *
 					hoverScale;
 
@@ -1403,7 +1549,7 @@ function updateOrbit(
 				*/
 
 				const layer =
-					depth > .05
+					depth > 0
 						? 1
 						: 0;
 
@@ -1487,10 +1633,11 @@ function updateOrbit(
 				   rest go behind.
 				*/
 
-				const layer =
-					i === selected
-						? 1
-						: 0;
+				/*
+				   Selected object becomes a large backdrop
+				   BEHIND BRUNO / LOPES.
+				*/
+				const layer = 0;
 
 
 				wrapper.traverse(
