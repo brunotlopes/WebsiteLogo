@@ -3,43 +3,168 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Bruno Lopes — Orbit Objects Test v3</title>
+<title>Bruno Lopes — Orbit Objects Test v4</title>
+
 <style>
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#2f61ff;font-family:Arial,sans-serif}
-:root{--cream:#fff4df;--blue:#2f61ff;--ink:#111}
-#app{position:relative;width:100%;height:100%;overflow:hidden;background:var(--blue)}
-#left{position:absolute;left:0;top:0;width:330px;height:100%;z-index:2}
-#stage{position:absolute;left:18px;top:20px;width:290px;height:210px}
-#stage canvas{position:absolute;inset:0;display:block;width:100%;height:100%}
-#name{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:5;font-size:22px;letter-spacing:-1px;color:#111;white-space:nowrap;pointer-events:none}
-#subtitle{position:absolute;left:47px;top:248px;font-size:14px;font-weight:700;color:#141414}
-#menu{position:absolute;left:25px;top:292px;font-size:14px;line-height:1.8;color:#111}
-#menu a{color:inherit;text-decoration:none;cursor:pointer}
-#card{position:absolute;top:16px;bottom:16px;left:297px;right:0;background:var(--cream);border:2px solid #111;border-radius:34px 0 0 34px;z-index:8;transform:translateX(100%);transition:transform .75s cubic-bezier(.22,.8,.22,1);overflow:hidden}
-#card.open{transform:translateX(0)}
-#card-inner{padding:38px 40px}
-#card h1{margin:0 0 20px;font-size:38px}
-#card p{max-width:620px;font-size:15px;line-height:1.5}
-#placeholder{margin-top:34px;width:min(760px,80%);aspect-ratio:16/9;background:#7ff0ce;border-radius:6px}
-#close{position:absolute;top:20px;right:24px;z-index:20;border:0;background:#111;color:#fff;border-radius:999px;width:34px;height:34px;cursor:pointer;font-size:18px}
-#hint{position:absolute;left:18px;bottom:14px;z-index:20;font-size:11px;color:#111;opacity:.65}
-#debug{position:absolute;right:14px;bottom:14px;z-index:30;background:rgba(255,255,255,.92);padding:8px 10px;border-radius:8px;font:10px/1.4 monospace;color:#111}
-@media(max-width:700px){
- body{background:var(--cream)}
- #left{width:100%;background:var(--cream)}
- #stage{width:210px;height:150px;left:auto;right:12px;top:8px}
- #name{left:20px;top:26px;transform:none;font-size:20px}
- #subtitle{left:20px;top:90px}
- #menu{left:20px;top:130px}
- #card{display:none}
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#2f61ff;
+  font-family:Arial,sans-serif;
+}
+:root{
+  --cream:#fff4df;
+  --blue:#2f61ff;
+  --ink:#111;
+}
+#app{
+  position:relative;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:var(--blue);
+}
+#left{
+  position:absolute;
+  left:0;
+  top:0;
+  width:330px;
+  height:100%;
+  z-index:2;
+}
+#stage{
+  position:absolute;
+  left:18px;
+  top:20px;
+  width:290px;
+  height:210px;
+}
+#stage canvas{
+  position:absolute;
+  inset:0;
+  display:block;
+  width:100%;
+  height:100%;
+}
+#name{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  z-index:5;
+  font-size:22px;
+  letter-spacing:-1px;
+  color:#111;
+  white-space:nowrap;
+  pointer-events:none;
+}
+#subtitle{
+  position:absolute;
+  left:47px;
+  top:248px;
+  font-size:14px;
+  font-weight:700;
+  color:#141414;
+}
+#menu{
+  position:absolute;
+  left:25px;
+  top:292px;
+  font-size:14px;
+  line-height:1.8;
+  color:#111;
+}
+#menu a{
+  color:inherit;
+  text-decoration:none;
+  cursor:pointer;
+}
+#card{
+  position:absolute;
+  top:16px;
+  bottom:16px;
+  left:297px;
+  right:0;
+  background:var(--cream);
+  border:2px solid #111;
+  border-radius:34px 0 0 34px;
+  z-index:8;
+  transform:translateX(100%);
+  transition:transform .75s cubic-bezier(.22,.8,.22,1);
+  overflow:hidden;
+}
+#card.open{
+  transform:translateX(0);
+}
+#card-inner{
+  padding:38px 40px;
+}
+#card h1{
+  margin:0 0 20px;
+  font-size:38px;
+}
+#card p{
+  max-width:620px;
+  font-size:15px;
+  line-height:1.5;
+}
+#placeholder{
+  margin-top:34px;
+  width:min(760px,80%);
+  aspect-ratio:16/9;
+  background:#7ff0ce;
+  border-radius:6px;
+}
+#close{
+  position:absolute;
+  top:20px;
+  right:24px;
+  z-index:20;
+  border:0;
+  background:#111;
+  color:#fff;
+  border-radius:999px;
+  width:34px;
+  height:34px;
+  cursor:pointer;
+  font-size:18px;
+}
+#hint{
+  position:absolute;
+  left:18px;
+  bottom:14px;
+  z-index:20;
+  font-size:11px;
+  color:#111;
+  opacity:.65;
+}
+#debug{
+  position:absolute;
+  right:14px;
+  bottom:14px;
+  z-index:30;
+  background:rgba(255,255,255,.92);
+  padding:8px 10px;
+  border-radius:8px;
+  font:10px/1.4 monospace;
+  color:#111;
 }
 </style>
 </head>
+
 <body>
 <div id="app">
+
   <div id="left">
-    <div id="stage"><div id="name">BRUNO LOPES</div></div>
+
+    <div id="stage">
+      <div id="name">BRUNO LOPES</div>
+    </div>
+
     <div id="subtitle">MOTION GRAPHICS * VFX</div>
+
     <div id="menu">
       <a data-page="Showreel">Showreel</a><br>
       <a data-page="Playground">Playground</a><br>
@@ -52,223 +177,925 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#2f61ff;fon
       <a data-page="Bushoe">Bushoe</a><br>
       <a data-page="Silent Running">Silent Running</a>
     </div>
+
   </div>
 
   <div id="card">
     <button id="close">×</button>
+
     <div id="card-inner">
       <h1 id="card-title">Playground</h1>
-      <p>Prototype card transition.</p>
+
+      <p>
+        Selected object remains visible near the name while the others move behind the card.
+      </p>
+
       <div id="placeholder"></div>
     </div>
   </div>
 
-  <div id="hint">click an object • click menu • close card to restore orbit</div>
+  <div id="hint">slow orbit • hover object • click object / menu</div>
   <div id="debug">loading…</div>
+
 </div>
 
 <script type="module">
+
 import * as THREE from "https://esm.sh/three@0.180.0";
 import { GLTFLoader } from "https://esm.sh/three@0.180.0/examples/jsm/loaders/GLTFLoader.js";
 import { clone } from "https://esm.sh/three@0.180.0/examples/jsm/utils/SkeletonUtils.js";
 
-const stage=document.querySelector("#stage");
-const card=document.querySelector("#card");
-const title=document.querySelector("#card-title");
-const debug=document.querySelector("#debug");
 
-const scene=new THREE.Scene();
-const camera=new THREE.PerspectiveCamera(34,stage.clientWidth/stage.clientHeight,.01,100);
-camera.position.set(0,0,7.2);
+/* ==================================================
+   SETUP
+   ================================================== */
 
-const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
-renderer.setClearColor(0,0);
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-renderer.setSize(stage.clientWidth,stage.clientHeight,false);
-renderer.outputColorSpace=THREE.SRGBColorSpace;
-stage.prepend(renderer.domElement);
+const stage =
+  document.querySelector("#stage");
 
-scene.add(new THREE.HemisphereLight(0xffffff,0x29356b,1.4));
-const key=new THREE.DirectionalLight(0xffffff,1.8);key.position.set(2,4,5);scene.add(key);
+const card =
+  document.querySelector("#card");
 
-const ITEMS=7;
-const wrappers=[];
-const raycaster=new THREE.Raycaster();
-const pointer=new THREE.Vector2();
+const title =
+  document.querySelector("#card-title");
 
-let selected=-1;
-let open=false;
+const debug =
+  document.querySelector("#debug");
 
-/* bounded orbit — all targets stay inside the header area */
-function orbitTargets(){
-  selected=-1;
-  wrappers.forEach((w,i)=>{
-    const a=(i/ITEMS)*Math.PI*2-Math.PI/2;
-    w.userData.targetPos.set(
-      Math.cos(a)*1.95,
-      Math.sin(a)*1.20,
-      Math.sin(a*1.35)*0.18
-    );
-    w.userData.targetScale=.72;
-    w.userData.targetRotY=a*.35;
-    w.userData.targetOpacity=1;
-  });
-}
 
-function selectedTargets(index){
-  selected=index;
-  wrappers.forEach((w,i)=>{
-    if(i===index){
-      w.userData.targetPos.set(0,.05,.45);
-      w.userData.targetScale=1.35;
-      w.userData.targetRotY=.3;
-      w.userData.targetOpacity=1;
-    }else{
-      /* bounded destination near card edge, not "infinity" */
-      const j=i<index?i:i-1;
-      const row=(j%5)-2;
-      w.userData.targetPos.set(2.15,row*.34,-.35);
-      w.userData.targetScale=.38;
-      w.userData.targetRotY=1.2+j*.12;
-      w.userData.targetOpacity=.18;
-    }
-  });
-}
+const scene =
+  new THREE.Scene();
 
-function openProject(label,index){
-  title.textContent=label;
-  selectedTargets(index);
-  card.classList.add("open");
-  open=true;
-}
-function closeProject(){
-  card.classList.remove("open");
-  open=false;
-  orbitTargets();
-}
-document.querySelector("#close").onclick=closeProject;
 
-/* loader */
-new GLTFLoader().load("./00a5_Fishing_Lure.glb",gltf=>{
-  const raw=gltf.scene;
+const camera =
+  new THREE.PerspectiveCamera(
+    34,
+    stage.clientWidth / stage.clientHeight,
+    .01,
+    100
+  );
 
-  /* compute visual bounds WITHOUT changing the raw scene root transform */
-  raw.updateMatrixWorld(true);
-  const box=new THREE.Box3().setFromObject(raw);
-  const center=new THREE.Vector3();
-  const size=new THREE.Vector3();
-  box.getCenter(center);
-  box.getSize(size);
-  const maxDim=Math.max(size.x,size.y,size.z);
-  const fit=1/Math.max(maxDim,.0001);
+camera.position.set(
+  0,
+  0,
+  7.4
+);
 
-  for(let i=0;i<ITEMS;i++){
-    const wrapper=new THREE.Group();
-    wrapper.userData.targetPos=new THREE.Vector3();
-    wrapper.userData.targetScale=.72;
-    wrapper.userData.targetRotY=0;
-    wrapper.userData.targetOpacity=1;
-    wrapper.userData.phase=i*.71;
-    wrapper.userData.itemIndex=i;
 
-    const visual=clone(raw);
-
-    /* normalize only the visual INSIDE the wrapper */
-    visual.position.sub(center);
-    visual.scale.setScalar(fit);
-
-    visual.traverse(child=>{
-      if(child.isMesh){
-        child.userData.itemIndex=i;
-        child.material=child.material.clone();
-        child.material.transparent=true;
-        child.material.opacity=1;
-      }
-    });
-
-    wrapper.add(visual);
-    scene.add(wrapper);
-    wrappers.push(wrapper);
-  }
-
-  orbitTargets();
-
-  /* initialize immediately at targets so there is no launch from weird GLB transforms */
-  wrappers.forEach(w=>{
-    w.position.copy(w.userData.targetPos);
-    w.scale.setScalar(w.userData.targetScale);
-    w.rotation.y=w.userData.targetRotY;
+const renderer =
+  new THREE.WebGLRenderer({
+    antialias:true,
+    alpha:true
   });
 
-  debug.textContent="loaded ✓\\n7 bounded wrappers";
-},undefined,error=>{
-  console.error(error);
-  debug.textContent="GLB failed";
-});
+renderer.setClearColor(
+  0x000000,
+  0
+);
 
-/* click */
-renderer.domElement.addEventListener("pointerdown",e=>{
-  const r=renderer.domElement.getBoundingClientRect();
-  pointer.x=((e.clientX-r.left)/r.width)*2-1;
-  pointer.y=-((e.clientY-r.top)/r.height)*2+1;
-  raycaster.setFromCamera(pointer,camera);
-  const hits=raycaster.intersectObjects(wrappers,true);
-  if(hits.length){
-    const idx=hits[0].object.userData.itemIndex;
-    if(Number.isInteger(idx))openProject("Selected Object",idx);
-  }
-});
+renderer.setPixelRatio(
+  Math.min(
+    devicePixelRatio,
+    2
+  )
+);
 
-document.querySelectorAll("#menu a").forEach((a,i)=>{
-  a.onclick=()=>openProject(a.dataset.page,i%ITEMS);
-});
+renderer.setSize(
+  stage.clientWidth,
+  stage.clientHeight,
+  false
+);
 
-/* stable easing: no additive position/scale motion */
-const clock=new THREE.Clock();
-function animate(){
-  requestAnimationFrame(animate);
-  const t=clock.getElapsedTime();
+renderer.outputColorSpace =
+  THREE.SRGBColorSpace;
 
-  wrappers.forEach((w,i)=>{
-    w.position.lerp(w.userData.targetPos,.075);
+stage.prepend(
+  renderer.domElement
+);
 
-    const s=THREE.MathUtils.lerp(
-      w.scale.x,
-      w.userData.targetScale,
-      .075
-    );
-    w.scale.setScalar(s);
 
-    w.rotation.y=THREE.MathUtils.lerp(
-      w.rotation.y,
-      w.userData.targetRotY,
-      .06
-    );
+/* ==================================================
+   LIGHTING
+   ================================================== */
 
-    /* tiny non-accumulating idle rotation */
-    w.rotation.x=Math.sin(t*.45+w.userData.phase)*.10;
-    w.rotation.z=Math.cos(t*.38+w.userData.phase)*.07;
+scene.add(
+  new THREE.HemisphereLight(
+    0xffffff,
+    0x29356b,
+    1.4
+  )
+);
 
-    w.traverse(child=>{
-      if(child.isMesh){
-        child.material.opacity=THREE.MathUtils.lerp(
-          child.material.opacity,
-          w.userData.targetOpacity,
-          .10
+const key =
+  new THREE.DirectionalLight(
+    0xffffff,
+    1.8
+  );
+
+key.position.set(
+  2,
+  4,
+  5
+);
+
+scene.add(
+  key
+);
+
+
+/* ==================================================
+   ORBIT STATE
+   ================================================== */
+
+const ITEMS =
+  7;
+
+const wrappers =
+  [];
+
+const raycaster =
+  new THREE.Raycaster();
+
+const pointer =
+  new THREE.Vector2();
+
+
+let selected =
+  -1;
+
+let cardOpen =
+  false;
+
+let hovered =
+  -1;
+
+
+/*
+   IMPORTANT:
+   Movement is analytical, not additive.
+
+   That means:
+   position = exact orbit position for this frame
+
+   So nothing can accumulate velocity or fly away.
+*/
+
+const ORBIT_X =
+  1.95;
+
+const ORBIT_Y =
+  1.18;
+
+const ORBIT_SPEED =
+  0.12; // radians / second
+
+
+/* ==================================================
+   TARGETS WHEN CARD OPENS
+   ================================================== */
+
+function setSelectedTargets(index) {
+
+  selected =
+    index;
+
+
+  wrappers.forEach(
+    (wrapper,i) => {
+
+      if (
+        i === index
+      ) {
+
+        wrapper.userData.targetPos.set(
+          0,
+          .08,
+          .55
         );
-      }
-    });
-  });
 
-  renderer.render(scene,camera);
+        wrapper.userData.targetScale =
+          1.28;
+
+        wrapper.userData.targetOpacity =
+          1;
+
+        wrapper.userData.targetRotY =
+          .25;
+
+      }
+      else {
+
+        const j =
+          i < index
+            ? i
+            : i - 1;
+
+
+        const row =
+          (j % 5) - 2;
+
+
+        wrapper.userData.targetPos.set(
+          2.15,
+          row * .34,
+          -.45
+        );
+
+        wrapper.userData.targetScale =
+          .34;
+
+        wrapper.userData.targetOpacity =
+          .12;
+
+        wrapper.userData.targetRotY =
+          1.15 +
+          j * .12;
+
+      }
+
+    }
+  );
+
 }
+
+
+function openProject(
+  label,
+  index
+) {
+
+  title.textContent =
+    label;
+
+
+  setSelectedTargets(
+    index
+  );
+
+
+  card.classList.add(
+    "open"
+  );
+
+
+  cardOpen =
+    true;
+
+}
+
+
+function closeProject() {
+
+  card.classList.remove(
+    "open"
+  );
+
+
+  cardOpen =
+    false;
+
+
+  selected =
+    -1;
+
+}
+
+
+document
+  .querySelector("#close")
+  .onclick =
+  closeProject;
+
+
+/* ==================================================
+   LOAD GLB
+   ================================================== */
+
+new GLTFLoader().load(
+
+  "./00a5_Fishing_Lure.glb",
+
+  (gltf) => {
+
+    const raw =
+      gltf.scene;
+
+
+    raw.updateMatrixWorld(
+      true
+    );
+
+
+    const box =
+      new THREE.Box3()
+        .setFromObject(
+          raw
+        );
+
+
+    const center =
+      new THREE.Vector3();
+
+
+    const size =
+      new THREE.Vector3();
+
+
+    box.getCenter(
+      center
+    );
+
+
+    box.getSize(
+      size
+    );
+
+
+    const maxDim =
+      Math.max(
+        size.x,
+        size.y,
+        size.z
+      );
+
+
+    const fit =
+      1 /
+      Math.max(
+        maxDim,
+        .0001
+      );
+
+
+    for (
+      let i = 0;
+      i < ITEMS;
+      i++
+    ) {
+
+      const wrapper =
+        new THREE.Group();
+
+
+      wrapper.userData.baseAngle =
+        (i / ITEMS) *
+        Math.PI *
+        2 -
+        Math.PI / 2;
+
+
+      wrapper.userData.phase =
+        i * .71;
+
+
+      wrapper.userData.itemIndex =
+        i;
+
+
+      wrapper.userData.targetPos =
+        new THREE.Vector3();
+
+
+      wrapper.userData.targetScale =
+        .74;
+
+
+      wrapper.userData.targetOpacity =
+        1;
+
+
+      wrapper.userData.targetRotY =
+        0;
+
+
+      const visual =
+        clone(
+          raw
+        );
+
+
+      visual.position.sub(
+        center
+      );
+
+
+      visual.scale.setScalar(
+        fit
+      );
+
+
+      visual.traverse(
+        child => {
+
+          if (
+            child.isMesh
+          ) {
+
+            child.userData.itemIndex =
+              i;
+
+
+            child.material =
+              child.material.clone();
+
+
+            child.material.transparent =
+              true;
+
+
+            child.material.opacity =
+              1;
+
+          }
+
+        }
+      );
+
+
+      wrapper.add(
+        visual
+      );
+
+
+      scene.add(
+        wrapper
+      );
+
+
+      wrappers.push(
+        wrapper
+      );
+
+    }
+
+
+    debug.textContent =
+      "loaded ✓\nslow orbit active";
+
+  },
+
+  undefined,
+
+  error => {
+
+    console.error(
+      error
+    );
+
+
+    debug.textContent =
+      "GLB failed";
+
+  }
+
+);
+
+
+/* ==================================================
+   HOVER
+   ================================================== */
+
+renderer.domElement.addEventListener(
+  "pointermove",
+  event => {
+
+    const rect =
+      renderer.domElement
+        .getBoundingClientRect();
+
+
+    pointer.x =
+      (
+        (
+          event.clientX -
+          rect.left
+        ) /
+        rect.width
+      ) *
+      2 -
+      1;
+
+
+    pointer.y =
+      -(
+        (
+          (
+            event.clientY -
+            rect.top
+          ) /
+          rect.height
+        ) *
+        2 -
+        1
+      );
+
+
+    raycaster.setFromCamera(
+      pointer,
+      camera
+    );
+
+
+    const hits =
+      raycaster.intersectObjects(
+        wrappers,
+        true
+      );
+
+
+    hovered =
+      -1;
+
+
+    if (
+      hits.length
+    ) {
+
+      const idx =
+        hits[0]
+          .object
+          .userData
+          .itemIndex;
+
+
+      if (
+        Number.isInteger(
+          idx
+        )
+      ) {
+
+        hovered =
+          idx;
+
+      }
+
+    }
+
+  }
+);
+
+
+/* ==================================================
+   CLICK
+   ================================================== */
+
+renderer.domElement.addEventListener(
+  "pointerdown",
+  event => {
+
+    const rect =
+      renderer.domElement
+        .getBoundingClientRect();
+
+
+    pointer.x =
+      (
+        (
+          event.clientX -
+          rect.left
+        ) /
+        rect.width
+      ) *
+      2 -
+      1;
+
+
+    pointer.y =
+      -(
+        (
+          (
+            event.clientY -
+            rect.top
+          ) /
+          rect.height
+        ) *
+        2 -
+        1
+      );
+
+
+    raycaster.setFromCamera(
+      pointer,
+      camera
+    );
+
+
+    const hits =
+      raycaster.intersectObjects(
+        wrappers,
+        true
+      );
+
+
+    if (
+      hits.length
+    ) {
+
+      const idx =
+        hits[0]
+          .object
+          .userData
+          .itemIndex;
+
+
+      if (
+        Number.isInteger(
+          idx
+        )
+      ) {
+
+        openProject(
+          "Selected Object",
+          idx
+        );
+
+      }
+
+    }
+
+  }
+);
+
+
+/* ==================================================
+   MENU
+   ================================================== */
+
+document
+  .querySelectorAll(
+    "#menu a"
+  )
+  .forEach(
+    (link,i) => {
+
+      link.onclick =
+        () => {
+
+          openProject(
+            link.dataset.page,
+            i % ITEMS
+          );
+
+        };
+
+    }
+  );
+
+
+/* ==================================================
+   ANIMATION
+   ================================================== */
+
+const clock =
+  new THREE.Clock();
+
+
+function animate() {
+
+  requestAnimationFrame(
+    animate
+  );
+
+
+  const t =
+    clock.getElapsedTime();
+
+
+  wrappers.forEach(
+    (wrapper,i) => {
+
+      if (
+        !cardOpen
+      ) {
+
+        /*
+           REAL ORBIT:
+           angle changes over time,
+           position is recomputed from scratch every frame.
+        */
+
+        const angle =
+          wrapper.userData.baseAngle +
+          t * ORBIT_SPEED;
+
+
+        const depth =
+          Math.sin(
+            angle
+          );
+
+
+        wrapper.position.set(
+          Math.cos(angle) *
+          ORBIT_X,
+
+          Math.sin(angle) *
+          ORBIT_Y,
+
+          depth * .32
+        );
+
+
+        /*
+           Front objects are slightly larger.
+           Back objects are slightly smaller.
+        */
+
+        const depthScale =
+          THREE.MathUtils.mapLinear(
+            depth,
+            -1,
+            1,
+            .60,
+            .84
+          );
+
+
+        const hoverBoost =
+          i === hovered
+            ? .16
+            : 0;
+
+
+        const targetScale =
+          depthScale +
+          hoverBoost;
+
+
+        const newScale =
+          THREE.MathUtils.lerp(
+            wrapper.scale.x,
+            targetScale,
+            .10
+          );
+
+
+        wrapper.scale.setScalar(
+          newScale
+        );
+
+
+        /*
+           Gentle individual self-rotation.
+        */
+
+        wrapper.rotation.y =
+          angle * .28 +
+          Math.sin(
+            t * .38 +
+            wrapper.userData.phase
+          ) *
+          .18;
+
+
+        wrapper.rotation.x =
+          Math.sin(
+            t * .48 +
+            wrapper.userData.phase
+          ) *
+          .12;
+
+
+        wrapper.rotation.z =
+          Math.cos(
+            t * .36 +
+            wrapper.userData.phase
+          ) *
+          .08;
+
+
+        wrapper.traverse(
+          child => {
+
+            if (
+              child.isMesh
+            ) {
+
+              child.material.opacity =
+                THREE.MathUtils.lerp(
+                  child.material.opacity,
+                  1,
+                  .10
+                );
+
+            }
+
+          }
+        );
+
+      }
+      else {
+
+        /*
+           CARD OPEN:
+           no orbital calculation.
+           Ease toward bounded project-state targets.
+        */
+
+        wrapper.position.lerp(
+          wrapper.userData.targetPos,
+          .075
+        );
+
+
+        const newScale =
+          THREE.MathUtils.lerp(
+            wrapper.scale.x,
+            wrapper.userData.targetScale,
+            .075
+          );
+
+
+        wrapper.scale.setScalar(
+          newScale
+        );
+
+
+        wrapper.rotation.y =
+          THREE.MathUtils.lerp(
+            wrapper.rotation.y,
+            wrapper.userData.targetRotY,
+            .06
+          );
+
+
+        wrapper.rotation.x =
+          Math.sin(
+            t * .45 +
+            wrapper.userData.phase
+          ) *
+          .08;
+
+
+        wrapper.rotation.z =
+          Math.cos(
+            t * .38 +
+            wrapper.userData.phase
+          ) *
+          .06;
+
+
+        wrapper.traverse(
+          child => {
+
+            if (
+              child.isMesh
+            ) {
+
+              child.material.opacity =
+                THREE.MathUtils.lerp(
+                  child.material.opacity,
+                  wrapper.userData.targetOpacity,
+                  .10
+                );
+
+            }
+
+          }
+        );
+
+      }
+
+    }
+  );
+
+
+  renderer.render(
+    scene,
+    camera
+  );
+
+}
+
+
 animate();
 
-window.addEventListener("resize",()=>{
-  renderer.setSize(stage.clientWidth,stage.clientHeight,false);
-  camera.aspect=stage.clientWidth/stage.clientHeight;
-  camera.updateProjectionMatrix();
-});
+
+/* ==================================================
+   RESIZE
+   ================================================== */
+
+window.addEventListener(
+  "resize",
+  () => {
+
+    renderer.setSize(
+      stage.clientWidth,
+      stage.clientHeight,
+      false
+    );
+
+
+    camera.aspect =
+      stage.clientWidth /
+      stage.clientHeight;
+
+
+    camera.updateProjectionMatrix();
+
+  }
+);
+
 </script>
 </body>
 </html>
