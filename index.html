@@ -3,211 +3,43 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Bruno Lopes — Orbit Objects Test</title>
-
+<title>Bruno Lopes — Orbit Objects Test v3</title>
 <style>
-html,body{
-  margin:0;
-  width:100%;
-  height:100%;
-  overflow:hidden;
-  background:#2f61ff;
-  font-family:Arial,sans-serif;
-}
-
-:root{
-  --cream:#fff4df;
-  --blue:#2f61ff;
-  --ink:#111;
-}
-
-#app{
-  position:relative;
-  width:100%;
-  height:100%;
-  overflow:hidden;
-  background:var(--blue);
-}
-
-/* LEFT AREA */
-#left{
-  position:absolute;
-  left:0;
-  top:0;
-  width:330px;
-  height:100%;
-  z-index:2;
-}
-
-#stage{
-  position:absolute;
-  left:18px;
-  top:20px;
-  width:290px;
-  height:210px;
-}
-
-#stage canvas{
-  position:absolute;
-  inset:0;
-  display:block;
-  width:100%;
-  height:100%;
-}
-
-#name{
-  position:absolute;
-  left:50%;
-  top:50%;
-  transform:translate(-50%,-50%);
-  z-index:5;
-  font-size:22px;
-  letter-spacing:-1px;
-  color:#111;
-  white-space:nowrap;
-  pointer-events:none;
-  mix-blend-mode:multiply;
-}
-
-#subtitle{
-  position:absolute;
-  left:47px;
-  top:248px;
-  font-size:14px;
-  font-weight:700;
-  color:#141414;
-}
-
-#menu{
-  position:absolute;
-  left:25px;
-  top:292px;
-  font-size:14px;
-  line-height:1.8;
-  color:#111;
-}
-
-#menu a{
-  color:inherit;
-  text-decoration:none;
-  cursor:pointer;
-}
-
-/* RIGHT CARD */
-#card{
-  position:absolute;
-  top:16px;
-  bottom:16px;
-  left:297px;
-  right:0;
-  background:var(--cream);
-  border:2px solid #111;
-  border-radius:34px 0 0 34px;
-  z-index:8;
-  transform:translateX(100%);
-  transition:transform .85s cubic-bezier(.22,.8,.22,1);
-  overflow:hidden;
-}
-
-#card.open{
-  transform:translateX(0%);
-}
-
-#card-inner{
-  padding:38px 40px;
-}
-
-#card h1{
-  margin:0 0 20px;
-  font-size:38px;
-  color:#111;
-}
-
-#card p{
-  max-width:620px;
-  font-size:15px;
-  line-height:1.5;
-}
-
-#placeholder{
-  margin-top:34px;
-  width:min(760px,80%);
-  aspect-ratio:16/9;
-  background:#7ff0ce;
-  border-radius:6px;
-}
-
-/* debug */
-#hint{
-  position:absolute;
-  left:18px;
-  bottom:14px;
-  z-index:20;
-  font-size:11px;
-  color:#111;
-  opacity:.65;
-}
-
-#close{
-  position:absolute;
-  top:20px;
-  right:24px;
-  z-index:20;
-  border:0;
-  background:#111;
-  color:white;
-  border-radius:999px;
-  width:34px;
-  height:34px;
-  cursor:pointer;
-  font-size:18px;
-}
-
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#2f61ff;font-family:Arial,sans-serif}
+:root{--cream:#fff4df;--blue:#2f61ff;--ink:#111}
+#app{position:relative;width:100%;height:100%;overflow:hidden;background:var(--blue)}
+#left{position:absolute;left:0;top:0;width:330px;height:100%;z-index:2}
+#stage{position:absolute;left:18px;top:20px;width:290px;height:210px}
+#stage canvas{position:absolute;inset:0;display:block;width:100%;height:100%}
+#name{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:5;font-size:22px;letter-spacing:-1px;color:#111;white-space:nowrap;pointer-events:none}
+#subtitle{position:absolute;left:47px;top:248px;font-size:14px;font-weight:700;color:#141414}
+#menu{position:absolute;left:25px;top:292px;font-size:14px;line-height:1.8;color:#111}
+#menu a{color:inherit;text-decoration:none;cursor:pointer}
+#card{position:absolute;top:16px;bottom:16px;left:297px;right:0;background:var(--cream);border:2px solid #111;border-radius:34px 0 0 34px;z-index:8;transform:translateX(100%);transition:transform .75s cubic-bezier(.22,.8,.22,1);overflow:hidden}
+#card.open{transform:translateX(0)}
+#card-inner{padding:38px 40px}
+#card h1{margin:0 0 20px;font-size:38px}
+#card p{max-width:620px;font-size:15px;line-height:1.5}
+#placeholder{margin-top:34px;width:min(760px,80%);aspect-ratio:16/9;background:#7ff0ce;border-radius:6px}
+#close{position:absolute;top:20px;right:24px;z-index:20;border:0;background:#111;color:#fff;border-radius:999px;width:34px;height:34px;cursor:pointer;font-size:18px}
+#hint{position:absolute;left:18px;bottom:14px;z-index:20;font-size:11px;color:#111;opacity:.65}
+#debug{position:absolute;right:14px;bottom:14px;z-index:30;background:rgba(255,255,255,.92);padding:8px 10px;border-radius:8px;font:10px/1.4 monospace;color:#111}
 @media(max-width:700px){
-  body{background:var(--cream)}
-  #left{
-    width:100%;
-    background:var(--cream);
-  }
-  #stage{
-    width:210px;
-    height:150px;
-    left:auto;
-    right:12px;
-    top:8px;
-  }
-  #name{
-    left:20px;
-    top:26px;
-    transform:none;
-    font-size:20px;
-  }
-  #subtitle{
-    left:20px;
-    top:90px;
-  }
-  #menu{
-    left:20px;
-    top:130px;
-  }
-  #card{
-    display:none;
-  }
+ body{background:var(--cream)}
+ #left{width:100%;background:var(--cream)}
+ #stage{width:210px;height:150px;left:auto;right:12px;top:8px}
+ #name{left:20px;top:26px;transform:none;font-size:20px}
+ #subtitle{left:20px;top:90px}
+ #menu{left:20px;top:130px}
+ #card{display:none}
 }
 </style>
 </head>
-
 <body>
 <div id="app">
-
   <div id="left">
-
-    <div id="stage">
-      <div id="name">BRUNO LOPES</div>
-    </div>
-
+    <div id="stage"><div id="name">BRUNO LOPES</div></div>
     <div id="subtitle">MOTION GRAPHICS * VFX</div>
-
     <div id="menu">
       <a data-page="Showreel">Showreel</a><br>
       <a data-page="Playground">Playground</a><br>
@@ -226,16 +58,13 @@ html,body{
     <button id="close">×</button>
     <div id="card-inner">
       <h1 id="card-title">Playground</h1>
-      <p>
-        Prototype card. The idea is that the selected 3D object stays visible near the name,
-        while the other orbit objects rotate and slide behind this card.
-      </p>
+      <p>Prototype card transition.</p>
       <div id="placeholder"></div>
     </div>
   </div>
 
   <div id="hint">click an object • click menu • close card to restore orbit</div>
-
+  <div id="debug">loading…</div>
 </div>
 
 <script type="module">
@@ -243,280 +72,201 @@ import * as THREE from "https://esm.sh/three@0.180.0";
 import { GLTFLoader } from "https://esm.sh/three@0.180.0/examples/jsm/loaders/GLTFLoader.js";
 import { clone } from "https://esm.sh/three@0.180.0/examples/jsm/utils/SkeletonUtils.js";
 
-const stage = document.querySelector("#stage");
-const card = document.querySelector("#card");
-const cardTitle = document.querySelector("#card-title");
-const closeBtn = document.querySelector("#close");
+const stage=document.querySelector("#stage");
+const card=document.querySelector("#card");
+const title=document.querySelector("#card-title");
+const debug=document.querySelector("#debug");
 
-const scene = new THREE.Scene();
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(34,stage.clientWidth/stage.clientHeight,.01,100);
+camera.position.set(0,0,7.2);
 
-const camera = new THREE.PerspectiveCamera(
-  34,
-  stage.clientWidth / stage.clientHeight,
-  .01,
-  100
-);
-camera.position.set(0,0,6.2);
-
-const renderer = new THREE.WebGLRenderer({
-  antialias:true,
-  alpha:true
-});
-renderer.setClearColor(0x000000,0);
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setClearColor(0,0);
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.setSize(stage.clientWidth,stage.clientHeight,false);
-renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.outputColorSpace=THREE.SRGBColorSpace;
 stage.prepend(renderer.domElement);
 
-/* SIMPLE LIGHTING */
-scene.add(new THREE.HemisphereLight(0xffffff,0x28356c,1.5));
+scene.add(new THREE.HemisphereLight(0xffffff,0x29356b,1.4));
+const key=new THREE.DirectionalLight(0xffffff,1.8);key.position.set(2,4,5);scene.add(key);
 
-const key = new THREE.DirectionalLight(0xffffff,2.1);
-key.position.set(2,4,5);
-scene.add(key);
+const ITEMS=7;
+const wrappers=[];
+const raycaster=new THREE.Raycaster();
+const pointer=new THREE.Vector2();
 
-const fill = new THREE.DirectionalLight(0x9fb0ff,.6);
-fill.position.set(-4,-1,3);
-scene.add(fill);
+let selected=-1;
+let open=false;
 
-/* ORBIT GROUP */
-const orbitGroup = new THREE.Group();
-scene.add(orbitGroup);
-
-const ITEMS = 7;
-const objects = [];
-const raycaster = new THREE.Raycaster();
-const pointer = new THREE.Vector2();
-
-let selectedIndex = null;
-let cardOpen = false;
-
-/* target states */
-function setTargetsForOrbit() {
-  selectedIndex = null;
-
-  objects.forEach((item,i)=>{
-    const a = (i/ITEMS) * Math.PI*2 - Math.PI/2;
-
-    item.userData.targetPos.set(
-      Math.cos(a)*2.15,
-      Math.sin(a)*1.38,
-      Math.sin(a*1.7)*.32
+/* bounded orbit — all targets stay inside the header area */
+function orbitTargets(){
+  selected=-1;
+  wrappers.forEach((w,i)=>{
+    const a=(i/ITEMS)*Math.PI*2-Math.PI/2;
+    w.userData.targetPos.set(
+      Math.cos(a)*1.95,
+      Math.sin(a)*1.20,
+      Math.sin(a*1.35)*0.18
     );
-
-    item.userData.targetScale = .62 + (i%3)*.05;
-    item.userData.targetRotY = a + Math.PI*.5;
-    item.userData.opacity = 1;
+    w.userData.targetScale=.72;
+    w.userData.targetRotY=a*.35;
+    w.userData.targetOpacity=1;
   });
 }
 
-function setTargetsForSelected(index) {
-  selectedIndex = index;
-
-  objects.forEach((item,i)=>{
-    if(i === index){
-      /* hero object behind / around name */
-      item.userData.targetPos.set(0,.05,.25);
-      item.userData.targetScale = 1.45;
-      item.userData.targetRotY = 0;
-      item.userData.opacity = 1;
-    } else {
-      /*
-        send the others toward the card edge / behind it.
-        Since stage is only in the left column, this reads like
-        they disappear behind the incoming rounded card.
-      */
-      const row = (i%3)-1;
-      item.userData.targetPos.set(
-        3.15 + (i%2)*.35,
-        row*.7 + (i*.08),
-        -.35 - (i%2)*.25
-      );
-      item.userData.targetScale = .42;
-      item.userData.targetRotY = Math.PI*.7 + i*.25;
-      item.userData.opacity = .28;
+function selectedTargets(index){
+  selected=index;
+  wrappers.forEach((w,i)=>{
+    if(i===index){
+      w.userData.targetPos.set(0,.05,.45);
+      w.userData.targetScale=1.35;
+      w.userData.targetRotY=.3;
+      w.userData.targetOpacity=1;
+    }else{
+      /* bounded destination near card edge, not "infinity" */
+      const j=i<index?i:i-1;
+      const row=(j%5)-2;
+      w.userData.targetPos.set(2.15,row*.34,-.35);
+      w.userData.targetScale=.38;
+      w.userData.targetRotY=1.2+j*.12;
+      w.userData.targetOpacity=.18;
     }
   });
 }
 
-function openProject(title, index = null){
-  cardTitle.textContent = title;
-
-  if(index === null){
-    index = Math.floor(Math.random()*ITEMS);
-  }
-
-  setTargetsForSelected(index);
-
+function openProject(label,index){
+  title.textContent=label;
+  selectedTargets(index);
   card.classList.add("open");
-  cardOpen = true;
+  open=true;
 }
-
 function closeProject(){
   card.classList.remove("open");
-  cardOpen = false;
-  setTargetsForOrbit();
+  open=false;
+  orbitTargets();
 }
+document.querySelector("#close").onclick=closeProject;
 
-/* LOAD ONE LIGHTWEIGHT GLB, CLONE IT */
-const loader = new GLTFLoader();
+/* loader */
+new GLTFLoader().load("./00a5_Fishing_Lure.glb",gltf=>{
+  const raw=gltf.scene;
 
-loader.load(
-  "./00a5_Fishing_Lure.glb",
-  (gltf)=>{
+  /* compute visual bounds WITHOUT changing the raw scene root transform */
+  raw.updateMatrixWorld(true);
+  const box=new THREE.Box3().setFromObject(raw);
+  const center=new THREE.Vector3();
+  const size=new THREE.Vector3();
+  box.getCenter(center);
+  box.getSize(size);
+  const maxDim=Math.max(size.x,size.y,size.z);
+  const fit=1/Math.max(maxDim,.0001);
 
-    const source = gltf.scene;
+  for(let i=0;i<ITEMS;i++){
+    const wrapper=new THREE.Group();
+    wrapper.userData.targetPos=new THREE.Vector3();
+    wrapper.userData.targetScale=.72;
+    wrapper.userData.targetRotY=0;
+    wrapper.userData.targetOpacity=1;
+    wrapper.userData.phase=i*.71;
+    wrapper.userData.itemIndex=i;
 
-    /* normalize source */
-    const box = new THREE.Box3().setFromObject(source);
-    const size = new THREE.Vector3();
-    const center = new THREE.Vector3();
-    box.getSize(size);
-    box.getCenter(center);
+    const visual=clone(raw);
 
-    source.position.sub(center);
+    /* normalize only the visual INSIDE the wrapper */
+    visual.position.sub(center);
+    visual.scale.setScalar(fit);
 
-    const maxDim = Math.max(size.x,size.y,size.z);
-    const normalization = 1/maxDim;
-    source.scale.setScalar(normalization);
+    visual.traverse(child=>{
+      if(child.isMesh){
+        child.userData.itemIndex=i;
+        child.material=child.material.clone();
+        child.material.transparent=true;
+        child.material.opacity=1;
+      }
+    });
 
-    for(let i=0;i<ITEMS;i++){
+    wrapper.add(visual);
+    scene.add(wrapper);
+    wrappers.push(wrapper);
+  }
 
-      const obj = clone(source);
-      obj.userData.itemIndex = i;
-      obj.userData.targetPos = new THREE.Vector3();
-      obj.userData.targetScale = .7;
-      obj.userData.targetRotY = 0;
-      obj.userData.phase = Math.random()*Math.PI*2;
+  orbitTargets();
 
-      obj.traverse(child=>{
-        if(child.isMesh){
-          child.userData.itemIndex = i;
+  /* initialize immediately at targets so there is no launch from weird GLB transforms */
+  wrappers.forEach(w=>{
+    w.position.copy(w.userData.targetPos);
+    w.scale.setScalar(w.userData.targetScale);
+    w.rotation.y=w.userData.targetRotY;
+  });
 
-          /*
-            slight material variation for the prototype,
-            so repeated lure clones don't read as identical.
-          */
-          child.material = child.material.clone();
+  debug.textContent="loaded ✓\\n7 bounded wrappers";
+},undefined,error=>{
+  console.error(error);
+  debug.textContent="GLB failed";
+});
 
-          if(child.material.color){
-            child.material.color.offsetHSL(
-              (i-3)*.015,
-              0,
-              (i%2)*.04
-            );
-          }
-
-          child.material.transparent = true;
-          child.material.opacity = 1;
-        }
-      });
-
-      orbitGroup.add(obj);
-      objects.push(obj);
-    }
-
-    setTargetsForOrbit();
-  },
-  undefined,
-  (error)=>console.error(error)
-);
-
-/* CLICK OBJECTS */
-renderer.domElement.addEventListener("pointerdown",(event)=>{
-  const rect = renderer.domElement.getBoundingClientRect();
-
-  pointer.x = ((event.clientX-rect.left)/rect.width)*2-1;
-  pointer.y = -((event.clientY-rect.top)/rect.height)*2+1;
-
+/* click */
+renderer.domElement.addEventListener("pointerdown",e=>{
+  const r=renderer.domElement.getBoundingClientRect();
+  pointer.x=((e.clientX-r.left)/r.width)*2-1;
+  pointer.y=-((e.clientY-r.top)/r.height)*2+1;
   raycaster.setFromCamera(pointer,camera);
-
-  const intersections = raycaster.intersectObjects(objects,true);
-
-  if(intersections.length){
-    const idx = intersections[0].object.userData.itemIndex;
-
-    if(Number.isInteger(idx)){
-      openProject("Selected Object",idx);
-    }
+  const hits=raycaster.intersectObjects(wrappers,true);
+  if(hits.length){
+    const idx=hits[0].object.userData.itemIndex;
+    if(Number.isInteger(idx))openProject("Selected Object",idx);
   }
 });
 
-/* MENU CAN ALSO TRIGGER SAME TRANSITION */
-document.querySelectorAll("#menu a").forEach((link,i)=>{
-  link.addEventListener("click",()=>{
-    openProject(link.dataset.page,i%ITEMS);
-  });
+document.querySelectorAll("#menu a").forEach((a,i)=>{
+  a.onclick=()=>openProject(a.dataset.page,i%ITEMS);
 });
 
-closeBtn.addEventListener("click",closeProject);
-
-/* ANIMATE */
-const clock = new THREE.Clock();
-
+/* stable easing: no additive position/scale motion */
+const clock=new THREE.Clock();
 function animate(){
   requestAnimationFrame(animate);
+  const t=clock.getElapsedTime();
 
-  const t = clock.getElapsedTime();
+  wrappers.forEach((w,i)=>{
+    w.position.lerp(w.userData.targetPos,.075);
 
-  objects.forEach((item,i)=>{
+    const s=THREE.MathUtils.lerp(
+      w.scale.x,
+      w.userData.targetScale,
+      .075
+    );
+    w.scale.setScalar(s);
 
-    item.position.lerp(item.userData.targetPos,.055);
+    w.rotation.y=THREE.MathUtils.lerp(
+      w.rotation.y,
+      w.userData.targetRotY,
+      .06
+    );
 
-    const targetS = item.userData.targetScale;
-    const currentS = item.scale.x || .001;
-    const newS = THREE.MathUtils.lerp(currentS,targetS,.055);
-    item.scale.setScalar(newS);
+    /* tiny non-accumulating idle rotation */
+    w.rotation.x=Math.sin(t*.45+w.userData.phase)*.10;
+    w.rotation.z=Math.cos(t*.38+w.userData.phase)*.07;
 
-    item.rotation.y +=
-      (item.userData.targetRotY - item.rotation.y) * .045;
-
-    /*
-      subtle independent spin:
-      selected gets a little more life,
-      orbiting ones move slowly.
-    */
-    item.rotation.x =
-      Math.sin(t*.45 + item.userData.phase) * .13;
-
-    item.rotation.z =
-      Math.cos(t*.38 + item.userData.phase) * .10;
-
-    if(i === selectedIndex){
-      item.rotation.y += .004;
-    } else if(!cardOpen){
-      item.rotation.y += .0015;
-    }
-
-    item.traverse(child=>{
-      if(child.isMesh && child.material){
-        child.material.opacity = THREE.MathUtils.lerp(
+    w.traverse(child=>{
+      if(child.isMesh){
+        child.material.opacity=THREE.MathUtils.lerp(
           child.material.opacity,
-          item.userData.opacity,
-          .08
+          w.userData.targetOpacity,
+          .10
         );
       }
     });
   });
 
-  /*
-    extremely slow group drift — composition works even if frozen,
-    but there's a little life.
-  */
-  if(!cardOpen){
-    orbitGroup.rotation.z = Math.sin(t*.10)*.035;
-  }else{
-    orbitGroup.rotation.z *= .94;
-  }
-
   renderer.render(scene,camera);
 }
-
 animate();
 
 window.addEventListener("resize",()=>{
   renderer.setSize(stage.clientWidth,stage.clientHeight,false);
-  camera.aspect = stage.clientWidth/stage.clientHeight;
+  camera.aspect=stage.clientWidth/stage.clientHeight;
   camera.updateProjectionMatrix();
 });
 </script>
