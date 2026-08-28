@@ -86,6 +86,11 @@ FRONT objects render above the name.
 	pointer-events:auto !important;
 }
 
+
+#name.two-lines span{display:block;white-space:nowrap}
+#name.one-line{line-height:1;white-space:nowrap}
+#name.one-line span{display:inline}
+#name.one-line span:first-child::after{content:" "}
 #subtitle{
 	position:absolute;
 	left:47px;
@@ -274,7 +279,7 @@ FRONT objects render above the name.
 	<div id="left">
 
 		<div id="stage">
-			<div id="name"><span>BRUNO</span><span>LOPES</span></div>
+			<div id="name" class="two-lines"><span>BRUNO</span><span>LOPES</span></div>
 		</div>
 
 		<div id="subtitle">MOTION GRAPHICS * VFX</div>
@@ -316,6 +321,9 @@ FRONT objects render above the name.
 	
 	<div id="tune">
 		<h4>Orbit tuning</h4>
+        <div class="row"><label>Outline</label><input id="outlineOn" type="checkbox" checked><span class="val">ON</span></div>
+        <div class="row"><label>Outline size</label><input id="outlineSize" type="range" min="1.005" max="1.14" step=".005" value="1.035"><span class="val" id="outlineSizeVal">1.035</span></div>
+        <div class="row"><label>Name</label><button id="nameMode" type="button">2 LINES</button><span></span></div>
 		<div class="row"><label>Object size</label><input id="sizeMul" type="range" min=".6" max="2.2" step=".05" value="1.18"><span class="val" id="sizeMulVal">1.18</span></div>
 		<div class="row"><label>Orbit width</label><input id="orbitX" type="range" min="1.2" max="2.5" step=".05" value="1.78"><span class="val" id="orbitXVal">1.78</span></div>
 		<div class="row"><label>Orbit height</label><input id="orbitY" type="range" min=".6" max="1.6" step=".05" value="1.00"><span class="val" id="orbitYVal">1.00</span></div>
@@ -544,6 +552,9 @@ let SIZE_MULTIPLIER = 1.18;
 let HOVER_BOOST = 1.22;
 let HERO_SIZE = 3.05;
 let OVERLAP_AMOUNT = .26;
+let OUTLINE_ON = true;
+let OUTLINE_SCALE = 1.035;
+const OUTLINES = [];
 
 
 /*
@@ -563,6 +574,32 @@ let ORBIT_Y =
 /* ==================================================
    UTILS
    ================================================== */
+
+
+function addOutline(mesh){
+	const mat = new THREE.MeshBasicMaterial({
+		color:0x000000,
+		side:THREE.BackSide,
+		transparent:true,
+		opacity:1,
+		depthWrite:false
+	});
+
+	const shell = new THREE.Mesh(mesh.geometry, mat);
+	shell.name = "__outline__";
+	shell.userData.isOutline = true;
+	shell.scale.setScalar(OUTLINE_SCALE);
+	shell.raycast = () => {};
+	mesh.add(shell);
+	OUTLINES.push(shell);
+}
+
+function refreshOutlines(){
+	OUTLINES.forEach(shell=>{
+		shell.visible = OUTLINE_ON;
+		shell.scale.setScalar(OUTLINE_SCALE);
+	});
+}
 
 function normalizeModel(
 	root,
@@ -625,33 +662,29 @@ function normalizeModel(
 	);
 
 
-	root.traverse(
-		child => {
+	const sourceMeshes = [];
 
-			if(
-				child.isMesh
-			){
+	root.traverse(child => {
+		if(child.isMesh && !child.userData.isOutline){
+			child.userData.itemIndex = index;
 
-				child.userData.itemIndex =
-					index;
-
-
-				child.material =
-					child.material.clone();
-
-
-				child.material.transparent =
-					true;
-
-
-				child.material.opacity =
-					1;
-
+			if(Array.isArray(child.material)){
+				child.material = child.material.map(m=>m.clone());
+				child.material.forEach(m=>{
+					m.transparent = true;
+					m.opacity = 1;
+				});
+			}else if(child.material){
+				child.material = child.material.clone();
+				child.material.transparent = true;
+				child.material.opacity = 1;
 			}
 
+			sourceMeshes.push(child);
 		}
-	);
+	});
 
+	sourceMeshes.forEach(addOutline);
 
 	visual.add(
 		root
@@ -1326,6 +1359,29 @@ function bindRange(id, valueId, callback, digits=2){
 	input.addEventListener("input", update);
 	update();
 }
+
+
+const outlineOn = document.getElementById("outlineOn");
+outlineOn.addEventListener("change",()=>{
+	OUTLINE_ON = outlineOn.checked;
+	refreshOutlines();
+});
+
+bindRange("outlineSize","outlineSizeVal",(v)=>{
+	OUTLINE_SCALE = v;
+	refreshOutlines();
+},3);
+
+const nameMode = document.getElementById("nameMode");
+const nameEl = document.getElementById("name");
+let twoLines = true;
+
+nameMode.addEventListener("click",()=>{
+	twoLines = !twoLines;
+	nameEl.classList.toggle("two-lines",twoLines);
+	nameEl.classList.toggle("one-line",!twoLines);
+	nameMode.textContent = twoLines ? "2 LINES" : "1 LINE";
+});
 
 bindRange("sizeMul","sizeMulVal",(v)=>{
 	SIZE_MULTIPLIER = v;
