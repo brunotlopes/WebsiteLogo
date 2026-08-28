@@ -325,7 +325,16 @@ FRONT objects render above the name.
         <div class="row"><label>Outline size</label><input id="outlineSize" type="range" min="1.005" max="1.14" step=".005" value="1.035"><span class="val" id="outlineSizeVal">1.035</span></div>
         <div class="row"><label>Name</label><button id="nameMode" type="button">2 LINES</button><span></span></div>
 		<div class="row"><label>Object size</label><input id="sizeMul" type="range" min=".6" max="2.2" step=".05" value="1.18"><span class="val" id="sizeMulVal">1.18</span></div>
-		<div class="row"><label>Orbit width</label><input id="orbitX" type="range" min="1.2" max="2.5" step=".05" value="1.78"><span class="val" id="orbitXVal">1.78</span></div>
+		<div style="margin:8px 0 4px;font-size:10px;font-weight:700;opacity:.55">INDIVIDUAL SCALE</div>
+		<div class="row"><label>1 · Lure</label><input id="scale1" type="range" min=".4" max="2.5" step=".05" value="1.00"><span class="val" id="scale1Val">1.00</span></div>
+		<div class="row"><label>2 · Arcade</label><input id="scale2" type="range" min=".4" max="2.5" step=".05" value="1.00"><span class="val" id="scale2Val">1.00</span></div>
+		<div class="row"><label>3 · Stadium</label><input id="scale3" type="range" min=".4" max="2.5" step=".05" value="1.00"><span class="val" id="scale3Val">1.00</span></div>
+		<div class="row"><label>4 · Ball</label><input id="scale4" type="range" min=".4" max="2.5" step=".05" value="1.00"><span class="val" id="scale4Val">1.00</span></div>
+		<div class="row"><label>5 · Surfboard</label><input id="scale5" type="range" min=".4" max="2.5" step=".05" value="1.00"><span class="val" id="scale5Val">1.00</span></div>
+		<div class="row"><label>6 · Sneaker</label><input id="scale6" type="range" min=".4" max="2.5" step=".05" value="1.00"><span class="val" id="scale6Val">1.00</span></div>
+		<div class="row"><label>7 · TV Camera</label><input id="scale7" type="range" min=".4" max="2.5" step=".05" value="1.00"><span class="val" id="scale7Val">1.00</span></div>
+		<div class="row"><label>8 · Tulip</label><input id="scale8" type="range" min=".4" max="2.5" step=".05" value="1.00"><span class="val" id="scale8Val">1.00</span></div>
+		<div class="row"><label>Orbit width</label><input id="orbitX" type="range" min="1.2" max="2.5" step=".05" value="1.92"><span class="val" id="orbitXVal">1.92</span></div>
 		<div class="row"><label>Orbit height</label><input id="orbitY" type="range" min=".6" max="1.6" step=".05" value="1.00"><span class="val" id="orbitYVal">1.00</span></div>
 		<div class="row"><label>Overlap</label><input id="overlap" type="range" min="0" max=".65" step=".01" value=".26"><span class="val" id="overlapVal">0.26</span></div>
 		<div class="row"><label>Hover boost</label><input id="hoverBoost" type="range" min="1" max="1.6" step=".02" value="1.22"><span class="val" id="hoverBoostVal">1.22</span></div>
@@ -555,6 +564,7 @@ let OVERLAP_AMOUNT = .26;
 let OUTLINE_ON = true;
 let OUTLINE_SCALE = 1.035;
 const OUTLINES = [];
+const INDIVIDUAL_SCALE = [1,1,1,1,1,1,1,1];
 
 
 /*
@@ -565,7 +575,7 @@ const ORBIT_SPEED =
 
 
 let ORBIT_X =
-	1.78;
+	1.92;
 
 let ORBIT_Y =
 	1.00;
@@ -941,6 +951,7 @@ function setSelectedTargets(
 				wrapper.userData.targetScale =
 					wrapper.userData.baseSize *
 					SIZE_MULTIPLIER *
+					INDIVIDUAL_SCALE[i] *
 					HERO_SIZE;
 
 
@@ -988,6 +999,7 @@ function setSelectedTargets(
 				wrapper.userData.targetScale =
 					wrapper.userData.baseSize *
 					SIZE_MULTIPLIER *
+					INDIVIDUAL_SCALE[i] *
 					.58;
 
 
@@ -1383,6 +1395,21 @@ nameMode.addEventListener("click",()=>{
 	nameMode.textContent = twoLines ? "2 LINES" : "1 LINE";
 });
 
+
+for(let i=0;i<8;i++){
+	bindRange(
+		"scale"+(i+1),
+		"scale"+(i+1)+"Val",
+		(v)=>{
+			INDIVIDUAL_SCALE[i]=v;
+
+			if(cardOpen && selected !== -1){
+				setSelectedTargets(selected);
+			}
+		}
+	);
+}
+
 bindRange("sizeMul","sizeMulVal",(v)=>{
 	SIZE_MULTIPLIER = v;
 
@@ -1519,8 +1546,8 @@ function updateOrbit(
 						depth,
 						-1,
 						1,
-						.88,
-						1.28
+						.78,
+						1.38
 					);
 
 
@@ -1533,6 +1560,7 @@ function updateOrbit(
 				const targetScale =
 					wrapper.userData.baseSize *
 					SIZE_MULTIPLIER *
+					INDIVIDUAL_SCALE[i] *
 					depthScale *
 					hoverScale;
 
