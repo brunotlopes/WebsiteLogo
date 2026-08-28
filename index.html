@@ -342,6 +342,31 @@ FRONT objects render above the name.
 }
 #object-label.show{opacity:1}
 
+
+.project-menu{
+	display:flex;
+	flex-direction:column;
+	gap:2px;
+	margin-top:10px;
+	position:relative;
+	z-index:25;
+}
+.project-menu a{
+	color:#111;
+	text-decoration:none;
+	font-size:11px;
+	line-height:1.25;
+	opacity:.72;
+	transition:opacity .12s ease, font-weight .12s ease;
+}
+.project-menu a:hover{
+	opacity:1;
+}
+.project-menu a.active{
+	opacity:1;
+	font-weight:700;
+}
+
 </style>
 </head>
 
@@ -354,22 +379,28 @@ FRONT objects render above the name.
 		<div id="stage">
 <div id="object-label"></div>
 			<div id="name" class="one-line"><span>BRUNO</span><span>LOPES</span></div>
+
+<div id="project-menu" class="project-menu">
+	<a href="#" data-project-index="0">Showreel</a>
+	<a href="#" data-project-index="1">Playground 1</a>
+	<a href="#" data-project-index="2">Playground 2</a>
+	<a href="#" data-project-index="3">Playground 3</a>
+	<a href="#" data-project-index="4">Futster</a>
+	<a href="#" data-project-index="5">Gobelins JPO 1</a>
+	<a href="#" data-project-index="6">Gobelins JPO 2</a>
+	<a href="#" data-project-index="7">Universal Music France</a>
+	<a href="#" data-project-index="8">Museum D’Orsay</a>
+	<a href="#" data-project-index="9">Paper Sound Machine</a>
+	<a href="#" data-project-index="10">Bushoe 1</a>
+	<a href="#" data-project-index="11">Bushoe 2</a>
+	<a href="#" data-project-index="12">Silent Running</a>
+</div>
+
 		</div>
 
 		<div id="subtitle">MOTION GRAPHICS * VFX</div>
 
-		<div id="menu">
-			<a data-page="Showreel">Showreel</a><br>
-			<a data-page="Playground">Playground</a><br>
-			<a data-page="Futster">Futster</a><br>
-			<a data-page="Gobelins JPO">Gobelins JPO</a><br>
-			<a data-page="Universal Music France">Universal Music France</a><br>
-			<a data-page="Museum D'Orsay">Museum D'Orsay</a><br>
-			<a data-page="Paratypology">Paratypology</a><br>
-			<a data-page="Paper Sound Machine">Paper Sound Machine</a><br>
-			<a data-page="Bushoe">Bushoe</a><br>
-			<a data-page="Silent Running">Silent Running</a>
-		</div>
+		
 
 	</div>
 
@@ -1746,6 +1777,46 @@ pauseOrbit.addEventListener("click",()=>{
 
 document.getElementById("resetLab").addEventListener("click",()=>{
 	location.reload();
+});
+
+
+function focusProject(index){
+	if(index < 0 || index >= wrappers.length) return;
+
+	selected = index;
+	cardOpen = true;
+
+	document.querySelectorAll("#project-menu a").forEach((a,i)=>{
+		a.classList.toggle("active", i === index);
+	});
+
+	/*
+	  Keep only the selected object visually dominant.
+	  Others stay present but are pushed back/faded.
+	*/
+	wrappers.forEach((wrapper,i)=>{
+		wrapper.userData.menuFocus = (i === index);
+	});
+
+	if(typeof setSelectedTargets === "function"){
+		setSelectedTargets(index);
+	}
+
+	if(card){
+		card.classList.add("open");
+	}
+
+	if(typeof cardTitle !== "undefined" && cardTitle){
+		cardTitle.textContent = OBJECT_LABELS[index] || "Project";
+	}
+}
+
+document.querySelectorAll("#project-menu a").forEach(a=>{
+	a.addEventListener("click",e=>{
+		e.preventDefault();
+		const index = parseInt(a.dataset.projectIndex,10);
+		focusProject(index);
+	});
 });
 
 /* ==================================================
