@@ -324,6 +324,9 @@ FRONT objects render above the name.
         <div class="row"><label>Outline</label><input id="outlineOn" type="checkbox" checked><span class="val">ON</span></div>
         <div class="row"><label>Outline size</label><input id="outlineSize" type="range" min="1.005" max="1.14" step=".005" value="1.035"><span class="val" id="outlineSizeVal">1.035</span></div>
         <div class="row"><label>Name</label><button id="nameMode" type="button">2 LINES</button><span></span></div>
+		<div class="row"><label>Name size</label><input id="nameSize" type="range" min="14" max="34" step="1" value="24"><span class="val" id="nameSizeVal">24</span></div>
+		<div class="row"><label>Orbit speed</label><input id="orbitSpeed" type="range" min=".02" max=".35" step=".01" value=".12"><span class="val" id="orbitSpeedVal">0.12</span></div>
+
 		<div class="row"><label>Object size</label><input id="sizeMul" type="range" min=".6" max="2.2" step=".05" value="1.18"><span class="val" id="sizeMulVal">1.18</span></div>
 		<div style="margin:8px 0 4px;font-size:10px;font-weight:700;opacity:.55">INDIVIDUAL SCALE</div>
 		<div class="row"><label>1 · Lure</label><input id="scale1" type="range" min=".4" max="2.5" step=".05" value="1.00"><span class="val" id="scale1Val">1.00</span></div>
@@ -337,7 +340,9 @@ FRONT objects render above the name.
 		<div class="row"><label>Orbit width</label><input id="orbitX" type="range" min="1.2" max="2.5" step=".05" value="1.92"><span class="val" id="orbitXVal">1.92</span></div>
 		<div class="row"><label>Orbit height</label><input id="orbitY" type="range" min=".6" max="1.6" step=".05" value="1.00"><span class="val" id="orbitYVal">1.00</span></div>
 		<div class="row"><label>Overlap</label><input id="overlap" type="range" min="0" max=".65" step=".01" value=".26"><span class="val" id="overlapVal">0.26</span></div>
+		<div class="row"><label>Depth strength</label><input id="depthStrength" type="range" min="0" max="1.4" step=".05" value=".82"><span class="val" id="depthStrengthVal">0.82</span></div>
 		<div class="row"><label>Hover boost</label><input id="hoverBoost" type="range" min="1" max="1.6" step=".02" value="1.22"><span class="val" id="hoverBoostVal">1.22</span></div>
+		<div class="row"><label>Hover spin</label><input id="hoverSpin" type="range" min=".05" max="1.2" step=".05" value=".46"><span class="val" id="hoverSpinVal">0.46</span></div>
 		<div class="row"><label>Hero size</label><input id="heroSize" type="range" min="1.5" max="4.5" step=".05" value="3.05"><span class="val" id="heroSizeVal">3.05</span></div>
 	</div>
 
@@ -540,6 +545,8 @@ scene.traverse(obj=>{
 const wrappers =
 	[];
 
+const hoverProxies = [];
+
 const raycaster =
 	new THREE.Raycaster();
 
@@ -565,12 +572,17 @@ let OUTLINE_ON = true;
 let OUTLINE_SCALE = 1.035;
 const OUTLINES = [];
 const INDIVIDUAL_SCALE = [1,1,1,1,1,1,1,1];
+let NAME_SIZE = 24;
+let DEPTH_STRENGTH = .82;
+let HOVER_SPIN_IMPULSE = .46;
+let ORBIT_SPEED_DYNAMIC = .12;
+
 
 
 /*
 Keep the speed from the version that felt good.
 */
-const ORBIT_SPEED =
+let ORBIT_SPEED =
 	0.12;
 
 
@@ -823,6 +835,37 @@ function createWrapper(
 	wrapper.userData.targetRotY =
 		0;
 
+
+
+	/*
+	   Dedicated invisible hover proxy.
+	   This fixes inconsistent hover on tiny / thin / oddly-shaped GLBs.
+	   It is deliberately larger than the model's exact mesh bounds.
+	*/
+	const proxy =
+		new THREE.Mesh(
+			new THREE.SphereGeometry(.62,12,8),
+			new THREE.MeshBasicMaterial({
+				transparent:true,
+				opacity:0,
+				depthWrite:false,
+				colorWrite:false
+			})
+		);
+
+	proxy.userData.itemIndex =
+		index;
+
+	proxy.userData.isHoverProxy =
+		true;
+
+	wrapper.add(
+		proxy
+	);
+
+	hoverProxies.push(
+		proxy
+	);
 
 	wrapper.add(
 		visual
@@ -1197,8 +1240,8 @@ rendererFront.domElement.addEventListener(
 
 		const hits =
 			raycaster.intersectObjects(
-				wrappers,
-				true
+				hoverProxies,
+				false
 			);
 
 
@@ -1248,7 +1291,7 @@ rendererFront.domElement.addEventListener(
 			wrappers[hovered]
 				.userData
 				.spinVelocity +=
-				.46;
+				HOVER_SPIN_IMPULSE;
 
 		}
 
@@ -1311,8 +1354,8 @@ rendererFront.domElement.addEventListener(
 
 		const hits =
 			raycaster.intersectObjects(
-				wrappers,
-				true
+				hoverProxies,
+				false
 			);
 
 
@@ -1409,6 +1452,27 @@ for(let i=0;i<8;i++){
 		}
 	);
 }
+
+
+bindRange("nameSize","nameSizeVal",(v)=>{
+	NAME_SIZE = v;
+	const nameEl = document.getElementById("name");
+	if(nameEl){
+		nameEl.style.fontSize = v + "px";
+	}
+},0);
+
+bindRange("orbitSpeed","orbitSpeedVal",(v)=>{
+	ORBIT_SPEED = v;
+},2);
+
+bindRange("depthStrength","depthStrengthVal",(v)=>{
+	DEPTH_STRENGTH = v;
+},2);
+
+bindRange("hoverSpin","hoverSpinVal",(v)=>{
+	HOVER_SPIN_IMPULSE = v;
+},2);
 
 bindRange("sizeMul","sizeMulVal",(v)=>{
 	SIZE_MULTIPLIER = v;
@@ -1532,7 +1596,7 @@ function updateOrbit(
 					verticalPull,
 
 					depth *
-					.86
+					DEPTH_STRENGTH
 
 				);
 
@@ -1546,8 +1610,8 @@ function updateOrbit(
 						depth,
 						-1,
 						1,
-						.78,
-						1.38
+						1 - DEPTH_STRENGTH * .28,
+						1 + DEPTH_STRENGTH * .46
 					);
 
 
