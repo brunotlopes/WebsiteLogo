@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Bruno Lopes — Multi Object Orbit</title>
+<title>Bruno Lopes — Ellipse Ring Lab</title>
 
 <style>
 html,body{
@@ -246,6 +246,81 @@ FRONT objects render above the name.
 }
 
 
+
+#lab{
+	position:absolute;
+	top:12px;
+	right:12px;
+	z-index:50;
+	width:292px;
+	max-height:calc(100vh - 24px);
+	overflow:auto;
+	box-sizing:border-box;
+	padding:13px;
+	background:rgba(255,255,255,.95);
+	border:1px solid rgba(0,0,0,.14);
+	border-radius:13px;
+	box-shadow:0 10px 35px rgba(0,0,0,.08);
+	backdrop-filter:blur(9px);
+	color:#111;
+}
+#lab h3{
+	margin:0 0 9px;
+	font-size:13px;
+}
+#lab .section{
+	margin:11px 0 5px;
+	padding-top:8px;
+	border-top:1px solid rgba(0,0,0,.1);
+	font-size:10px;
+	font-weight:700;
+	letter-spacing:.04em;
+	opacity:.55;
+}
+#lab .row{
+	display:grid;
+	grid-template-columns:108px 1fr 43px;
+	gap:7px;
+	align-items:center;
+	margin:5px 0;
+}
+#lab label{
+	font-size:11px;
+	opacity:.72;
+}
+#lab input[type="range"]{
+	width:100%;
+}
+#lab input[type="checkbox"]{
+	justify-self:start;
+}
+#lab .val{
+	font-size:10px;
+	text-align:right;
+	opacity:.62;
+}
+#lab button{
+	border:1px solid rgba(0,0,0,.18);
+	background:#fff;
+	border-radius:7px;
+	padding:5px 8px;
+	font-size:10px;
+	cursor:pointer;
+}
+#lab button.active{
+	background:#111;
+	color:#fff;
+}
+#lab .buttons{
+	display:grid;
+	grid-template-columns:1fr 1fr;
+	gap:6px;
+	margin-top:8px;
+}
+@media(max-width:900px){
+	#lab{display:none}
+}
+
 </style>
 </head>
 
@@ -292,8 +367,62 @@ FRONT objects render above the name.
 	</div>
 
 	<div id="hint">
-		orbit objects • hover = quick spin • click object / menu
+		elliptical 3D ring • hover = quick spin • click object / menu
 	</div>
+
+	<div id="lab">
+		<h3>Ellipse ring lab</h3>
+
+		<div class="section">RING</div>
+		<div class="row"><label>Width</label><input id="ringWidth" type="range" min="1.3" max="3.2" step=".05" value="2.35"><span class="val" id="ringWidthVal">2.35</span></div>
+		<div class="row"><label>Height</label><input id="ringHeight" type="range" min=".35" max="1.5" step=".05" value=".78"><span class="val" id="ringHeightVal">0.78</span></div>
+		<div class="row"><label>Depth</label><input id="ringDepth" type="range" min="0" max="1.8" step=".05" value=".90"><span class="val" id="ringDepthVal">0.90</span></div>
+		<div class="row"><label>Depth scale</label><input id="depthScale" type="range" min="0" max="1.8" step=".05" value="1.25"><span class="val" id="depthScaleVal">1.25</span></div>
+		<div class="row"><label>Tilt X</label><input id="ringTiltX" type="range" min="-45" max="45" step="1" value="18"><span class="val" id="ringTiltXVal">18</span></div>
+		<div class="row"><label>Tilt Y</label><input id="ringTiltY" type="range" min="-45" max="45" step="1" value="0"><span class="val" id="ringTiltYVal">0</span></div>
+		<div class="row"><label>Tilt Z</label><input id="ringTiltZ" type="range" min="-30" max="30" step="1" value="-8"><span class="val" id="ringTiltZVal">-8</span></div>
+		<div class="row"><label>Speed</label><input id="ringSpeed" type="range" min="-.35" max=".35" step=".01" value=".17"><span class="val" id="ringSpeedVal">0.17</span></div>
+		<div class="row"><label>Overlap</label><input id="overlap" type="range" min="0" max=".7" step=".01" value=".18"><span class="val" id="overlapVal">0.18</span></div>
+
+		<div class="section">LOOK</div>
+		<div class="row"><label>Saturation</label><input id="saturation" type="range" min=".5" max="2.5" step=".05" value="1.45"><span class="val" id="saturationVal">1.45</span></div>
+		<div class="row"><label>Contrast</label><input id="contrast" type="range" min=".75" max="1.5" step=".05" value="1.08"><span class="val" id="contrastVal">1.08</span></div>
+		<div class="row"><label>Brightness</label><input id="brightness" type="range" min=".7" max="1.4" step=".05" value="1.05"><span class="val" id="brightnessVal">1.05</span></div>
+		<div class="row"><label>Object size</label><input id="objectSize" type="range" min=".5" max="1.8" step=".05" value=".95"><span class="val" id="objectSizeVal">0.95</span></div>
+		<div class="row"><label>Hover boost</label><input id="hoverBoost" type="range" min="1" max="2" step=".05" value="1.60"><span class="val" id="hoverBoostVal">1.60</span></div>
+		<div class="row"><label>Hover spin</label><input id="hoverSpin" type="range" min=".1" max="1.8" step=".05" value="1.20"><span class="val" id="hoverSpinVal">1.20</span></div>
+		<div class="row"><label>Hero size</label><input id="heroSize" type="range" min="1.5" max="6" step=".1" value="4.50"><span class="val" id="heroSizeVal">4.50</span></div>
+
+		<div class="section">NAME</div>
+		<div class="row"><label>Name size</label><input id="nameSize" type="range" min="14" max="36" step="1" value="24"><span class="val" id="nameSizeVal">24</span></div>
+		<div class="row"><label>Layout</label><button id="nameLayout" class="active">1 LINE</button><span></span></div>
+
+		<div class="section">INDIVIDUAL SIZE</div>
+		<div class="row"><label>1 · Lure</label><input id="s1" type="range" min=".4" max="2.5" step=".05" value="1.15"><span class="val" id="s1Val">1.15</span></div>
+		<div class="row"><label>2 · Arcade</label><input id="s2" type="range" min=".4" max="2.5" step=".05" value=".85"><span class="val" id="s2Val">0.85</span></div>
+		<div class="row"><label>3 · Stadium</label><input id="s3" type="range" min=".4" max="2.5" step=".05" value=".95"><span class="val" id="s3Val">0.95</span></div>
+		<div class="row"><label>4 · Ball</label><input id="s4" type="range" min=".4" max="2.5" step=".05" value=".75"><span class="val" id="s4Val">0.75</span></div>
+		<div class="row"><label>5 · Surfboard</label><input id="s5" type="range" min=".4" max="2.5" step=".05" value="1.20"><span class="val" id="s5Val">1.20</span></div>
+		<div class="row"><label>6 · Sneaker</label><input id="s6" type="range" min=".4" max="2.5" step=".05" value=".95"><span class="val" id="s6Val">0.95</span></div>
+		<div class="row"><label>7 · TV Camera</label><input id="s7" type="range" min=".4" max="2.5" step=".05" value=".80"><span class="val" id="s7Val">0.80</span></div>
+		<div class="row"><label>8 · Tulip</label><input id="s8" type="range" min=".4" max="2.5" step=".05" value="1.15"><span class="val" id="s8Val">1.15</span></div>
+
+		<div class="section">INDIVIDUAL TILT Y</div>
+		<div class="row"><label>1 · Lure</label><input id="t1" type="range" min="-90" max="90" step="2" value="-18"><span class="val" id="t1Val">-18</span></div>
+		<div class="row"><label>2 · Arcade</label><input id="t2" type="range" min="-90" max="90" step="2" value="26"><span class="val" id="t2Val">26</span></div>
+		<div class="row"><label>3 · Stadium</label><input id="t3" type="range" min="-90" max="90" step="2" value="-34"><span class="val" id="t3Val">-34</span></div>
+		<div class="row"><label>4 · Ball</label><input id="t4" type="range" min="-90" max="90" step="2" value="12"><span class="val" id="t4Val">12</span></div>
+		<div class="row"><label>5 · Surfboard</label><input id="t5" type="range" min="-90" max="90" step="2" value="42"><span class="val" id="t5Val">42</span></div>
+		<div class="row"><label>6 · Sneaker</label><input id="t6" type="range" min="-90" max="90" step="2" value="-28"><span class="val" id="t6Val">-28</span></div>
+		<div class="row"><label>7 · TV Camera</label><input id="t7" type="range" min="-90" max="90" step="2" value="34"><span class="val" id="t7Val">34</span></div>
+		<div class="row"><label>8 · Tulip</label><input id="t8" type="range" min="-90" max="90" step="2" value="-10"><span class="val" id="t8Val">-10</span></div>
+
+		<div class="buttons">
+			<button id="pauseOrbit">PAUSE</button>
+			<button id="resetLab">RESET</button>
+		</div>
+	</div>
+
 <div id="debug">
 		loading objects…
 	</div>
@@ -486,6 +615,17 @@ scene.traverse(obj=>{
 });
 
 
+
+function applyCanvasFilter(){
+	const filter =
+		`saturate(${SATURATION}) contrast(${CONTRAST}) brightness(${BRIGHTNESS})`;
+
+	rendererBack.domElement.style.filter = filter;
+	rendererFront.domElement.style.filter = filter;
+}
+
+applyCanvasFilter();
+
 /* ==================================================
    ORBIT
    ================================================== */
@@ -515,6 +655,18 @@ let cardOpen =
 
 
 let SIZE_MULTIPLIER = 0.95;
+let RING_WIDTH = 2.35;
+let RING_HEIGHT = .78;
+let RING_DEPTH = .90;
+let DEPTH_SCALE_STRENGTH = 1.25;
+let RING_TILT_X = THREE.MathUtils.degToRad(18);
+let RING_TILT_Y = THREE.MathUtils.degToRad(0);
+let RING_TILT_Z = THREE.MathUtils.degToRad(-8);
+let SATURATION = 1.45;
+let CONTRAST = 1.08;
+let BRIGHTNESS = 1.05;
+let PAUSED = false;
+const INDIVIDUAL_TILT_Y = [-18,26,-34,12,42,-28,34,-10].map(THREE.MathUtils.degToRad);
 let HOVER_BOOST = 1.60;
 let HERO_SIZE = 4.50;
 let OVERLAP_AMOUNT = .21;
@@ -525,7 +677,6 @@ const INDIVIDUAL_SCALE = [1.15,.85,.95,.75,1.20,.95,.80,1.15];
 let NAME_SIZE = 24;
 let DEPTH_STRENGTH = 1.40;
 let HOVER_SPIN_IMPULSE = 1.20;
-let ORBIT_SPEED_DYNAMIC = .12;
 
 
 
@@ -734,7 +885,8 @@ function createWrapper(
 		THREE.MathUtils.degToRad(
 			-28 +
 			(index % 5) * 14
-		);
+		) +
+		INDIVIDUAL_TILT_Y[index % INDIVIDUAL_TILT_Y.length];
 
 
 	wrapper.userData.baseRotZ =
@@ -1370,12 +1522,103 @@ rendererFront.domElement.addEventListener(
 
 
 
+
+/* ==================================================
+   ELLIPSE LAB CONTROLS
+   ================================================== */
+
+function bindLab(id,valId,cb,digits=2){
+	const input = document.getElementById(id);
+	const val = document.getElementById(valId);
+
+	function update(){
+		const v = parseFloat(input.value);
+		val.textContent = v.toFixed(digits);
+		cb(v);
+	}
+
+	input.addEventListener("input",update);
+	update();
+}
+
+bindLab("ringWidth","ringWidthVal",v=>RING_WIDTH=v);
+bindLab("ringHeight","ringHeightVal",v=>RING_HEIGHT=v);
+bindLab("ringDepth","ringDepthVal",v=>RING_DEPTH=v);
+bindLab("depthScale","depthScaleVal",v=>DEPTH_SCALE_STRENGTH=v);
+bindLab("ringTiltX","ringTiltXVal",v=>RING_TILT_X=THREE.MathUtils.degToRad(v),0);
+bindLab("ringTiltY","ringTiltYVal",v=>RING_TILT_Y=THREE.MathUtils.degToRad(v),0);
+bindLab("ringTiltZ","ringTiltZVal",v=>RING_TILT_Z=THREE.MathUtils.degToRad(v),0);
+bindLab("ringSpeed","ringSpeedVal",v=>ORBIT_SPEED=v);
+bindLab("overlap","overlapVal",v=>OVERLAP_AMOUNT=v);
+
+bindLab("saturation","saturationVal",v=>{SATURATION=v;applyCanvasFilter()});
+bindLab("contrast","contrastVal",v=>{CONTRAST=v;applyCanvasFilter()});
+bindLab("brightness","brightnessVal",v=>{BRIGHTNESS=v;applyCanvasFilter()});
+
+bindLab("objectSize","objectSizeVal",v=>{
+	SIZE_MULTIPLIER=v;
+	if(cardOpen && selected!==-1)setSelectedTargets(selected);
+});
+bindLab("hoverBoost","hoverBoostVal",v=>HOVER_BOOST=v);
+bindLab("hoverSpin","hoverSpinVal",v=>HOVER_SPIN_IMPULSE=v);
+bindLab("heroSize","heroSizeVal",v=>{
+	HERO_SIZE=v;
+	if(cardOpen && selected!==-1)setSelectedTargets(selected);
+});
+bindLab("nameSize","nameSizeVal",v=>{
+	document.getElementById("name").style.fontSize=v+"px";
+},0);
+
+for(let i=0;i<8;i++){
+	bindLab("s"+(i+1),"s"+(i+1)+"Val",v=>{
+		INDIVIDUAL_SCALE[i]=v;
+		if(cardOpen && selected!==-1)setSelectedTargets(selected);
+	});
+
+	bindLab("t"+(i+1),"t"+(i+1)+"Val",v=>{
+		INDIVIDUAL_TILT_Y[i]=THREE.MathUtils.degToRad(v);
+
+		if(wrappers[i]){
+			wrappers[i].userData.baseRotY =
+				THREE.MathUtils.degToRad(
+					-28 + (i%5)*14
+				) +
+				INDIVIDUAL_TILT_Y[i];
+		}
+	},0);
+}
+
+const nameLayout = document.getElementById("nameLayout");
+const nameEl = document.getElementById("name");
+let oneLine = true;
+
+nameLayout.addEventListener("click",()=>{
+	oneLine = !oneLine;
+	nameEl.classList.toggle("one-line",oneLine);
+	nameEl.classList.toggle("two-lines",!oneLine);
+	nameLayout.textContent = oneLine ? "1 LINE" : "2 LINES";
+	nameLayout.classList.toggle("active",oneLine);
+});
+
+const pauseOrbit = document.getElementById("pauseOrbit");
+pauseOrbit.addEventListener("click",()=>{
+	PAUSED=!PAUSED;
+	pauseOrbit.textContent = PAUSED ? "RESUME" : "PAUSE";
+	pauseOrbit.classList.toggle("active",PAUSED);
+});
+
+document.getElementById("resetLab").addEventListener("click",()=>{
+	location.reload();
+});
+
 /* ==================================================
    ANIMATION
    ================================================== */
 
 const clock =
 	new THREE.Clock();
+
+let orbitTime = 0;
 
 
 function updateOrbit(
@@ -1442,22 +1685,39 @@ function updateOrbit(
 						2
 					);
 
-				wrapper.position.set(
+				/*
+				   True 3D ellipse / ring.
+				   Start in local ellipse coordinates,
+				   then rotate the ring plane itself.
+				*/
+				const localRingPos =
+					new THREE.Vector3(
+						Math.cos(angle) *
+							RING_WIDTH *
+							wrapper.userData.radiusX *
+							orbitNoise *
+							crossPull,
 
-					Math.cos(angle) *
-					ORBIT_X *
-					wrapper.userData.radiusX *
-					orbitNoise *
-					crossPull,
+						Math.sin(angle) *
+							RING_HEIGHT *
+							wrapper.userData.radiusY *
+							verticalPull,
 
-					Math.sin(angle) *
-					ORBIT_Y *
-					wrapper.userData.radiusY *
-					verticalPull,
+						Math.sin(angle) *
+							RING_DEPTH
+					);
 
-					depth *
-					DEPTH_STRENGTH
+				localRingPos.applyEuler(
+					new THREE.Euler(
+						RING_TILT_X,
+						RING_TILT_Y,
+						RING_TILT_Z,
+						"XYZ"
+					)
+				);
 
+				wrapper.position.copy(
+					localRingPos
 				);
 
 
@@ -1470,8 +1730,8 @@ function updateOrbit(
 						depth,
 						-1,
 						1,
-						1 - DEPTH_STRENGTH * .28,
-						1 + DEPTH_STRENGTH * .46
+						1 - DEPTH_SCALE_STRENGTH * .22,
+						1 + DEPTH_SCALE_STRENGTH * .36
 					);
 
 
@@ -1557,7 +1817,7 @@ function updateOrbit(
 				*/
 
 				const layer =
-					depth > 0
+					wrapper.position.z > 0
 						? 1
 						: 0;
 
@@ -1691,12 +1951,15 @@ function animate(){
 	);
 
 
-	const time =
-		clock.getElapsedTime();
+	const dt =
+		clock.getDelta();
 
+	if(!PAUSED){
+		orbitTime += dt;
+	}
 
 	updateOrbit(
-		time
+		orbitTime
 	);
 
 
