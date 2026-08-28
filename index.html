@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Bruno Lopes — Ellipse Ring Lab XYZ</title>
+<title>Bruno Lopes — Ellipse Ring Lab</title>
 
 <style>
 html,body{
@@ -382,7 +382,7 @@ FRONT objects render above the name.
 		<div class="row"><label>Tilt Y</label><input id="ringTiltY" type="range" min="-45" max="45" step="1" value="0"><span class="val" id="ringTiltYVal">0</span></div>
 		<div class="row"><label>Tilt Z</label><input id="ringTiltZ" type="range" min="-30" max="30" step="1" value="-8"><span class="val" id="ringTiltZVal">-8</span></div>
 		<div class="row"><label>Speed</label><input id="ringSpeed" type="range" min="-.35" max=".35" step=".01" value=".17"><span class="val" id="ringSpeedVal">0.17</span></div>
-		<div class="row"><label>Items</label><input id="itemCount" type="range" min="3" max="16" step="1" value="8"><span class="val" id="itemCountVal">8</span></div>
+		<div class="row"><label>Items</label><input id="itemCount" type="range" min="3" max="14" step="1" value="8"><span class="val" id="itemCountVal">8</span></div>
 		<div class="row"><label>Overlap</label><input id="overlap" type="range" min="0" max=".7" step=".01" value=".18"><span class="val" id="overlapVal">0.18</span></div>
 
 		<div class="section">LOOK</div>
@@ -408,38 +408,15 @@ FRONT objects render above the name.
 		<div class="row"><label>7 · TV Camera</label><input id="s7" type="range" min=".4" max="2.5" step=".05" value=".80"><span class="val" id="s7Val">0.80</span></div>
 		<div class="row"><label>8 · Tulip</label><input id="s8" type="range" min=".4" max="2.5" step=".05" value="1.15"><span class="val" id="s8Val">1.15</span></div>
 
-		<div class="section">INDIVIDUAL TILT XYZ</div>
-		<div class="row"><label>1 · Lure X</label><input id="tx1" type="range" min="-90" max="90" step="2" value="8"><span class="val" id="tx1Val">8</span></div>
-		<div class="row"><label>1 · Lure Y</label><input id="ty1" type="range" min="-90" max="90" step="2" value="-18"><span class="val" id="ty1Val">-18</span></div>
-		<div class="row"><label>1 · Lure Z</label><input id="tz1" type="range" min="-90" max="90" step="2" value="-12"><span class="val" id="tz1Val">-12</span></div>
-
-		<div class="row"><label>2 · Arcade X</label><input id="tx2" type="range" min="-90" max="90" step="2" value="-10"><span class="val" id="tx2Val">-10</span></div>
-		<div class="row"><label>2 · Arcade Y</label><input id="ty2" type="range" min="-90" max="90" step="2" value="26"><span class="val" id="ty2Val">26</span></div>
-		<div class="row"><label>2 · Arcade Z</label><input id="tz2" type="range" min="-90" max="90" step="2" value="8"><span class="val" id="tz2Val">8</span></div>
-
-		<div class="row"><label>3 · Stadium X</label><input id="tx3" type="range" min="-90" max="90" step="2" value="18"><span class="val" id="tx3Val">18</span></div>
-		<div class="row"><label>3 · Stadium Y</label><input id="ty3" type="range" min="-90" max="90" step="2" value="-34"><span class="val" id="ty3Val">-34</span></div>
-		<div class="row"><label>3 · Stadium Z</label><input id="tz3" type="range" min="-90" max="90" step="2" value="14"><span class="val" id="tz3Val">14</span></div>
-
-		<div class="row"><label>4 · Ball X</label><input id="tx4" type="range" min="-90" max="90" step="2" value="-6"><span class="val" id="tx4Val">-6</span></div>
-		<div class="row"><label>4 · Ball Y</label><input id="ty4" type="range" min="-90" max="90" step="2" value="12"><span class="val" id="ty4Val">12</span></div>
-		<div class="row"><label>4 · Ball Z</label><input id="tz4" type="range" min="-90" max="90" step="2" value="-18"><span class="val" id="tz4Val">-18</span></div>
-
-		<div class="row"><label>5 · Surfboard X</label><input id="tx5" type="range" min="-90" max="90" step="2" value="22"><span class="val" id="tx5Val">22</span></div>
-		<div class="row"><label>5 · Surfboard Y</label><input id="ty5" type="range" min="-90" max="90" step="2" value="42"><span class="val" id="ty5Val">42</span></div>
-		<div class="row"><label>5 · Surfboard Z</label><input id="tz5" type="range" min="-90" max="90" step="2" value="26"><span class="val" id="tz5Val">26</span></div>
-
-		<div class="row"><label>6 · Sneaker X</label><input id="tx6" type="range" min="-90" max="90" step="2" value="-14"><span class="val" id="tx6Val">-14</span></div>
-		<div class="row"><label>6 · Sneaker Y</label><input id="ty6" type="range" min="-90" max="90" step="2" value="-28"><span class="val" id="ty6Val">-28</span></div>
-		<div class="row"><label>6 · Sneaker Z</label><input id="tz6" type="range" min="-90" max="90" step="2" value="-10"><span class="val" id="tz6Val">-10</span></div>
-
-		<div class="row"><label>7 · Camera X</label><input id="tx7" type="range" min="-90" max="90" step="2" value="10"><span class="val" id="tx7Val">10</span></div>
-		<div class="row"><label>7 · Camera Y</label><input id="ty7" type="range" min="-90" max="90" step="2" value="34"><span class="val" id="ty7Val">34</span></div>
-		<div class="row"><label>7 · Camera Z</label><input id="tz7" type="range" min="-90" max="90" step="2" value="16"><span class="val" id="tz7Val">16</span></div>
-
-		<div class="row"><label>8 · Tulip X</label><input id="tx8" type="range" min="-90" max="90" step="2" value="-8"><span class="val" id="tx8Val">-8</span></div>
-		<div class="row"><label>8 · Tulip Y</label><input id="ty8" type="range" min="-90" max="90" step="2" value="-10"><span class="val" id="ty8Val">-10</span></div>
-		<div class="row"><label>8 · Tulip Z</label><input id="tz8" type="range" min="-90" max="90" step="2" value="-22"><span class="val" id="tz8Val">-22</span></div>
+		<div class="section">INDIVIDUAL TILT Y</div>
+		<div class="row"><label>1 · Lure</label><input id="t1" type="range" min="-90" max="90" step="2" value="-18"><span class="val" id="t1Val">-18</span></div>
+		<div class="row"><label>2 · Arcade</label><input id="t2" type="range" min="-90" max="90" step="2" value="26"><span class="val" id="t2Val">26</span></div>
+		<div class="row"><label>3 · Stadium</label><input id="t3" type="range" min="-90" max="90" step="2" value="-34"><span class="val" id="t3Val">-34</span></div>
+		<div class="row"><label>4 · Ball</label><input id="t4" type="range" min="-90" max="90" step="2" value="12"><span class="val" id="t4Val">12</span></div>
+		<div class="row"><label>5 · Surfboard</label><input id="t5" type="range" min="-90" max="90" step="2" value="42"><span class="val" id="t5Val">42</span></div>
+		<div class="row"><label>6 · Sneaker</label><input id="t6" type="range" min="-90" max="90" step="2" value="-28"><span class="val" id="t6Val">-28</span></div>
+		<div class="row"><label>7 · TV Camera</label><input id="t7" type="range" min="-90" max="90" step="2" value="34"><span class="val" id="t7Val">34</span></div>
+		<div class="row"><label>8 · Tulip</label><input id="t8" type="range" min="-90" max="90" step="2" value="-10"><span class="val" id="t8Val">-10</span></div>
 
 		<div class="buttons">
 			<button id="pauseOrbit">PAUSE</button>
@@ -474,6 +451,12 @@ const FILES = [
 	"012f_Arcade_Machine.glb",
 	"028e_Soccer_Stadium.glb",
 	"046c_Soccer_Ball.glb",
+	"0144_Surfboard.glb",
+	"01a1_Sneaker.glb",
+	"03d8_TV_Camera.glb",
+	"04c4_Red_Tulip.glb",
+	"00a5_Fishing_Lure.glb",
+	"012f_Arcade_Machine.glb",
 	"0144_Surfboard.glb",
 	"01a1_Sneaker.glb",
 	"03d8_TV_Camera.glb",
@@ -690,9 +673,7 @@ let CONTRAST = 1.08;
 let BRIGHTNESS = 1.05;
 let PAUSED = false;
 let ITEM_COUNT = 8;
-const INDIVIDUAL_TILT_X = [8,-10,18,-6,22,-14,10,-8].map(THREE.MathUtils.degToRad);
 const INDIVIDUAL_TILT_Y = [-18,26,-34,12,42,-28,34,-10].map(THREE.MathUtils.degToRad);
-const INDIVIDUAL_TILT_Z = [-12,8,14,-18,26,-10,16,-22].map(THREE.MathUtils.degToRad);
 let HOVER_BOOST = 1.60;
 let HERO_SIZE = 4.50;
 let OVERLAP_AMOUNT = .21;
@@ -870,7 +851,7 @@ function createWrapper(
 
 
 	wrapper.userData.baseAngle =
-		(index / Math.max(ITEM_COUNT,1)) *
+		(index / FILES.length) *
 		Math.PI *
 		2 -
 		Math.PI / 2;
@@ -1011,9 +992,6 @@ function createWrapper(
 		wrapper
 	);
 
-	hoverSpinVelocity.push(0);
-	hoverWasInside.push(false);
-
 }
 
 
@@ -1025,72 +1003,47 @@ const loader =
 	new GLTFLoader();
 
 
-
-const TEMPLATES = [];
-
 async function loadAll(){
 
-	let loaded = 0;
+	let loaded =
+		0;
 
-	for(let i=0;i<FILES.length;i++){
 
-		const filename = FILES[i];
+	for(
+		let i = 0;
+		i < FILES.length;
+		i++
+	){
+
+		const filename =
+			FILES[i];
+
 
 		try{
 
 			const gltf =
 				await loader.loadAsync(
-					"./" + filename
+					"./" +
+					filename
 				);
 
-			/*
-			   Store normalized source templates.
-			   We clone from these when ITEM_COUNT > FILES.length.
-			*/
-			const root =
-				gltf.scene;
 
-			root.updateMatrixWorld(true);
+			const visual =
+				normalizeModel(
+					gltf.scene,
+					i
+				);
 
-			const box =
-				new THREE.Box3()
-					.setFromObject(root);
 
-			const center =
-				new THREE.Vector3();
-
-			const size =
-				new THREE.Vector3();
-
-			box.getCenter(center);
-			box.getSize(size);
-
-			const maxDim =
-				Math.max(size.x,size.y,size.z);
-
-			root.position.sub(center);
-			root.scale.setScalar(
-				1 / Math.max(maxDim,.0001)
+			createWrapper(
+				visual,
+				i,
+				filename
 			);
 
-			root.traverse(child=>{
-				if(child.isMesh && child.material){
-					if(Array.isArray(child.material)){
-						child.material =
-							child.material.map(m=>m.clone());
-					}else{
-						child.material =
-							child.material.clone();
-					}
-				}
-			});
-
-			TEMPLATES.push({
-				root,
-				filename
-			});
 
 			loaded++;
+
 
 			debug.textContent =
 				`loading ${loaded}/${FILES.length}…`;
@@ -1107,155 +1060,56 @@ async function loadAll(){
 			debug.style.display = "block";
 			debug.textContent =
 				`FAILED: ${filename}`;
+
 		}
+
 	}
 
-	rebuildItems();
 
 	refreshOutlines();
 
 	debug.textContent =
-		`${loaded}/${FILES.length} source objects loaded ✓`;
+		`${loaded}/${FILES.length} instances loaded ✓`;
+
+	updateItemCount(ITEM_COUNT);
+
 }
 
-function clearWrappers(){
 
-	while(wrappers.length){
 
-		const wrapper =
-			wrappers.pop();
+function updateItemCount(count){
+	ITEM_COUNT = Math.max(3, Math.min(14, Math.round(count)));
 
-		scene.remove(wrapper);
-	}
+	const visible = wrappers.slice(0, ITEM_COUNT);
 
-	hoverProxies.length = 0;
-	OUTLINES.length = 0;
-	hoverSpinVelocity.length = 0;
-	hoverWasInside.length = 0;
-}
-
-function cloneTemplate(template,index){
-
-	const root =
-		template.root.clone(true);
-
-	/*
-	   clone materials again so opacity / tint changes
-	   don't leak between duplicates.
-	*/
-	root.traverse(child=>{
-		if(child.isMesh){
-
-			child.userData.itemIndex =
-				index;
-
-			if(Array.isArray(child.material)){
-				child.material =
-					child.material.map(m=>m.clone());
-			}else if(child.material){
-				child.material =
-					child.material.clone();
-			}
-
-			if(child.material){
-				if(Array.isArray(child.material)){
-					child.material.forEach(m=>{
-						m.transparent = true;
-						m.opacity = 1;
-					});
-				}else{
-					child.material.transparent = true;
-					child.material.opacity = 1;
-				}
-			}
-		}
-	});
-
-	return root;
-}
-
-function rebuildItems(){
-
-	if(!TEMPLATES.length){
-		return;
-	}
-
-	clearWrappers();
-
-	for(let i=0;i<ITEM_COUNT;i++){
-
-		const template =
-			TEMPLATES[i % TEMPLATES.length];
-
-		const root =
-			cloneTemplate(
-				template,
-				i
-			);
-
-		/*
-		   Add tiny deterministic variation for duplicates.
-		   This keeps repeated objects from feeling cloned.
-		*/
-		root.rotation.y +=
-			THREE.MathUtils.degToRad(
-				(i % 5 - 2) * 7
-			);
-
-		root.rotation.x +=
-			THREE.MathUtils.degToRad(
-				(i % 3 - 1) * 4
-			);
-
-		/*
-		   Re-attach outlines if enabled.
-		*/
-		const meshes = [];
-
-		root.traverse(child=>{
-			if(child.isMesh && !child.userData.isOutline){
-				meshes.push(child);
-			}
-		});
-
-		meshes.forEach(addOutline);
-
-		const visual =
-			new THREE.Group();
-
-		visual.add(root);
-
-		createWrapper(
-			visual,
-			i,
-			template.filename
-		);
-	}
-
-	/*
-	   Recalculate evenly distributed base angles for current count.
-	*/
 	wrappers.forEach((wrapper,i)=>{
-		wrapper.userData.baseAngle =
-			(i / ITEM_COUNT) *
-			Math.PI *
-			2 -
-			Math.PI / 2;
+
+			if(!wrapper.visible) return;
+		wrapper.visible = i < ITEM_COUNT;
 	});
 
-	if(cardOpen && selected !== -1){
-		selected =
-			Math.min(
-				selected,
-				wrappers.length - 1
-			);
+	visible.forEach((wrapper,i)=>{
+		wrapper.userData.baseAngle =
+			(i / ITEM_COUNT) * Math.PI * 2 - Math.PI / 2;
+	});
 
-		setSelectedTargets(selected);
+	/*
+	  If a hidden object was hovered/selected, clear that state.
+	*/
+	if(hovered >= ITEM_COUNT){
+		hovered = -1;
 	}
+
+	if(selected >= ITEM_COUNT){
+		selected = -1;
+		cardOpen = false;
+		card.classList.remove("open");
+	}
+
+	return ITEM_COUNT;
 }
 
 loadAll();
-
 
 
 /* ==================================================
@@ -1743,10 +1597,8 @@ bindLab("ringTiltX","ringTiltXVal",v=>RING_TILT_X=THREE.MathUtils.degToRad(v),0)
 bindLab("ringTiltY","ringTiltYVal",v=>RING_TILT_Y=THREE.MathUtils.degToRad(v),0);
 bindLab("ringTiltZ","ringTiltZVal",v=>RING_TILT_Z=THREE.MathUtils.degToRad(v),0);
 bindLab("ringSpeed","ringSpeedVal",v=>ORBIT_SPEED=v);
-
 bindLab("itemCount","itemCountVal",v=>{
-	ITEM_COUNT = Math.round(v);
-	rebuildItems();
+	updateItemCount(v);
 },0);
 bindLab("overlap","overlapVal",v=>OVERLAP_AMOUNT=v);
 
@@ -1774,43 +1626,16 @@ for(let i=0;i<8;i++){
 		if(cardOpen && selected!==-1)setSelectedTargets(selected);
 	});
 
-	bindLab("tx"+(i+1),"tx"+(i+1)+"Val",v=>{
-		INDIVIDUAL_TILT_X[i]=THREE.MathUtils.degToRad(v);
-		wrappers.forEach((wrapper,wi)=>{
-			if(wi % 8 === i){
-				wrapper.userData.baseRotX =
-					THREE.MathUtils.degToRad(
-						-10 + (wi%4)*7
-					) +
-					INDIVIDUAL_TILT_X[i];
-			}
-		});
-	},0);
-
-	bindLab("ty"+(i+1),"ty"+(i+1)+"Val",v=>{
+	bindLab("t"+(i+1),"t"+(i+1)+"Val",v=>{
 		INDIVIDUAL_TILT_Y[i]=THREE.MathUtils.degToRad(v);
-		wrappers.forEach((wrapper,wi)=>{
-			if(wi % 8 === i){
-				wrapper.userData.baseRotY =
-					THREE.MathUtils.degToRad(
-						-28 + (wi%5)*14
-					) +
-					INDIVIDUAL_TILT_Y[i];
-			}
-		});
-	},0);
 
-	bindLab("tz"+(i+1),"tz"+(i+1)+"Val",v=>{
-		INDIVIDUAL_TILT_Z[i]=THREE.MathUtils.degToRad(v);
-		wrappers.forEach((wrapper,wi)=>{
-			if(wi % 8 === i){
-				wrapper.userData.baseRotZ =
-					THREE.MathUtils.degToRad(
-						-12 + (wi%3)*12
-					) +
-					INDIVIDUAL_TILT_Z[i];
-			}
-		});
+		if(wrappers[i]){
+			wrappers[i].userData.baseRotY =
+				THREE.MathUtils.degToRad(
+					-28 + (i%5)*14
+				) +
+				INDIVIDUAL_TILT_Y[i];
+		}
 	},0);
 }
 
