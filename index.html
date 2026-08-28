@@ -188,7 +188,7 @@ FRONT objects render above the name.
 	opacity:.58;
 }
 
-#debug{display:none;
+#debug{
 	position:absolute;
 	right:14px;
 	bottom:14px;
@@ -240,7 +240,7 @@ FRONT objects render above the name.
 	}
 
 	#hint,
-	#debug{display:none;
+	#debug{
 		display:none;
 	}
 }
@@ -624,7 +624,6 @@ function applyCanvasFilter(){
 	rendererFront.domElement.style.filter = filter;
 }
 
-applyCanvasFilter();
 
 /* ==================================================
    ORBIT
@@ -677,6 +676,8 @@ const INDIVIDUAL_SCALE = [1.15,.85,.95,.75,1.20,.95,.80,1.15];
 let NAME_SIZE = 24;
 let DEPTH_STRENGTH = 1.40;
 let HOVER_SPIN_IMPULSE = 1.20;
+
+applyCanvasFilter();
 
 
 
@@ -1047,6 +1048,10 @@ async function loadAll(){
 				filename,
 				error
 			);
+
+			debug.style.display = "block";
+			debug.textContent =
+				`FAILED: ${filename}`;
 
 		}
 
