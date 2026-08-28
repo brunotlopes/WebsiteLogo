@@ -188,7 +188,7 @@ FRONT objects render above the name.
 	opacity:.58;
 }
 
-#debug{
+#debug{display:none;
 	position:absolute;
 	right:14px;
 	bottom:14px;
@@ -240,34 +240,11 @@ FRONT objects render above the name.
 	}
 
 	#hint,
-	#debug{
+	#debug{display:none;
 		display:none;
 	}
 }
 
-#tune{
-	position:absolute;
-	top:14px;
-	right:14px;
-	z-index:40;
-	width:245px;
-	padding:12px;
-	background:rgba(255,255,255,.92);
-	border:1px solid rgba(0,0,0,.12);
-	border-radius:12px;
-	box-shadow:0 8px 30px rgba(0,0,0,.08);
-	font-size:11px;
-}
-#tune h4{margin:0 0 8px;font-size:12px}
-#tune .row{
-	display:grid;
-	grid-template-columns:92px 1fr 42px;
-	gap:7px;
-	align-items:center;
-	margin:6px 0;
-}
-#tune input{width:100%}
-#tune .val{font-size:10px;text-align:right;opacity:.65}
 
 </style>
 </head>
@@ -279,7 +256,7 @@ FRONT objects render above the name.
 	<div id="left">
 
 		<div id="stage">
-			<div id="name" class="two-lines"><span>BRUNO</span><span>LOPES</span></div>
+			<div id="name" class="one-line"><span>BRUNO</span><span>LOPES</span></div>
 		</div>
 
 		<div id="subtitle">MOTION GRAPHICS * VFX</div>
@@ -315,37 +292,8 @@ FRONT objects render above the name.
 	</div>
 
 	<div id="hint">
-		slow orbit • some objects pass behind the name • hover = quick spin • click object / menu
+		orbit objects • hover = quick spin • click object / menu
 	</div>
-
-	
-	<div id="tune">
-		<h4>Orbit tuning</h4>
-        <div class="row"><label>Outline</label><input id="outlineOn" type="checkbox" checked><span class="val">ON</span></div>
-        <div class="row"><label>Outline size</label><input id="outlineSize" type="range" min="1.005" max="1.14" step=".005" value="1.035"><span class="val" id="outlineSizeVal">1.035</span></div>
-        <div class="row"><label>Name</label><button id="nameMode" type="button">2 LINES</button><span></span></div>
-		<div class="row"><label>Name size</label><input id="nameSize" type="range" min="14" max="34" step="1" value="24"><span class="val" id="nameSizeVal">24</span></div>
-		<div class="row"><label>Orbit speed</label><input id="orbitSpeed" type="range" min=".02" max=".35" step=".01" value=".12"><span class="val" id="orbitSpeedVal">0.12</span></div>
-
-		<div class="row"><label>Object size</label><input id="sizeMul" type="range" min=".6" max="2.2" step=".05" value="1.18"><span class="val" id="sizeMulVal">1.18</span></div>
-		<div style="margin:8px 0 4px;font-size:10px;font-weight:700;opacity:.55">INDIVIDUAL SCALE</div>
-		<div class="row"><label>1 · Lure</label><input id="scale1" type="range" min=".4" max="2.5" step=".05" value="1.00"><span class="val" id="scale1Val">1.00</span></div>
-		<div class="row"><label>2 · Arcade</label><input id="scale2" type="range" min=".4" max="2.5" step=".05" value="1.00"><span class="val" id="scale2Val">1.00</span></div>
-		<div class="row"><label>3 · Stadium</label><input id="scale3" type="range" min=".4" max="2.5" step=".05" value="1.00"><span class="val" id="scale3Val">1.00</span></div>
-		<div class="row"><label>4 · Ball</label><input id="scale4" type="range" min=".4" max="2.5" step=".05" value="1.00"><span class="val" id="scale4Val">1.00</span></div>
-		<div class="row"><label>5 · Surfboard</label><input id="scale5" type="range" min=".4" max="2.5" step=".05" value="1.00"><span class="val" id="scale5Val">1.00</span></div>
-		<div class="row"><label>6 · Sneaker</label><input id="scale6" type="range" min=".4" max="2.5" step=".05" value="1.00"><span class="val" id="scale6Val">1.00</span></div>
-		<div class="row"><label>7 · TV Camera</label><input id="scale7" type="range" min=".4" max="2.5" step=".05" value="1.00"><span class="val" id="scale7Val">1.00</span></div>
-		<div class="row"><label>8 · Tulip</label><input id="scale8" type="range" min=".4" max="2.5" step=".05" value="1.00"><span class="val" id="scale8Val">1.00</span></div>
-		<div class="row"><label>Orbit width</label><input id="orbitX" type="range" min="1.2" max="2.5" step=".05" value="1.92"><span class="val" id="orbitXVal">1.92</span></div>
-		<div class="row"><label>Orbit height</label><input id="orbitY" type="range" min=".6" max="1.6" step=".05" value="1.00"><span class="val" id="orbitYVal">1.00</span></div>
-		<div class="row"><label>Overlap</label><input id="overlap" type="range" min="0" max=".65" step=".01" value=".26"><span class="val" id="overlapVal">0.26</span></div>
-		<div class="row"><label>Depth strength</label><input id="depthStrength" type="range" min="0" max="1.4" step=".05" value=".82"><span class="val" id="depthStrengthVal">0.82</span></div>
-		<div class="row"><label>Hover boost</label><input id="hoverBoost" type="range" min="1" max="1.6" step=".02" value="1.22"><span class="val" id="hoverBoostVal">1.22</span></div>
-		<div class="row"><label>Hover spin</label><input id="hoverSpin" type="range" min=".05" max="1.2" step=".05" value=".46"><span class="val" id="hoverSpinVal">0.46</span></div>
-		<div class="row"><label>Hero size</label><input id="heroSize" type="range" min="1.5" max="4.5" step=".05" value="3.05"><span class="val" id="heroSizeVal">3.05</span></div>
-	</div>
-
 <div id="debug">
 		loading objects…
 	</div>
@@ -550,6 +498,8 @@ const hoverProxies = [];
 const raycaster =
 	new THREE.Raycaster();
 
+raycaster.layers.enableAll();
+
 const pointer =
 	new THREE.Vector2();
 
@@ -564,17 +514,17 @@ let cardOpen =
 	false;
 
 
-let SIZE_MULTIPLIER = 1.18;
-let HOVER_BOOST = 1.22;
-let HERO_SIZE = 3.05;
-let OVERLAP_AMOUNT = .26;
-let OUTLINE_ON = true;
-let OUTLINE_SCALE = 1.035;
+let SIZE_MULTIPLIER = 0.95;
+let HOVER_BOOST = 1.60;
+let HERO_SIZE = 4.50;
+let OVERLAP_AMOUNT = .21;
+let OUTLINE_ON = false;
+let OUTLINE_SCALE = 1.090;
 const OUTLINES = [];
-const INDIVIDUAL_SCALE = [1,1,1,1,1,1,1,1];
+const INDIVIDUAL_SCALE = [1.15,.85,.95,.75,1.20,.95,.80,1.15];
 let NAME_SIZE = 24;
-let DEPTH_STRENGTH = .82;
-let HOVER_SPIN_IMPULSE = .46;
+let DEPTH_STRENGTH = 1.40;
+let HOVER_SPIN_IMPULSE = 1.20;
 let ORBIT_SPEED_DYNAMIC = .12;
 
 
@@ -583,11 +533,11 @@ let ORBIT_SPEED_DYNAMIC = .12;
 Keep the speed from the version that felt good.
 */
 let ORBIT_SPEED =
-	0.12;
+	0.17;
 
 
 let ORBIT_X =
-	1.92;
+	2.35;
 
 let ORBIT_Y =
 	1.00;
@@ -844,7 +794,7 @@ function createWrapper(
 	*/
 	const proxy =
 		new THREE.Mesh(
-			new THREE.SphereGeometry(.62,12,8),
+			new THREE.SphereGeometry(.82,14,10),
 			new THREE.MeshBasicMaterial({
 				transparent:true,
 				opacity:0,
@@ -950,6 +900,8 @@ async function loadAll(){
 
 	}
 
+
+	refreshOutlines();
 
 	debug.textContent =
 		`${loaded}/${FILES.length} objects loaded ✓`;
@@ -1185,6 +1137,154 @@ document
 	);
 
 
+
+/* ==================================================
+   ROBUST HOVER / CLICK PICKING
+   ================================================== */
+
+const pickWorld = new THREE.Vector3();
+const pickNDC = new THREE.Vector3();
+
+function nearestObjectFromPointer(clientX, clientY){
+
+	if(!wrappers.length){
+		return -1;
+	}
+
+	const rect =
+		rendererFront.domElement
+			.getBoundingClientRect();
+
+	let nearestIndex =
+		-1;
+
+	let nearestDistance =
+		Infinity;
+
+	wrappers.forEach((wrapper,i)=>{
+
+		wrapper.getWorldPosition(
+			pickWorld
+		);
+
+		pickNDC.copy(
+			pickWorld
+		).project(
+			camera
+		);
+
+		const x =
+			rect.left +
+			(pickNDC.x*.5+.5) *
+			rect.width;
+
+		const y =
+			rect.top +
+			(-pickNDC.y*.5+.5) *
+			rect.height;
+
+		const d =
+			Math.hypot(
+				clientX-x,
+				clientY-y
+			);
+
+		/*
+		   Bigger threshold for visually thin assets
+		   such as lure / surfboard / tulip.
+		*/
+		const threshold =
+			34 +
+			(wrapper.scale.x * 12);
+
+		if(
+			d < threshold &&
+			d < nearestDistance
+		){
+			nearestDistance = d;
+			nearestIndex = i;
+		}
+
+	});
+
+	return nearestIndex;
+}
+
+function pickObject(event){
+
+	const rect =
+		rendererFront.domElement
+			.getBoundingClientRect();
+
+	pointer.x =
+		(
+			(
+				event.clientX -
+				rect.left
+			) /
+			rect.width
+		) *
+		2 -
+		1;
+
+	pointer.y =
+		-(
+			(
+				(
+					event.clientY -
+						rect.top
+				) /
+				rect.height
+			) *
+			2 -
+			1
+		);
+
+	raycaster.setFromCamera(
+		pointer,
+		camera
+	);
+
+	/*
+	   First try proper 3D proxy hit.
+	*/
+	const hits =
+		raycaster.intersectObjects(
+			hoverProxies,
+			false
+		);
+
+	if(
+		hits.length
+	){
+
+		const index =
+			hits[0]
+				.object
+				.userData
+				.itemIndex;
+
+		if(
+			Number.isInteger(
+				index
+			)
+		){
+			return index;
+		}
+
+	}
+
+	/*
+	   Fallback:
+	   projected 2D proximity.
+	   This makes hover consistent even on tiny/thin models.
+	*/
+	return nearestObjectFromPointer(
+		event.clientX,
+		event.clientY
+	);
+}
+
 /* ==================================================
    RAYCAST HOVER
    ================================================== */
@@ -1199,88 +1299,13 @@ rendererFront.domElement.addEventListener(
 			return;
 		}
 
-
-		const rect =
-			rendererFront
-				.domElement
-				.getBoundingClientRect();
-
-
-		pointer.x =
-			(
-				(
-					event.clientX -
-					rect.left
-				) /
-				rect.width
-			) *
-			2 -
-			1;
-
-
-		pointer.y =
-			-(
-				(
-					(
-						event.clientY -
-						rect.top
-					) /
-					rect.height
-				) *
-				2 -
-				1
-			);
-
-
-		raycaster.setFromCamera(
-			pointer,
-			camera
-		);
-
-
-		const hits =
-			raycaster.intersectObjects(
-				hoverProxies,
-				false
-			);
-
-
 		const previous =
 			hovered;
 
-
 		hovered =
-			-1;
-
-
-		if(
-			hits.length
-		){
-
-			const index =
-				hits[0]
-					.object
-					.userData
-					.itemIndex;
-
-
-			if(
-				Number.isInteger(
-					index
-				)
-			){
-
-				hovered =
-					index;
-
-			}
-
-		}
-
-
-		/*
-		   Enter hover = quick rotational impulse.
-		*/
+			pickObject(
+				event
+			);
 
 		if(
 			hovered !== -1 &&
@@ -1313,201 +1338,36 @@ rendererFront.domElement.addEventListener(
 			return;
 		}
 
-
-		const rect =
-			rendererFront
-				.domElement
-				.getBoundingClientRect();
-
-
-		pointer.x =
-			(
-				(
-					event.clientX -
-					rect.left
-				) /
-				rect.width
-			) *
-			2 -
-			1;
-
-
-		pointer.y =
-			-(
-				(
-					(
-						event.clientY -
-						rect.top
-					) /
-					rect.height
-				) *
-				2 -
-				1
+		const index =
+			pickObject(
+				event
 			);
-
-
-		raycaster.setFromCamera(
-			pointer,
-			camera
-		);
-
-
-		const hits =
-			raycaster.intersectObjects(
-				hoverProxies,
-				false
-			);
-
 
 		if(
-			hits.length
+			Number.isInteger(
+				index
+			) &&
+			index >= 0
 		){
 
-			const index =
-				hits[0]
-					.object
+			const filename =
+				wrappers[index]
 					.userData
-					.itemIndex;
+					.filename;
 
-
-			if(
-				Number.isInteger(
-					index
-				)
-			){
-
-				const filename =
-					wrappers[index]
-						.userData
-						.filename;
-
-
-				openProject(
-					filename
-						.replace(".glb",""),
-					index
-				);
-
-			}
+			openProject(
+				filename.replace(
+					".glb",
+					""
+				),
+				index
+			);
 
 		}
 
 	}
 );
 
-
-
-/* ==================================================
-   TUNING UI
-   ================================================== */
-
-function bindRange(id, valueId, callback, digits=2){
-	const input = document.getElementById(id);
-	const value = document.getElementById(valueId);
-
-	function update(){
-		const v = parseFloat(input.value);
-		value.textContent = v.toFixed(digits);
-		callback(v);
-	}
-
-	input.addEventListener("input", update);
-	update();
-}
-
-
-const outlineOn = document.getElementById("outlineOn");
-outlineOn.addEventListener("change",()=>{
-	OUTLINE_ON = outlineOn.checked;
-	refreshOutlines();
-});
-
-bindRange("outlineSize","outlineSizeVal",(v)=>{
-	OUTLINE_SCALE = v;
-	refreshOutlines();
-},3);
-
-const nameMode = document.getElementById("nameMode");
-const nameEl = document.getElementById("name");
-let twoLines = true;
-
-nameMode.addEventListener("click",()=>{
-	twoLines = !twoLines;
-	nameEl.classList.toggle("two-lines",twoLines);
-	nameEl.classList.toggle("one-line",!twoLines);
-	nameMode.textContent = twoLines ? "2 LINES" : "1 LINE";
-});
-
-
-for(let i=0;i<8;i++){
-	bindRange(
-		"scale"+(i+1),
-		"scale"+(i+1)+"Val",
-		(v)=>{
-			INDIVIDUAL_SCALE[i]=v;
-
-			if(cardOpen && selected !== -1){
-				setSelectedTargets(selected);
-			}
-		}
-	);
-}
-
-
-bindRange("nameSize","nameSizeVal",(v)=>{
-	NAME_SIZE = v;
-	const nameEl = document.getElementById("name");
-	if(nameEl){
-		nameEl.style.fontSize = v + "px";
-	}
-},0);
-
-bindRange("orbitSpeed","orbitSpeedVal",(v)=>{
-	ORBIT_SPEED = v;
-},2);
-
-bindRange("depthStrength","depthStrengthVal",(v)=>{
-	DEPTH_STRENGTH = v;
-},2);
-
-bindRange("hoverSpin","hoverSpinVal",(v)=>{
-	HOVER_SPIN_IMPULSE = v;
-},2);
-
-bindRange("sizeMul","sizeMulVal",(v)=>{
-	SIZE_MULTIPLIER = v;
-
-	/*
-	   If a card is open, recompute those target scales immediately.
-	*/
-	if(cardOpen && selected !== -1){
-		setSelectedTargets(selected);
-	}
-});
-
-bindRange("orbitX","orbitXVal",(v)=>{
-	ORBIT_X = v;
-});
-
-bindRange("orbitY","orbitYVal",(v)=>{
-	ORBIT_Y = v;
-});
-
-bindRange("overlap","overlapVal",(v)=>{
-	OVERLAP_AMOUNT = v;
-});
-
-bindRange("hoverBoost","hoverBoostVal",(v)=>{
-	HOVER_BOOST = v;
-});
-
-bindRange("heroSize","heroSizeVal",(v)=>{
-	HERO_SIZE = v;
-
-	if(cardOpen && selected !== -1){
-		setSelectedTargets(selected);
-	}
-});
 
 
 /* ==================================================
