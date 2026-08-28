@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Bruno Lopes — Ellipse Ring Lab</title>
+<title>Bruno Lopes — Candidate Object Ring</title>
 
 <style>
 html,body{
@@ -322,6 +322,26 @@ FRONT objects render above the name.
 	#lab{display:none}
 }
 
+
+#object-label{
+	position:absolute;
+	left:50%;
+	bottom:8px;
+	transform:translateX(-50%);
+	z-index:45;
+	padding:5px 8px;
+	border-radius:999px;
+	background:rgba(255,255,255,.92);
+	border:1px solid rgba(0,0,0,.12);
+	font-size:10px;
+	line-height:1;
+	white-space:nowrap;
+	pointer-events:none;
+	opacity:0;
+	transition:opacity .12s ease;
+}
+#object-label.show{opacity:1}
+
 </style>
 </head>
 
@@ -332,6 +352,7 @@ FRONT objects render above the name.
 	<div id="left">
 
 		<div id="stage">
+<div id="object-label"></div>
 			<div id="name" class="one-line"><span>BRUNO</span><span>LOPES</span></div>
 		</div>
 
@@ -383,7 +404,7 @@ FRONT objects render above the name.
 		<div class="row"><label>Tilt Y</label><input id="ringTiltY" type="range" min="-45" max="45" step="1" value="-21"><span class="val" id="ringTiltYVal">-21</span></div>
 		<div class="row"><label>Tilt Z</label><input id="ringTiltZ" type="range" min="-30" max="30" step="1" value="-23"><span class="val" id="ringTiltZVal">-23</span></div>
 		<div class="row"><label>Speed</label><input id="ringSpeed" type="range" min="-.35" max=".35" step=".01" value="0.31"><span class="val" id="ringSpeedVal">0.31</span></div>
-		<div class="row"><label><strong>NUMBER OF ITEMS</strong></label><input id="itemCount" type="range" min="3" max="14" step="1" value="12"><span class="val" id="itemCountVal">12</span></div>
+		<div class="row"><label><strong>NUMBER OF ITEMS</strong></label><input id="itemCount" type="range" min="3" max="13" step="1" value="13"><span class="val" id="itemCountVal">13</span></div>
 		<div class="row"><label>Overlap</label><input id="overlap" type="range" min="0" max=".7" step=".01" value="0.31"><span class="val" id="overlapVal">0.31</span></div>
 
 		<div class="section">LOOK</div>
@@ -434,6 +455,24 @@ FRONT objects render above the name.
 		<div class="row"><label>8 · Tulip X</label><input id="tx8" type="range" min="-90" max="90" step="2" value="-8"><span class="val" id="tx8Val">-8</span></div>
 		<div class="row"><label>8 · Tulip Y</label><input id="ty8" type="range" min="-90" max="90" step="2" value="-84"><span class="val" id="ty8Val">-84</span></div>
 		<div class="row"><label>8 · Tulip Z</label><input id="tz8" type="range" min="-90" max="90" step="2" value="-34"><span class="val" id="tz8Val">-34</span></div>
+		
+		<div class="section">CANDIDATE OBJECTS</div>
+		<div style="font-size:10px;line-height:1.55;opacity:.72">
+			1 · Showreel<br>
+			2 · Playground 1<br>
+			3 · Playground 2<br>
+			4 · Playground 3<br>
+			5 · Futster<br>
+			6 · Gobelins JPO 1<br>
+			7 · Gobelins JPO 2<br>
+			8 · Universal Music France<br>
+			9 · Museum D’Orsay<br>
+			10 · Paper Sound Machine<br>
+			11 · Bushoe 1<br>
+			12 · Bushoe 2<br>
+			13 · Silent Running
+		</div>
+
 		<div class="buttons">
 			<button id="pauseOrbit">PAUSE</button>
 			<button id="resetLab">RESET</button>
@@ -463,20 +502,35 @@ next to index.html.
 */
 
 const FILES = [
-	"00a5_Fishing_Lure.glb",
-	"012f_Arcade_Machine.glb",
-	"028e_Soccer_Stadium.glb",
-	"046c_Soccer_Ball.glb",
-	"0144_Surfboard.glb",
-	"01a1_Sneaker.glb",
-	"03d8_TV_Camera.glb",
-	"04c4_Red_Tulip.glb",
-	"00a5_Fishing_Lure.glb",
-	"012f_Arcade_Machine.glb",
-	"028e_Soccer_Stadium.glb",
-	"046c_Soccer_Ball.glb",
-	"0144_Surfboard.glb",
-	"04c4_Red_Tulip.glb"
+	"Showreel.glb",
+	"Playground.glb",
+	"Playground2.glb",
+	"Playground3.glb",
+	"Futster.glb",
+	"GobelinsJPO.glb",
+	"GobelinsJPO2.glb",
+	"UniversalMusicFrance.glb",
+	"MuseumDOrsay.glb",
+	"PaperSoundMachine.glb",
+	"Bushoe.glb",
+	"Bushoe2.glb",
+	"SilentRunning.glb"
+];
+
+const OBJECT_LABELS = [
+	"Showreel",
+	"Playground 1",
+	"Playground 2",
+	"Playground 3",
+	"Futster",
+	"Gobelins JPO 1",
+	"Gobelins JPO 2",
+	"Universal Music France",
+	"Museum D’Orsay",
+	"Paper Sound Machine",
+	"Bushoe 1",
+	"Bushoe 2",
+	"Silent Running"
 ];
 
 
@@ -688,7 +742,7 @@ let SATURATION = 1.60;
 let CONTRAST = 1.15;
 let BRIGHTNESS = 1.05;
 let PAUSED = false;
-let ITEM_COUNT = 12;
+let ITEM_COUNT = 13;
 const INDIVIDUAL_TILT_X = [8,-10,20,-6,52,64,-66,-8].map(THREE.MathUtils.degToRad);
 const INDIVIDUAL_TILT_Y2 = [-30,26,16,12,-28,-10,-6,-84].map(THREE.MathUtils.degToRad);
 const INDIVIDUAL_TILT_Z = [32,54,14,-18,-16,-40,-4,-34].map(THREE.MathUtils.degToRad);
@@ -869,6 +923,7 @@ function createWrapper(
 		filename;
 
 
+	wrapper.userData.label = OBJECT_LABELS[index] || filename;
 	wrapper.userData.baseAngle =
 		(index / FILES.length) *
 		Math.PI *
@@ -1097,7 +1152,7 @@ async function loadAll(){
 
 
 function updateItemCount(count){
-	ITEM_COUNT = Math.max(3, Math.min(14, Math.round(count)));
+	ITEM_COUNT = Math.max(3, Math.min(13, Math.round(count)));
 
 	wrappers.forEach((wrapper,i)=>{
 		wrapper.visible = i < ITEM_COUNT;
