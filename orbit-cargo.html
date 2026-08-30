@@ -200,8 +200,8 @@ const SETTINGS = {
 	contrast: 1.05,
 	brightness: 1.20,
 
-	hoverBoost: 1.60,
-	hoverSpin: 1.20
+	hoverBoost: 1.22,
+	hoverSpin: 1.00
 };
 
 
@@ -406,6 +406,17 @@ loadEverything();
 
 /* ==================================================
    HOVER
+   ==================================================
+
+   In Cargo the iframe keeps pointer-events:none so it can never
+   block menu/project clicks.
+
+   The parent Cargo page forwards the pointer position with:
+   window.postMessage({ type:"bruno-orbit-pointer", x, y, active })
+
+   x/y are normalized from 0 to 1 inside the iframe rectangle.
+   Direct pointer listeners are also kept so this file can still
+   be tested by itself outside Cargo.
    ================================================== */
 
 const raycaster = new THREE.Raycaster();
@@ -413,35 +424,126 @@ const pointer = new THREE.Vector2(999, 999);
 
 let hovered = -1;
 
-function updatePointer(event) {
-	const rect = renderer.domElement.getBoundingClientRect();
-
-	pointer.x =
-		((event.clientX - rect.left) / rect.width) * 2 - 1;
-
-	pointer.y =
-		-((event.clientY - rect.top) / rect.height) * 2 + 1;
+function clearHover() {
+	hovered = -1;
+	pointer.set(999, 999);
 }
 
-renderer.domElement.addEventListener("pointermove", (event) => {
-	updatePointer(event);
+function performHoverRaycast() {
 
 	raycaster.setFromCamera(pointer, camera);
 
-	const hits = raycaster.intersectObjects(hoverTargets, false);
-	const next = hits.length ? hits[0].object.userData.itemIndex : -1;
+	const hits =
+		raycaster.intersectObjects(
+			hoverTargets,
+			false
+		);
 
-	if (next !== hovered && next >= 0 && wrappers[next]) {
-		wrappers[next].userData.spinVelocity += SETTINGS.hoverSpin;
+	let next = -1;
+
+	for (const hit of hits) {
+
+		const index =
+			hit.object.userData.itemIndex;
+
+		/*
+		 * Only allow objects that belong to the
+		 * currently rendered FRONT/BACK half.
+		 */
+		if (
+			index >= 0 &&
+			wrappers[index] &&
+			wrappers[index].visible
+		) {
+			next = index;
+			break;
+		}
+	}
+
+	if (
+		next !== hovered &&
+		next >= 0 &&
+		wrappers[next]
+	) {
+		wrappers[next].userData.spinVelocity +=
+			SETTINGS.hoverSpin;
 	}
 
 	hovered = next;
+}
+
+function setPointerNormalized(x, y) {
+
+	if (
+		!Number.isFinite(x) ||
+		!Number.isFinite(y) ||
+		x < 0 ||
+		x > 1 ||
+		y < 0 ||
+		y > 1
+	) {
+		clearHover();
+		return;
+	}
+
+	pointer.x = x * 2 - 1;
+	pointer.y = -(y * 2 - 1);
+
+	performHoverRaycast();
+}
+
+
+/*
+ * Cargo → iframe pointer bridge.
+ */
+window.addEventListener("message", (event) => {
+
+	const data = event.data;
+
+	if (
+		!data ||
+		data.type !== "bruno-orbit-pointer"
+	) {
+		return;
+	}
+
+	if (data.active === false) {
+		clearHover();
+		return;
+	}
+
+	setPointerNormalized(
+		Number(data.x),
+		Number(data.y)
+	);
+
 });
 
-renderer.domElement.addEventListener("pointerleave", () => {
-	hovered = -1;
-	pointer.set(999, 999);
-});
+
+/*
+ * Direct interaction fallback.
+ * Useful when opening orbit-cargo.html directly.
+ */
+function updatePointerFromEvent(event) {
+
+	const rect =
+		renderer.domElement.getBoundingClientRect();
+
+	setPointerNormalized(
+		(event.clientX - rect.left) / rect.width,
+		(event.clientY - rect.top) / rect.height
+	);
+}
+
+renderer.domElement.addEventListener(
+	"pointermove",
+	updatePointerFromEvent
+);
+
+renderer.domElement.addEventListener(
+	"pointerleave",
+	clearHover
+);
 
 
 /* ==================================================
