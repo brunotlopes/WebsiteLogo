@@ -190,7 +190,7 @@ const SETTINGS = {
 
 	ringTiltX: 0,
 	ringTiltY: -21,
-	ringTiltZ: -23,
+	ringTiltZ: -13,
 
 	speed: 0.31,
 	overlap: 0.31,
@@ -458,6 +458,24 @@ const ringEuler = new THREE.Euler(
 const ringPosition = new THREE.Vector3();
 
 function updateOrbit(time) {
+
+	/*
+	 * Slow breathing motion of the whole orbital plane.
+	 * Tilt Z ranges from -18° to -8°, centered on -13°.
+	 * One full cycle takes about 35 seconds.
+	 * The absolute shared clock keeps FRONT/BACK synchronized.
+	 */
+	const animatedTiltZ =
+		SETTINGS.ringTiltZ +
+		Math.sin(time * 0.18) * 5;
+
+	ringEuler.set(
+		THREE.MathUtils.degToRad(SETTINGS.ringTiltX),
+		THREE.MathUtils.degToRad(SETTINGS.ringTiltY),
+		THREE.MathUtils.degToRad(animatedTiltZ),
+		"XYZ"
+	);
+
 	wrappers.forEach((wrapper, index) => {
 		if (!wrapper) return;
 
