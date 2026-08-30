@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Bruno Lopes — Mobile Project GLB</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent}
+#stage{position:absolute;inset:0;pointer-events:none}
+canvas{display:block;width:100%;height:100%;pointer-events:none}
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.169.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.169.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+<div id="stage"></div>
+<script type="module">
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+
+const ITEMS = [
+ {key:"showreel",file:"Showreel.glb",scale:1.10,tilt:[18,-30,32]},
+ {key:"playground",file:"Playground2.glb",scale:1.05,tilt:[14,-16,4]},
+ {key:"futster",file:"Futster.glb",scale:.60,tilt:[-26,90,2]},
+ {key:"gobelinsjpo",file:"GobelinsJPO2.glb",scale:.80,tilt:[-10,-24,-4]},
+ {key:"universal-music-france",file:"UniversalMusicFrance.glb",scale:1.30,tilt:[10,-20,-12]},
+ {key:"museum-dorsay",file:"MuseumDOrsay.glb",scale:1.10,tilt:[-16,0,0]},
+ {key:"papersoundmachine",file:"PaperSoundMachine2.glb",scale:.80,tilt:[-34,0,-44]},
+ {key:"bushoe",file:"Bushoe.glb",scale:1.60,tilt:[-20,-34,-32]},
+ {key:"silent-running",file:"SilentRunning2.glb",scale:.95,tilt:[8,0,0]},
+ {key:"paratypology",file:"Paratypology.glb",scale:1.25,tilt:[12,90,12]},
+ {key:"vfx",file:"vfx.glb",scale:.75,tilt:[8,-90,12]}
+];
+
+const HOME_KEYS = ITEMS.map(x=>x.key);
+const stage=document.getElementById("stage");
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(30,1,.01,100);
+camera.position.set(0,0,4.1);
+
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:"high-performance"});
+renderer.setClearColor(0x000000,0);
+renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.domElement.style.filter="saturate(1.75) contrast(1.04) brightness(1.15)";
+stage.appendChild(renderer.domElement);
+
+scene.add(new THREE.HemisphereLight(0xffffff,0x706b72,1.35));
+const light=new THREE.DirectionalLight(0xffffff,1.7);light.position.set(2.5,4,5);scene.add(light);
+const fill=new THREE.DirectionalLight(0xbfc9ff,.35);fill.position.set(-4,-1,3);scene.add(fill);
+
+const loader=new GLTFLoader();
+const models=new Map();
+let activeKey=null;
+let requestedKey="home";
+let homeIndex=0;
+let lastCycle=performance.now();
+const CYCLE_MS=3000;
+
+function normalize(root){
+ root.updateMatrixWorld(true);
+ const box=new THREE.Box3().setFromObject(root);
+ const center=new THREE.Vector3(), size=new THREE.Vector3();
+ box.getCenter(center);box.getSize(size);
+ const maxDim=Math.max(size.x,size.y,size.z,.0001);
+ root.position.sub(center);root.scale.setScalar(1/maxDim);
+ root.traverse(c=>{if(c.isMesh&&c.material){
+   if(Array.isArray(c.material)) c.material=c.material.map(m=>m.clone());
+   else c.material=c.material.clone();
+ }});
+ return root;
+}
+
+async function loadAll(){
+ await Promise.all(ITEMS.map(async item=>{
+   try{
+    const gltf=await loader.loadAsync(new URL(item.file,location.href).href);
+    const group=new THREE.Group();
+    const root=normalize(gltf.scene);
+    const [x,y,z]=item.tilt;
+    group.rotation.set(THREE.MathUtils.degToRad(x),THREE.MathUtils.degToRad(y),THREE.MathUtils.degToRad(z));
+    group.userData.baseRot=group.rotation.clone();
+    group.userData.item=item;
+    group.userData.alpha=0;
+    group.userData.targetAlpha=0;
+    group.scale.setScalar(0.01);
+    group.add(root);scene.add(group);models.set(item.key,group);
+   }catch(e){console.error("Could not load",item.file,e)}
+ }));
+ applyRequested();
+}
+
+function showKey(key){
+ if(!models.has(key)) return;
+ activeKey=key;
+ models.forEach((g,k)=>g.userData.targetAlpha=k===key?1:0);
+}
+
+function applyRequested(){
+ if(requestedKey && requestedKey!=="home") showKey(requestedKey);
+ else showKey(HOME_KEYS[homeIndex%HOME_KEYS.length]);
+}
+
+window.addEventListener("message",e=>{
+ const d=e.data;
+ if(!d||d.type!=="bruno-mobile-project") return;
+ requestedKey=d.key||"home";
+ lastCycle=performance.now();
+ applyRequested();
+});
+
+const initial=new URLSearchParams(location.search).get("key");
+if(initial) requestedKey=initial;
+
+function resize(){
+ const w=Math.max(1,innerWidth),h=Math.max(1,innerHeight);
+ renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();
+}
+addEventListener("resize",resize);resize();
+
+function setOpacity(group,a){
+ group.traverse(c=>{if(!c.isMesh||!c.material)return;const ms=Array.isArray(c.material)?c.material:[c.material];ms.forEach(m=>{m.transparent=true;m.opacity=a;m.depthWrite=a>.95})});
+}
+
+function animate(now){
+ requestAnimationFrame(animate);
+ if(requestedKey==="home" && now-lastCycle>CYCLE_MS){
+   homeIndex=(homeIndex+1)%HOME_KEYS.length;lastCycle=now;showKey(HOME_KEYS[homeIndex]);
+ }
+ const t=now/1000;
+ models.forEach((g,key)=>{
+   const target=g.userData.targetAlpha;
+   g.userData.alpha=THREE.MathUtils.lerp(g.userData.alpha,target,.075);
+   const a=g.userData.alpha;
+   setOpacity(g,a);
+   const item=g.userData.item;
+   const visibleScale=(1.48*item.scale)*(0.82+0.18*a);
+   const s=THREE.MathUtils.lerp(g.scale.x, target?visibleScale:visibleScale*.72,.075);
+   g.scale.setScalar(s);
+   g.visible=a>.008;
+   const b=g.userData.baseRot;
+   g.rotation.x=b.x+Math.sin(t*.55)*.035;
+   g.rotation.y=b.y+Math.sin(t*.42+.7)*.065;
+   g.rotation.z=b.z+Math.cos(t*.48+1.2)*.025;
+   g.position.y=Math.sin(t*.8)*.035;
+ });
+ renderer.render(scene,camera);
+}
+
+loadAll();requestAnimationFrame(animate);
+</script>
+</body>
+</html>
