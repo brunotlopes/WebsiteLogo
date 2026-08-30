@@ -145,9 +145,9 @@ function animate(now){
    g.scale.setScalar(s);
    g.visible=a>.008;
    const b=g.userData.baseRot;
-   g.rotation.x=b.x+Math.sin(t*.55)*.035;
-   g.rotation.y=b.y+Math.sin(t*.42+.7)*.065;
-   g.rotation.z=b.z+Math.cos(t*.48+1.2)*.025;
+   g.rotation.x=b.x+Math.sin(t*.70)*.055;
+   g.rotation.y=b.y+(t*.32)+Math.sin(t*.55+.7)*.10;
+   g.rotation.z=b.z+Math.cos(t*.60+1.2)*.035;
    g.position.y=Math.sin(t*.8)*.035;
  });
  renderer.render(scene,camera);
