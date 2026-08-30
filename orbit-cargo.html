@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Bruno Lopes — Cargo Orbit</title>
+<title>Bruno Lopes — Cargo Orbit Phase 4</title>
 
 <style>
 html, body {
@@ -223,7 +223,20 @@ const SETTINGS = {
 	brightness: 1.20,
 
 	hoverBoost: 1.28,
-	hoverSpin: 0.35
+	hoverSpin: 0.35,
+
+	/* PHASE 4 — PROJECT HERO */
+	heroScale: 3.85,
+	heroX: 0.00,
+	heroY: 0.00,
+	heroZ: 0.00,
+
+	otherScaleWhenHero: 0.72,
+	otherOpacityWhenHero: 0.34,
+
+	heroOpacity: 0.92,
+	heroLerp: 0.075,
+	otherLerp: 0.09
 };
 
 
@@ -427,7 +440,7 @@ loadEverything();
 
 
 /* ==================================================
-   PHASE 3 — HOVER ONLY
+   PHASE 4 — HOVER ONLY + PROJECT HERO
    Objects intentionally have NO click navigation.
    Cargo project links remain the only navigation controls.
    ================================================== */
@@ -458,6 +471,45 @@ const projectedPoint = new THREE.Vector3();
 let hovered = -1;
 let linkedHovered = -1;
 let lastReportedHover = "__init__";
+
+/* ==================================================
+   PHASE 4 — CURRENT PROJECT / HERO STATE
+   ================================================== */
+
+let selectedProjectKey = null;
+let selectedProjectIndex = -1;
+
+function setWrapperOpacity(wrapper, opacity) {
+	if (!wrapper) return;
+
+	wrapper.traverse((child) => {
+		if (!child.isMesh || child.userData.isHoverProxy) return;
+
+		const materials =
+			Array.isArray(child.material)
+				? child.material
+				: [child.material];
+
+		materials.forEach((material) => {
+			if (!material) return;
+			material.transparent = true;
+			material.opacity = opacity;
+		});
+	});
+}
+
+function setSelectedProject(key) {
+	selectedProjectKey = key || null;
+	selectedProjectIndex =
+		selectedProjectKey
+			? indexFromKey(selectedProjectKey)
+			: -1;
+
+	/*
+	 * A selected project is intentionally NOT clickable.
+	 * This state only changes the visual composition.
+	 */
+}
 
 function indexFromKey(key) {
 	return ITEMS.findIndex((item) => item.key === key);
@@ -643,6 +695,25 @@ window.addEventListener("message", (event) => {
 		}
 
 		linkedHovered = next;
+		return;
+	}
+
+	/*
+	 * Cargo current page → persistent hero object.
+	 *
+	 * Motion project:
+	 *   its own GLB becomes the hero.
+	 *
+	 * Any VFX project:
+	 *   vfx.glb becomes the hero.
+	 *
+	 * Home / non-project page:
+	 *   key:null restores the normal orbit.
+	 */
+	if (data.type === "bruno-orbit-project") {
+		setSelectedProject(
+			data.key ? String(data.key) : null
+		);
 	}
 
 });
@@ -693,8 +764,7 @@ function updateOrbit(time) {
 	 * - Y tilt: -24° to -16°
 	 * - Vertical ellipse breathing: 0.64 to 0.76
 	 *
-	 * Different frequencies prevent an obvious repeating loop.
-	 * Uses the shared absolute clock so FRONT/BACK remain synchronized.
+	 * FRONT/BACK use the same absolute clock.
 	 */
 	const animatedTiltZ =
 		-9 +
@@ -719,6 +789,13 @@ function updateOrbit(time) {
 	wrappers.forEach((wrapper, index) => {
 		if (!wrapper) return;
 
+		const isHero =
+			selectedProjectIndex >= 0 &&
+			index === selectedProjectIndex;
+
+		const heroMode =
+			selectedProjectIndex >= 0;
+
 		const angle =
 			wrapper.userData.baseAngle +
 			time * SETTINGS.speed;
@@ -731,20 +808,6 @@ function updateOrbit(time) {
 			) * 0.055;
 
 		const depth = Math.sin(angle);
-
-		/*
-		Cargo depth mode:
-		- ?layer=back  renders only the far half of the orbit
-		- ?layer=front renders only the near half
-		- no parameter renders everything
-		*/
-		if (LAYER_MODE === "back") {
-			wrapper.visible = depth < 0;
-		} else if (LAYER_MODE === "front") {
-			wrapper.visible = depth >= 0;
-		} else {
-			wrapper.visible = true;
-		}
 
 		const crossPull =
 			1 -
@@ -774,12 +837,72 @@ function updateOrbit(time) {
 		);
 
 		ringPosition.applyEuler(ringEuler);
-		wrapper.position.copy(ringPosition);
 
-		/*
-		Keep the same visual idea as the prototype:
-		objects at the front become larger.
-		*/
+
+		/* ==================================================
+		   VISIBILITY / FRONT + BACK
+		   ==================================================
+
+		   The selected HERO is rendered ONLY by the BACK
+		   iframe, so it sits behind the external BRUNO LOPES
+		   HTML text.
+
+		   The FRONT iframe hides its duplicate hero.
+		   Other objects keep their regular depth behavior.
+		   ================================================== */
+
+		if (isHero) {
+
+			if (LAYER_MODE === "front") {
+				wrapper.visible = false;
+				return;
+			}
+
+			wrapper.visible = true;
+
+		} else {
+
+			if (LAYER_MODE === "back") {
+				wrapper.visible = depth < 0;
+			} else if (LAYER_MODE === "front") {
+				wrapper.visible = depth >= 0;
+			} else {
+				wrapper.visible = true;
+			}
+		}
+
+
+		/* ==================================================
+		   POSITION
+		   ================================================== */
+
+		if (isHero) {
+
+			const heroTarget =
+				new THREE.Vector3(
+					SETTINGS.heroX,
+					SETTINGS.heroY,
+					SETTINGS.heroZ
+				);
+
+			wrapper.position.lerp(
+				heroTarget,
+				SETTINGS.heroLerp
+			);
+
+		} else {
+
+			wrapper.position.lerp(
+				ringPosition,
+				SETTINGS.otherLerp
+			);
+		}
+
+
+		/* ==================================================
+		   SCALE
+		   ================================================== */
+
 		const depthScale = THREE.MathUtils.mapLinear(
 			depth,
 			-1,
@@ -796,48 +919,136 @@ function updateOrbit(time) {
 				? SETTINGS.hoverBoost
 				: 1;
 
-		const targetScale =
-			wrapper.userData.baseSize *
-			SETTINGS.objectSize *
-			wrapper.userData.customScale *
-			depthScale *
-			hoverScale;
+		let targetScale;
 
-		const smoothScale = THREE.MathUtils.lerp(
-			wrapper.scale.x || targetScale,
-			targetScale,
-			0.10
+		if (isHero) {
+
+			/*
+			 * Models are normalized on load, so hero scale is
+			 * intentionally independent from each orbit customScale.
+			 */
+			targetScale =
+				SETTINGS.heroScale;
+
+		} else {
+
+			targetScale =
+				wrapper.userData.baseSize *
+				SETTINGS.objectSize *
+				wrapper.userData.customScale *
+				depthScale *
+				hoverScale;
+
+			if (heroMode) {
+				targetScale *=
+					SETTINGS.otherScaleWhenHero;
+			}
+		}
+
+		const lerpSpeed =
+			isHero
+				? SETTINGS.heroLerp
+				: SETTINGS.otherLerp;
+
+		const smoothScale =
+			THREE.MathUtils.lerp(
+				wrapper.scale.x || targetScale,
+				targetScale,
+				lerpSpeed
+			);
+
+		wrapper.scale.setScalar(
+			smoothScale
 		);
 
-		wrapper.scale.setScalar(smoothScale);
 
-		wrapper.userData.spinVelocity *= 0.90;
-		wrapper.userData.hoverSpin += wrapper.userData.spinVelocity;
+		/* ==================================================
+		   OPACITY
+		   ================================================== */
 
-		wrapper.rotation.x =
-			wrapper.userData.baseRotX +
-			Math.sin(
-				time * (0.30 + index * 0.015) +
-				wrapper.userData.phase
-			) * 0.13;
+		const targetOpacity =
+			isHero
+				? SETTINGS.heroOpacity
+				: (
+					heroMode
+						? SETTINGS.otherOpacityWhenHero
+						: 1
+				);
 
-		wrapper.rotation.y =
-			wrapper.userData.baseRotY +
-			Math.sin(
-				time * (0.24 + index * 0.012) +
-				wrapper.userData.phase * 1.3
-			) * 0.20 +
-			wrapper.userData.hoverSpin;
+		const previousOpacity =
+			Number.isFinite(wrapper.userData.opacity)
+				? wrapper.userData.opacity
+				: 1;
 
-		wrapper.rotation.z =
-			wrapper.userData.baseRotZ +
-			Math.cos(
-				time * (0.26 + index * 0.011) +
-				wrapper.userData.phase
-			) * 0.09;
+		wrapper.userData.opacity =
+			THREE.MathUtils.lerp(
+				previousOpacity,
+				targetOpacity,
+				isHero
+					? SETTINGS.heroLerp
+					: SETTINGS.otherLerp
+			);
+
+		setWrapperOpacity(
+			wrapper,
+			wrapper.userData.opacity
+		);
+
+
+		/* ==================================================
+		   ROTATION
+		   ================================================== */
+
+		wrapper.userData.spinVelocity *=
+			isHero ? 0.94 : 0.90;
+
+		wrapper.userData.hoverSpin +=
+			wrapper.userData.spinVelocity;
+
+		if (isHero) {
+
+			/*
+			 * Hero stays alive, but much calmer than the orbit.
+			 */
+			wrapper.rotation.x =
+				wrapper.userData.baseRotX +
+				Math.sin(time * 0.12) * 0.055;
+
+			wrapper.rotation.y =
+				wrapper.userData.baseRotY +
+				Math.sin(time * 0.10 + 0.8) * 0.075 +
+				wrapper.userData.hoverSpin * 0.35;
+
+			wrapper.rotation.z =
+				wrapper.userData.baseRotZ +
+				Math.cos(time * 0.11 + 1.7) * 0.04;
+
+		} else {
+
+			wrapper.rotation.x =
+				wrapper.userData.baseRotX +
+				Math.sin(
+					time * (0.30 + index * 0.015) +
+						wrapper.userData.phase
+				) * 0.13;
+
+			wrapper.rotation.y =
+				wrapper.userData.baseRotY +
+				Math.sin(
+					time * (0.24 + index * 0.012) +
+						wrapper.userData.phase * 1.3
+				) * 0.20 +
+				wrapper.userData.hoverSpin;
+
+			wrapper.rotation.z =
+				wrapper.userData.baseRotZ +
+				Math.cos(
+					time * (0.26 + index * 0.011) +
+						wrapper.userData.phase
+				) * 0.09;
+		}
 	});
 }
-
 
 /* ==================================================
    RESIZE
