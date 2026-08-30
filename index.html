@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Bruno Lopes — Candidate Object Ring</title>
+<title>Bruno Lopes — Object Combination Lab v27</title>
 
 <style>
 html,body{
@@ -511,7 +511,7 @@ FRONT objects render above the name.
 		<div class="row"><label>Name size</label><input id="nameSize" type="range" min="14" max="36" step="1" value="28"><span class="val" id="nameSizeVal">28</span></div>
 		<div class="row"><label>Layout</label><button id="nameLayout" class="active">1 LINE</button><span></span></div>
 
-		<div class="section">OBJECT SELECTION</div>
+		<div class="section">OBJECT SELECTION <span id="active-count" style="float:right;font-weight:400;">17 / 17</span></div>
 		<div class="selection-actions"><button id="selectAllObjects">ALL</button><button id="selectNoneObjects">NONE</button></div>
 		<div class="object-toggle-row"><label><input id="use1" type="checkbox" checked> 1 · Showreel</label></div>
 		<div class="object-toggle-row"><label><input id="use2" type="checkbox" checked> 2 · Playground 1</label></div>
@@ -877,6 +877,7 @@ let SATURATION = 1.60;
 let CONTRAST = 1.15;
 let BRIGHTNESS = 1.05;
 let PAUSED = false;
+const OBJECT_ENABLED = new Array(17).fill(true);
 let ITEM_COUNT = 13;
 const INDIVIDUAL_TILT_X = [8,-10,20,-6,52,64,-66,-8,0,0,0,0,0,0,0,0,0].map(THREE.MathUtils.degToRad);
 const INDIVIDUAL_TILT_Y2 = [-30,26,16,12,-28,-10,-6,-84,0,0,0,0,0,0,0,0,0].map(THREE.MathUtils.degToRad);
@@ -1080,7 +1081,8 @@ function createWrapper(
 		THREE.MathUtils.degToRad(
 			-14 +
 			(index % 4) * 9
-		);
+		) +
+		INDIVIDUAL_TILT_X[index];
 
 
 	wrapper.userData.baseRotY =
@@ -1088,14 +1090,15 @@ function createWrapper(
 			-28 +
 			(index % 5) * 14
 		) +
-		INDIVIDUAL_TILT_Y[index % INDIVIDUAL_TILT_Y.length];
+		INDIVIDUAL_TILT_Y2[index];
 
 
 	wrapper.userData.baseRotZ =
 		THREE.MathUtils.degToRad(
 			-8 +
 			(index % 3) * 8
-		);
+		) +
+		INDIVIDUAL_TILT_Z[index];
 
 
 	/*
@@ -1187,7 +1190,6 @@ function createWrapper(
 
 	redistributeActiveObjects();
 
-	updateItemCount(ITEM_COUNT);
 
 }
 
@@ -1271,31 +1273,6 @@ async function loadAll(){
 }
 
 
-
-function updateItemCount(count){
-	ITEM_COUNT = Math.max(3, Math.min(13, Math.round(count)));
-
-	wrappers.forEach((wrapper,i)=>{
-		wrapper.visible = i < ITEM_COUNT;
-	});
-
-	for(let i=0;i<ITEM_COUNT;i++){
-		if(wrappers[i]){
-			wrappers[i].userData.baseAngle =
-				(i / ITEM_COUNT) * Math.PI * 2 - Math.PI / 2;
-		}
-	}
-
-	if(hovered >= ITEM_COUNT){
-		hovered = -1;
-	}
-
-	if(selected >= ITEM_COUNT){
-		selected = -1;
-		cardOpen = false;
-		card.classList.remove("open");
-	}
-}
 
 loadAll();
 
@@ -1767,9 +1744,11 @@ function bindLab(id,valId,cb,digits=2){
 	const input = document.getElementById(id);
 	const val = document.getElementById(valId);
 
+	if(!input) return;
+
 	function update(){
 		const v = parseFloat(input.value);
-		val.textContent = v.toFixed(digits);
+		if(val) val.textContent = v.toFixed(digits);
 		cb(v);
 	}
 
@@ -1785,7 +1764,7 @@ bindLab("ringTiltX","ringTiltXVal",v=>RING_TILT_X=THREE.MathUtils.degToRad(v),0)
 bindLab("ringTiltY","ringTiltYVal",v=>RING_TILT_Y=THREE.MathUtils.degToRad(v),0);
 bindLab("ringTiltZ","ringTiltZVal",v=>RING_TILT_Z=THREE.MathUtils.degToRad(v),0);
 bindLab("ringSpeed","ringSpeedVal",v=>ORBIT_SPEED=v);
-bindLab("itemCount","itemCountVal",v=>updateItemCount(v),0);
+
 bindLab("overlap","overlapVal",v=>OVERLAP_AMOUNT=v);
 
 bindLab("saturation","saturationVal",v=>{SATURATION=v;applyCanvasFilter()});
@@ -1870,7 +1849,6 @@ document.getElementById("resetLab").addEventListener("click",()=>{
 
 
 
-const OBJECT_ENABLED = new Array(17).fill(true);
 
 function redistributeActiveObjects(){
 	const active=[];
@@ -1884,6 +1862,8 @@ function redistributeActiveObjects(){
 		const i=parseInt(r.dataset.controlIndex,10);
 		r.classList.toggle("is-off",!OBJECT_ENABLED[i]);
 	});
+	const countEl = document.getElementById("active-count");
+	if(countEl) countEl.textContent = active.length + " / " + OBJECT_LABELS.length;
 }
 
 for(let i=0;i<OBJECT_LABELS.length;i++){
