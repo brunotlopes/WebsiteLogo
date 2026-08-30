@@ -106,6 +106,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 const stage = document.getElementById("orbit");
 const status = document.getElementById("status");
 const DEBUG = window.__orbitDebug?.debug === true;
+const LAYER_MODE = new URLSearchParams(location.search).get("layer") || "all";
 
 function report(message, force = false) {
 	if (!DEBUG && !force) return;
@@ -473,6 +474,20 @@ function updateOrbit(time) {
 
 		const depth = Math.sin(angle);
 
+		/*
+		Cargo depth mode:
+		- ?layer=back  renders only the far half of the orbit
+		- ?layer=front renders only the near half
+		- no parameter renders everything
+		*/
+		if (LAYER_MODE === "back") {
+			wrapper.visible = depth < 0;
+		} else if (LAYER_MODE === "front") {
+			wrapper.visible = depth >= 0;
+		} else {
+			wrapper.visible = true;
+		}
+
 		const crossPull =
 			1 -
 			SETTINGS.overlap *
@@ -588,14 +603,14 @@ resize();
    LOOP
    ================================================== */
 
-const clock = new THREE.Clock();
-let elapsed = 0;
-
 function animate() {
 	requestAnimationFrame(animate);
 
-	const dt = Math.min(clock.getDelta(), 0.05);
-	elapsed += dt;
+	/*
+	Absolute time keeps the BACK and FRONT Cargo iframes synchronized
+	even though they are separate documents.
+	*/
+	const elapsed = performance.timeOrigin / 1000 + performance.now() / 1000;
 
 	updateOrbit(elapsed);
 	renderer.render(scene, camera);
