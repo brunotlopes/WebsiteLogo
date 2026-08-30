@@ -1,809 +1,243 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Bruno Lopes — Cargo Orbit</title>
 
 <style>
-html,body{
-	margin:0;
-	width:100%;
-	height:100%;
-	overflow:hidden;
-	background:#fff4df;
-	font-family:Arial,sans-serif;
-}
-
-:root{
-	--cream:#fff4df;
-	--ink:#111;
-}
-
-#app{
-	position:relative;
-	width:100%;
-	height:100%;
-	overflow:hidden;
-	background:var(--cream);
-}
-
-#left{
-	position:absolute;
-	left:0;
-	top:0;
-	width:380px;
-	height:100%;
-	z-index:2;
-}
-
-#stage{
-	position:absolute;
-	left:18px;
-	top:20px;
-	width:290px;
-	height:210px;
-}
-
-/*
-Two canvases:
-BACK objects render below the name,
-FRONT objects render above the name.
-*/
-#stage canvas{
-	position:absolute;
-	inset:0;
-	display:block;
-	width:100%;
-	height:100%;
-	pointer-events:none;
-}
-
-#canvas-back{
-	z-index:1;
-}
-
-#name{
-	position:absolute;
-	left:50%;
-	top:50%;
-	transform:translate(-50%,-50%);
-	z-index:2;
-	font-size:24px;
-	line-height:.86;
-	letter-spacing:-1px;
-	color:var(--ink);
-	pointer-events:none;
-	text-align:center;
-}
-#name span{
-	display:block;
-	white-space:nowrap;
-}
-
-#canvas-front{
-	z-index:3;
-	pointer-events:auto !important;
-}
-
-
-#name.two-lines span{display:block;white-space:nowrap}
-#name.one-line{line-height:1;white-space:nowrap}
-#name.one-line span{display:inline}
-#name.one-line span:first-child::after{content:" "}
-#subtitle{
-	position:absolute;
-	left:47px;
-	top:248px;
-	font-size:14px;
-	font-weight:700;
-	color:#141414;
-}
-
-#menu{
-	position:absolute;
-	left:25px;
-	top:292px;
-	font-size:14px;
-	line-height:1.8;
-	color:#111;
-}
-
-#menu a{
-	color:inherit;
-	text-decoration:none;
-	cursor:pointer;
-	transition:opacity .18s ease;
-}
-
-#menu a:hover{
-	opacity:.5;
-}
-
-/* project card */
-#card{
-	position:absolute;
-	top:16px;
-	bottom:16px;
-	left:297px;
-	right:0;
-	background:var(--cream);
-	border:2px solid #111;
-	border-radius:34px 0 0 34px;
-	z-index:8;
-	transform:translateX(100%);
-	transition:transform .78s cubic-bezier(.22,.8,.22,1);
-	overflow:hidden;
-}
-
-#card.open{
-	transform:translateX(0);
-}
-
-#card-inner{
-	padding:38px 40px;
-}
-
-#card h1{
-	margin:0 0 20px;
-	font-size:38px;
-}
-
-#card p{
-	max-width:620px;
-	font-size:15px;
-	line-height:1.5;
-}
-
-#placeholder{
-	margin-top:34px;
-	width:min(760px,80%);
-	aspect-ratio:16/9;
-	background:#7ff0ce;
-	border-radius:6px;
-}
-
-#close{
-	position:absolute;
-	top:20px;
-	right:24px;
-	z-index:20;
-	border:0;
-	background:#111;
-	color:#fff;
-	border-radius:999px;
-	width:34px;
-	height:34px;
-	cursor:pointer;
-	font-size:18px;
-}
-
-#hint{
-	position:absolute;
-	left:18px;
-	bottom:14px;
-	z-index:20;
-	font-size:11px;
-	color:#111;
-	opacity:.58;
-}
-
-#debug{
-	position:absolute;
-	right:14px;
-	bottom:14px;
-	z-index:30;
-	background:rgba(255,255,255,.9);
-	padding:8px 10px;
-	border-radius:8px;
-	font:10px/1.4 monospace;
-	color:#111;
-}
-
-/* mobile: no orbit system */
-@media(max-width:700px){
-	#left{
-		width:100%;
-	}
-
-	#stage{
-		width:210px;
-		height:150px;
-		left:auto;
-		right:12px;
-		top:8px;
-	}
-
-	#stage canvas{
-		display:none;
-	}
-
-	#name{
-		left:20px;
-		top:26px;
-		transform:none;
-		font-size:20px;
-	}
-
-	#subtitle{
-		left:20px;
-		top:90px;
-	}
-
-	#menu{
-		left:20px;
-		top:130px;
-	}
-
-	#card{
-		display:none;
-	}
-
-	#hint,
-	#debug{
-		display:none;
-	}
-}
-
-
-
-#lab{
-	position:absolute;
-	top:12px;
-	right:12px;
-	z-index:50;
-	width:330px;
-	max-height:calc(100vh - 24px);
-	overflow:auto;
-	box-sizing:border-box;
-	padding:13px;
-	background:rgba(255,255,255,.95);
-	border:1px solid rgba(0,0,0,.14);
-	border-radius:13px;
-	box-shadow:0 10px 35px rgba(0,0,0,.08);
-	backdrop-filter:blur(9px);
-	color:#111;
-}
-#lab h3{
-	margin:0 0 9px;
-	font-size:13px;
-}
-#lab .section{
-	margin:11px 0 5px;
-	padding-top:8px;
-	border-top:1px solid rgba(0,0,0,.1);
-	font-size:10px;
-	font-weight:700;
-	letter-spacing:.04em;
-	opacity:.55;
-}
-#lab .row{
-	display:grid;
-	grid-template-columns:108px 1fr 43px;
-	gap:7px;
-	align-items:center;
-	margin:5px 0;
-}
-#lab #itemCount{ accent-color:#111; }
-#lab label{
-	font-size:11px;
-	opacity:.72;
-}
-#lab input[type="range"]{
-	width:100%;
-}
-#lab input[type="checkbox"]{
-	justify-self:start;
-}
-#lab .val{
-	font-size:10px;
-	text-align:right;
-	opacity:.62;
-}
-#lab button{
-	border:1px solid rgba(0,0,0,.18);
-	background:#fff;
-	border-radius:7px;
-	padding:5px 8px;
-	font-size:10px;
-	cursor:pointer;
-}
-#lab button.active{
-	background:#111;
-	color:#fff;
-}
-#lab .buttons{
-	display:grid;
-	grid-template-columns:1fr 1fr;
-	gap:6px;
-	margin-top:8px;
-}
-@media(max-width:900px){
-	#lab{display:none}
-}
-
-
-#object-label{
-	position:absolute;
-	left:50%;
-	bottom:8px;
-	transform:translateX(-50%);
-	z-index:45;
-	padding:5px 8px;
-	border-radius:999px;
-	background:rgba(255,255,255,.92);
-	border:1px solid rgba(0,0,0,.12);
-	font-size:10px;
-	line-height:1;
-	white-space:nowrap;
-	pointer-events:none;
-	opacity:0;
-	transition:opacity .12s ease;
-}
-#object-label.show{opacity:1}
-
-
-.project-menu{
-	display:flex;
-	flex-direction:column;
-	gap:2px;
-	margin-top:8px;
-	position:relative;
-	z-index:25;
-	width:max-content;
-}
-.project-menu a{
-	color:#111;
-	text-decoration:none;
-	font-size:11px;
-	line-height:1.2;
-	opacity:.72;
-	transition:opacity .12s ease, font-weight .12s ease;
-}
-.project-menu a:hover{opacity:1;}
-.project-menu a.active{
-	opacity:1;
-	font-weight:700;
-}
-
-
-#text-nav-block{
-	position:relative;
-	z-index:30;
-	margin-top:10px;
-	margin-left:0;
-	width:max-content;
-}
-#subtitle{
-	position:relative !important;
-	left:auto !important;
-	top:auto !important;
-	bottom:auto !important;
-	right:auto !important;
-	margin:0 0 6px 0 !important;
-	font-size:16px;
-	font-weight:700;
-	white-space:nowrap;
-}
-.project-menu{
-	display:flex;
-	flex-direction:column;
-	gap:2px;
-	position:relative !important;
-	left:auto !important;
-	top:auto !important;
-	bottom:auto !important;
-	right:auto !important;
-	margin:0 !important;
-	width:max-content;
-	z-index:30;
-}
-.project-menu a{
-	color:#111;
-	text-decoration:none;
-	font-size:11px;
-	line-height:1.25;
-	opacity:.72;
-}
-.project-menu a:hover{opacity:1;}
-.project-menu a.active{
-	opacity:1;
-	font-weight:700;
-}
-
-
-.selection-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
-.object-toggle-row{font-size:10px;margin:3px 0}
-.object-toggle-row label{display:flex;gap:6px;align-items:center;cursor:pointer}
-.object-control-row.is-off{opacity:.25}
-.project-menu a.is-off{opacity:.22;text-decoration:line-through}
-
-
-#lab{display:none;}
-body.show-lab #lab{display:block;}
-#tune-button{
-	position:fixed;
-	right:10px;
-	bottom:10px;
-	z-index:80;
-	border:1px solid rgba(0,0,0,.18);
-	background:rgba(255,255,255,.9);
-	border-radius:999px;
-	padding:6px 10px;
-	font-size:10px;
-	cursor:pointer;
-}
-@media(max-width:900px){#tune-button{display:none}}
-
-
-/* ==================================================
-   CARGO EMBED MODE
-   Only the orbit is visible.
-   ================================================== */
-
-html,
-body,
-#app {
-	background: transparent !important;
+html, body {
+	margin: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	background: transparent;
 }
 
 body {
-	overflow: hidden !important;
+	position: relative;
 }
 
-#left {
-	position: absolute !important;
-	inset: 0 !important;
-	width: 100% !important;
-	height: 100% !important;
+#orbit {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	background: transparent;
 }
 
-#stage {
-	position: absolute !important;
-	inset: 0 !important;
-	width: 100% !important;
-	height: 100% !important;
-	left: 0 !important;
-	right: auto !important;
-	top: 0 !important;
+#orbit canvas {
+	position: absolute;
+	inset: 0;
+	display: block;
+	width: 100%;
+	height: 100%;
+	background: transparent;
+	cursor: default;
 }
 
-#stage canvas {
-	display: block !important;
-	width: 100% !important;
-	height: 100% !important;
+#status {
+	position: fixed;
+	left: 8px;
+	bottom: 8px;
+	z-index: 20;
+	max-width: calc(100% - 16px);
+	box-sizing: border-box;
+	padding: 5px 7px;
+	border-radius: 4px;
+	background: rgba(0,0,0,.82);
+	color: #fff;
+	font: 11px/1.3 Arial, sans-serif;
+	pointer-events: none;
+	display: none;
+	white-space: pre-wrap;
 }
-
-#name,
-#text-nav-block,
-#project-menu,
-#card,
-#hint,
-#lab,
-#tune-button,
-#debug,
-#object-label {
-	display: none !important;
-}
-
-/*
-The iframe itself is narrow, so the prototype's old
-@media(max-width:700px) rules would normally think it is mobile.
-These rules force the orbit to stay active inside Cargo desktop.
-*/
-@media(max-width:700px) {
-	#left {
-		width: 100% !important;
-	}
-
-	#stage {
-		display: block !important;
-		position: absolute !important;
-		inset: 0 !important;
-		width: 100% !important;
-		height: 100% !important;
-		left: 0 !important;
-		right: auto !important;
-		top: 0 !important;
-	}
-
-	#stage canvas {
-		display: block !important;
-	}
-}
-
 </style>
+
+<script>
+(() => {
+	const params = new URLSearchParams(location.search);
+	const debug = params.get("debug") === "1";
+
+	function showStatus(message) {
+		const el = document.getElementById("status");
+		if (!el) return;
+		el.style.display = "block";
+		el.textContent = message;
+	}
+
+	window.__orbitDebug = { debug, showStatus };
+
+	if (debug) {
+		window.addEventListener("error", (event) => {
+			showStatus("JS ERROR:\n" + (event.message || "Unknown error"));
+		});
+
+		window.addEventListener("unhandledrejection", (event) => {
+			const reason = event.reason;
+			showStatus(
+				"PROMISE ERROR:\n" +
+				(reason?.message || String(reason || "Unknown error"))
+			);
+		});
+	}
+})();
+</script>
+
+<script type="importmap">
+{
+	"imports": {
+		"three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+		"three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+	}
+}
+</script>
 </head>
 
 <body>
-<button id="tune-button" type="button">TUNE</button>
-
-<div id="app">
-
-	<div id="left">
-
-		<div id="stage">
-<div id="object-label"></div>
-			<div id="name" class="one-line"><span>BRUNO</span><span>LOPES</span></div>
-
-		</div>
-
-		<div id="text-nav-block">
-<div id="subtitle">MOTION GRAPHICS * VFX</div>
-<div id="project-menu" class="project-menu">
-	<a href="#" data-project-index="0">Showreel</a>
-	<a href="#" data-project-index="1">Playground</a>
-	<a href="#" data-project-index="2">Futster</a>
-	<a href="#" data-project-index="3">Gobelins JPO</a>
-	<a href="#" data-project-index="4">Universal Music France</a>
-	<a href="#" data-project-index="5">Museum D’Orsay</a>
-	<a href="#" data-project-index="6">Paper Sound Machine</a>
-	<a href="#" data-project-index="7">Bushoe</a>
-	<a href="#" data-project-index="8">Silent Running</a>
-	<a href="#" data-project-index="9">Paratypology</a>
-	<a href="#" data-project-index="10">VFX</a>
-</div>
-</div>
-
-
-
-
-
-		
-
-	</div>
-
-	<div id="card">
-		<button id="close">×</button>
-
-		<div id="card-inner">
-			<h1 id="card-title">Playground</h1>
-
-			<p>
-				Prototype transition: selected object remains near BRUNO LOPES,
-				while the other objects rotate and disappear behind the project card.
-			</p>
-
-			<div id="placeholder"></div>
-		</div>
-	</div>
-
-	<div id="hint">
-		elliptical 3D ring • hover = quick spin • click object / menu
-	</div>
-
-	<div id="lab">
-		<h3>SITE ORBIT TUNER</h3>
-
-		<div class="section">RING</div>
-		<div class="row"><label>Width</label><input id="ringWidth" type="range" min="1.3" max="3.2" step=".05" value="2.80"><span class="val" id="ringWidthVal">2.80</span></div>
-		<div class="row"><label>Height</label><input id="ringHeight" type="range" min=".35" max="1.5" step=".05" value="0.70"><span class="val" id="ringHeightVal">0.70</span></div>
-		<div class="row"><label>Depth</label><input id="ringDepth" type="range" min="0" max="1.8" step=".05" value="0.30"><span class="val" id="ringDepthVal">0.30</span></div>
-		<div class="row"><label>Depth scale</label><input id="depthScale" type="range" min="0" max="1.8" step=".05" value="1.45"><span class="val" id="depthScaleVal">1.45</span></div>
-		<div class="row"><label>Tilt X</label><input id="ringTiltX" type="range" min="-45" max="45" step="1" value="0"><span class="val" id="ringTiltXVal">0</span></div>
-		<div class="row"><label>Tilt Y</label><input id="ringTiltY" type="range" min="-45" max="45" step="1" value="-21"><span class="val" id="ringTiltYVal">-21</span></div>
-		<div class="row"><label>Tilt Z</label><input id="ringTiltZ" type="range" min="-30" max="30" step="1" value="-23"><span class="val" id="ringTiltZVal">-23</span></div>
-		<div class="row"><label>Speed</label><input id="ringSpeed" type="range" min="-.35" max=".35" step=".01" value="0.31"><span class="val" id="ringSpeedVal">0.31</span></div>
-		
-		<div class="row"><label>Overlap</label><input id="overlap" type="range" min="0" max=".7" step=".01" value="0.31"><span class="val" id="overlapVal">0.31</span></div>
-
-		<div class="section">LOOK</div>
-		<div class="row"><label>Saturation</label><input id="saturation" type="range" min=".5" max="2.5" step=".05" value="1.85"><span class="val" id="saturationVal">1.85</span></div>
-		<div class="row"><label>Contrast</label><input id="contrast" type="range" min=".75" max="1.5" step=".05" value="1.05"><span class="val" id="contrastVal">1.05</span></div>
-		<div class="row"><label>Brightness</label><input id="brightness" type="range" min=".7" max="1.4" step=".05" value="1.20"><span class="val" id="brightnessVal">1.20</span></div>
-		<div class="row"><label>Object size</label><input id="objectSize" type="range" min=".5" max="1.8" step=".05" value="0.70"><span class="val" id="objectSizeVal">0.70</span></div>
-		<div class="row"><label>Hover boost</label><input id="hoverBoost" type="range" min="1" max="2" step=".05" value="1.60"><span class="val" id="hoverBoostVal">1.60</span></div>
-		<div class="row"><label>Hover spin</label><input id="hoverSpin" type="range" min=".1" max="1.8" step=".05" value="1.20"><span class="val" id="hoverSpinVal">1.20</span></div>
-		<div class="row"><label>Hero size</label><input id="heroSize" type="range" min="1.5" max="6" step=".1" value="4.50"><span class="val" id="heroSizeVal">4.50</span></div>
-
-		<div class="section">NAME</div>
-		<div class="row"><label>Name size</label><input id="nameSize" type="range" min="14" max="36" step="1" value="30"><span class="val" id="nameSizeVal">30</span></div>
-		<div class="row"><label>Layout</label><button id="nameLayout" class="active">1 LINE</button><span></span></div>
-
-		<div class="section">INDIVIDUAL SIZE</div>
-		<div class="row"><label>1 · Showreel</label><input id="s1" type="range" min=".35" max="2.5" step=".05" value="1.10"><span class="val" id="s1Val">1.10</span></div>
-		<div class="row"><label>2 · Playground</label><input id="s2" type="range" min=".35" max="2.5" step=".05" value="1.05"><span class="val" id="s2Val">1.05</span></div>
-		<div class="row"><label>3 · Futster</label><input id="s3" type="range" min=".35" max="2.5" step=".05" value="0.60"><span class="val" id="s3Val">0.60</span></div>
-		<div class="row"><label>4 · Gobelins JPO</label><input id="s4" type="range" min=".35" max="2.5" step=".05" value="0.80"><span class="val" id="s4Val">0.80</span></div>
-		<div class="row"><label>5 · Universal Music France</label><input id="s5" type="range" min=".35" max="2.5" step=".05" value="1.30"><span class="val" id="s5Val">1.30</span></div>
-		<div class="row"><label>6 · Museum D’Orsay</label><input id="s6" type="range" min=".35" max="2.5" step=".05" value="1.10"><span class="val" id="s6Val">1.10</span></div>
-		<div class="row"><label>7 · Paper Sound Machine</label><input id="s7" type="range" min=".35" max="2.5" step=".05" value="0.80"><span class="val" id="s7Val">0.80</span></div>
-		<div class="row"><label>8 · Bushoe</label><input id="s8" type="range" min=".35" max="2.5" step=".05" value="1.60"><span class="val" id="s8Val">1.60</span></div>
-		<div class="row"><label>9 · Silent Running</label><input id="s9" type="range" min=".35" max="2.5" step=".05" value="0.95"><span class="val" id="s9Val">0.95</span></div>
-		<div class="row"><label>10 · Paratypology</label><input id="s10" type="range" min=".35" max="2.5" step=".05" value="1.25"><span class="val" id="s10Val">1.25</span></div>
-		<div class="row"><label>11 · VFX</label><input id="s11" type="range" min=".35" max="2.5" step=".05" value="0.75"><span class="val" id="s11Val">0.75</span></div>
-		<div class="section">INDIVIDUAL TILT X / Y / Z</div>
-		<div class="row"><label>1 · Showreel X</label><input id="tx1" type="range" min="-90" max="90" step="2" value="18"><span class="val" id="tx1Val">18</span></div>
-		<div class="row"><label>1 · Showreel Y</label><input id="ty1" type="range" min="-90" max="90" step="2" value="-30"><span class="val" id="ty1Val">-30</span></div>
-		<div class="row"><label>1 · Showreel Z</label><input id="tz1" type="range" min="-90" max="90" step="2" value="32"><span class="val" id="tz1Val">32</span></div>
-		<div class="row"><label>2 · Playground X</label><input id="tx2" type="range" min="-90" max="90" step="2" value="14"><span class="val" id="tx2Val">14</span></div>
-		<div class="row"><label>2 · Playground Y</label><input id="ty2" type="range" min="-90" max="90" step="2" value="-16"><span class="val" id="ty2Val">-16</span></div>
-		<div class="row"><label>2 · Playground Z</label><input id="tz2" type="range" min="-90" max="90" step="2" value="4"><span class="val" id="tz2Val">4</span></div>
-		<div class="row"><label>3 · Futster X</label><input id="tx3" type="range" min="-90" max="90" step="2" value="-26"><span class="val" id="tx3Val">-26</span></div>
-		<div class="row"><label>3 · Futster Y</label><input id="ty3" type="range" min="-90" max="90" step="2" value="90"><span class="val" id="ty3Val">90</span></div>
-		<div class="row"><label>3 · Futster Z</label><input id="tz3" type="range" min="-90" max="90" step="2" value="2"><span class="val" id="tz3Val">2</span></div>
-		<div class="row"><label>4 · Gobelins JPO X</label><input id="tx4" type="range" min="-90" max="90" step="2" value="-10"><span class="val" id="tx4Val">-10</span></div>
-		<div class="row"><label>4 · Gobelins JPO Y</label><input id="ty4" type="range" min="-90" max="90" step="2" value="-24"><span class="val" id="ty4Val">-24</span></div>
-		<div class="row"><label>4 · Gobelins JPO Z</label><input id="tz4" type="range" min="-90" max="90" step="2" value="-4"><span class="val" id="tz4Val">-4</span></div>
-		<div class="row"><label>5 · Universal Music France X</label><input id="tx5" type="range" min="-90" max="90" step="2" value="10"><span class="val" id="tx5Val">10</span></div>
-		<div class="row"><label>5 · Universal Music France Y</label><input id="ty5" type="range" min="-90" max="90" step="2" value="-20"><span class="val" id="ty5Val">-20</span></div>
-		<div class="row"><label>5 · Universal Music France Z</label><input id="tz5" type="range" min="-90" max="90" step="2" value="-12"><span class="val" id="tz5Val">-12</span></div>
-		<div class="row"><label>6 · Museum D’Orsay X</label><input id="tx6" type="range" min="-90" max="90" step="2" value="-16"><span class="val" id="tx6Val">-16</span></div>
-		<div class="row"><label>6 · Museum D’Orsay Y</label><input id="ty6" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="ty6Val">0</span></div>
-		<div class="row"><label>6 · Museum D’Orsay Z</label><input id="tz6" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tz6Val">0</span></div>
-		<div class="row"><label>7 · Paper Sound Machine X</label><input id="tx7" type="range" min="-90" max="90" step="2" value="-34"><span class="val" id="tx7Val">-34</span></div>
-		<div class="row"><label>7 · Paper Sound Machine Y</label><input id="ty7" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="ty7Val">0</span></div>
-		<div class="row"><label>7 · Paper Sound Machine Z</label><input id="tz7" type="range" min="-90" max="90" step="2" value="-44"><span class="val" id="tz7Val">-44</span></div>
-		<div class="row"><label>8 · Bushoe X</label><input id="tx8" type="range" min="-90" max="90" step="2" value="-20"><span class="val" id="tx8Val">-20</span></div>
-		<div class="row"><label>8 · Bushoe Y</label><input id="ty8" type="range" min="-90" max="90" step="2" value="-34"><span class="val" id="ty8Val">-34</span></div>
-		<div class="row"><label>8 · Bushoe Z</label><input id="tz8" type="range" min="-90" max="90" step="2" value="-32"><span class="val" id="tz8Val">-32</span></div>
-		<div class="row"><label>9 · Silent Running X</label><input id="tx9" type="range" min="-90" max="90" step="2" value="8"><span class="val" id="tx9Val">8</span></div>
-		<div class="row"><label>9 · Silent Running Y</label><input id="ty9" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="ty9Val">0</span></div>
-		<div class="row"><label>9 · Silent Running Z</label><input id="tz9" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tz9Val">0</span></div>
-		<div class="row"><label>10 · Paratypology X</label><input id="tx10" type="range" min="-90" max="90" step="2" value="12"><span class="val" id="tx10Val">12</span></div>
-		<div class="row"><label>10 · Paratypology Y</label><input id="ty10" type="range" min="-90" max="90" step="2" value="90"><span class="val" id="ty10Val">90</span></div>
-		<div class="row"><label>10 · Paratypology Z</label><input id="tz10" type="range" min="-90" max="90" step="2" value="12"><span class="val" id="tz10Val">12</span></div>
-		<div class="row"><label>11 · VFX X</label><input id="tx11" type="range" min="-90" max="90" step="2" value="8"><span class="val" id="tx11Val">8</span></div>
-		<div class="row"><label>11 · VFX Y</label><input id="ty11" type="range" min="-90" max="90" step="2" value="-90"><span class="val" id="ty11Val">-90</span></div>
-		<div class="row"><label>11 · VFX Z</label><input id="tz11" type="range" min="-90" max="90" step="2" value="12"><span class="val" id="tz11Val">12</span></div>
-		<div class="buttons">
-			<button id="pauseOrbit">PAUSE</button>
-			<button id="resetLab">RESET</button>
-		</div>
-	</div>
-
-<div id="debug">
-		loading objects…
-	</div>
-
-</div>
-
+<div id="orbit"></div>
+<div id="status">Loading…</div>
 
 <script type="module">
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
-import * as THREE from "https://esm.sh/three@0.180.0";
-import { GLTFLoader } from "https://esm.sh/three@0.180.0/examples/jsm/loaders/GLTFLoader.js";
+const stage = document.getElementById("orbit");
+const status = document.getElementById("status");
+const DEBUG = window.__orbitDebug?.debug === true;
 
+function report(message, force = false) {
+	if (!DEBUG && !force) return;
+	status.style.display = "block";
+	status.textContent = message;
+}
 
 /* ==================================================
-   FILES
+   FINAL SELECTED OBJECTS
    ================================================== */
 
-/*
-Upload these files to the same GitHub repository
-next to index.html.
-*/
-
-const FILES = [
-	"Showreel.glb",
-	"Playground2.glb",
-	"Futster.glb",
-	"GobelinsJPO2.glb",
-	"UniversalMusicFrance.glb",
-	"MuseumDOrsay.glb",
-	"PaperSoundMachine2.glb",
-	"Bushoe.glb",
-	"SilentRunning2.glb",
-	"Paratypology.glb",
-	"vfx.glb"
+const ITEMS = [
+	{
+		file: "Showreel.glb",
+		scale: 1.10,
+		tilt: [18, -30, 32]
+	},
+	{
+		file: "Playground2.glb",
+		scale: 1.05,
+		tilt: [14, -16, 4]
+	},
+	{
+		file: "Futster.glb",
+		scale: 0.60,
+		tilt: [-26, 90, 2]
+	},
+	{
+		file: "GobelinsJPO2.glb",
+		scale: 0.80,
+		tilt: [-10, -24, -4]
+	},
+	{
+		file: "UniversalMusicFrance.glb",
+		scale: 1.30,
+		tilt: [10, -20, -12]
+	},
+	{
+		file: "MuseumDOrsay.glb",
+		scale: 1.10,
+		tilt: [-16, 0, 0]
+	},
+	{
+		file: "PaperSoundMachine2.glb",
+		scale: 0.80,
+		tilt: [-34, 0, -44]
+	},
+	{
+		file: "Bushoe.glb",
+		scale: 1.60,
+		tilt: [-20, -34, -32]
+	},
+	{
+		file: "SilentRunning2.glb",
+		scale: 0.95,
+		tilt: [8, 0, 0]
+	},
+	{
+		file: "Paratypology.glb",
+		scale: 1.25,
+		tilt: [12, 90, 12]
+	},
+	{
+		file: "vfx.glb",
+		scale: 0.75,
+		tilt: [8, -90, 12]
+	}
 ];
 
-const OBJECT_LABELS = [
-	"Showreel",
-	"Playground",
-	"Futster",
-	"Gobelins JPO",
-	"Universal Music France",
-	"Museum D’Orsay",
-	"Paper Sound Machine",
-	"Bushoe",
-	"Silent Running",
-	"Paratypology",
-	"VFX"
-];
-
 
 /* ==================================================
-   DOM
+   SAVED LOOK / ORBIT
    ================================================== */
 
-const stage =
-	document.querySelector("#stage");
+const SETTINGS = {
+	objectSize: 0.70,
 
-const card =
-	document.querySelector("#card");
+	ringWidth: 2.80,
+	ringHeight: 0.70,
+	ringDepth: 0.30,
 
-const title =
-	document.querySelector("#card-title");
+	ringTiltX: 0,
+	ringTiltY: -21,
+	ringTiltZ: -23,
 
-const debug =
-	document.querySelector("#debug");
+	speed: 0.31,
+	overlap: 0.31,
+	depthScale: 1.45,
+
+	saturation: 1.85,
+	contrast: 1.05,
+	brightness: 1.20,
+
+	hoverBoost: 1.60,
+	hoverSpin: 1.20
+};
 
 
 /* ==================================================
-   THREE SETUP
+   THREE
    ================================================== */
 
-const scene =
-	new THREE.Scene();
+const scene = new THREE.Scene();
 
-
-const camera =
-	new THREE.PerspectiveCamera(
-		34,
-		stage.clientWidth / stage.clientHeight,
-		.01,
-		100
-	);
-
-camera.position.set(
-	0,
-	0,
-	7.4
+const camera = new THREE.PerspectiveCamera(
+	34,
+	1,
+	0.01,
+	100
 );
 
+camera.position.set(0, 0, 7.4);
 
-/*
-Two transparent renderers:
-back renderer under BRUNO LOPES,
-front renderer above BRUNO LOPES.
-*/
+const renderer = new THREE.WebGLRenderer({
+	antialias: true,
+	alpha: true,
+	powerPreference: "high-performance"
+});
 
-const rendererBack =
-	new THREE.WebGLRenderer({
-		antialias:true,
-		alpha:true
-	});
+renderer.setClearColor(0x000000, 0);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.domElement.style.filter =
+	`saturate(${SETTINGS.saturation}) ` +
+	`contrast(${SETTINGS.contrast}) ` +
+	`brightness(${SETTINGS.brightness})`;
 
-rendererBack.domElement.id =
-	"canvas-back";
-
-rendererBack.setClearColor(
-	0x000000,
-	0
-);
-
-rendererBack.setPixelRatio(
-	Math.min(devicePixelRatio,2)
-);
-
-rendererBack.outputColorSpace =
-	THREE.SRGBColorSpace;
-
-
-const rendererFront =
-	new THREE.WebGLRenderer({
-		antialias:true,
-		alpha:true
-	});
-
-rendererFront.domElement.id =
-	"canvas-front";
-
-rendererFront.setClearColor(
-	0x000000,
-	0
-);
-
-rendererFront.setPixelRatio(
-	Math.min(devicePixelRatio,2)
-);
-
-rendererFront.outputColorSpace =
-	THREE.SRGBColorSpace;
-
-
-stage.prepend(
-	rendererBack.domElement
-);
-
-stage.appendChild(
-	rendererFront.domElement
-);
+stage.appendChild(renderer.domElement);
 
 
 /* ==================================================
-   LIGHTS
+   LIGHTING
    ================================================== */
 
 scene.add(
@@ -814,1584 +248,360 @@ scene.add(
 	)
 );
 
+const key = new THREE.DirectionalLight(0xffffff, 1.6);
+key.position.set(2.5, 4, 5);
+scene.add(key);
 
-const key =
-	new THREE.DirectionalLight(
-		0xffffff,
-		1.6
+const fill = new THREE.DirectionalLight(0xbfc9ff, 0.38);
+fill.position.set(-4, -1, 3);
+scene.add(fill);
+
+
+/* ==================================================
+   MODEL HELPERS
+   ================================================== */
+
+const wrappers = [];
+const hoverTargets = [];
+
+function normalizeModel(root, index) {
+	root.updateMatrixWorld(true);
+
+	const box = new THREE.Box3().setFromObject(root);
+	const center = new THREE.Vector3();
+	const size = new THREE.Vector3();
+
+	box.getCenter(center);
+	box.getSize(size);
+
+	const maxDim = Math.max(size.x, size.y, size.z, 0.0001);
+
+	root.position.sub(center);
+	root.scale.setScalar(1 / maxDim);
+
+	root.traverse((child) => {
+		if (!child.isMesh) return;
+
+		child.userData.itemIndex = index;
+
+		if (Array.isArray(child.material)) {
+			child.material = child.material.map((material) => {
+				const clone = material.clone();
+				clone.transparent = true;
+				clone.opacity = 1;
+				return clone;
+			});
+		} else if (child.material) {
+			child.material = child.material.clone();
+			child.material.transparent = true;
+			child.material.opacity = 1;
+		}
+	});
+
+	return root;
+}
+
+function createWrapper(root, index) {
+	const item = ITEMS[index];
+	const wrapper = new THREE.Group();
+
+	wrapper.userData.itemIndex = index;
+	wrapper.userData.baseAngle =
+		(index / ITEMS.length) * Math.PI * 2 - Math.PI / 2;
+
+	wrapper.userData.radiusX =
+		1 + Math.sin(index * 2.17) * 0.065;
+
+	wrapper.userData.radiusY =
+		1 + Math.cos(index * 1.71) * 0.055;
+
+	wrapper.userData.phase = index * 0.83;
+
+	const [tx, ty, tz] = item.tilt;
+
+	wrapper.userData.baseRotX =
+		THREE.MathUtils.degToRad(-14 + (index % 4) * 9 + tx);
+
+	wrapper.userData.baseRotY =
+		THREE.MathUtils.degToRad(-28 + (index % 5) * 14 + ty);
+
+	wrapper.userData.baseRotZ =
+		THREE.MathUtils.degToRad(-8 + (index % 3) * 8 + tz);
+
+	wrapper.userData.baseSize =
+		[1.00, 1.08, 1.18, 0.92, 1.12, 1.02, 1.10, 0.96][index % 8];
+
+	wrapper.userData.customScale = item.scale;
+	wrapper.userData.hoverSpin = 0;
+	wrapper.userData.spinVelocity = 0;
+
+	const proxy = new THREE.Mesh(
+		new THREE.SphereGeometry(0.82, 14, 10),
+		new THREE.MeshBasicMaterial({
+			transparent: true,
+			opacity: 0,
+			depthWrite: false,
+			colorWrite: false
+		})
 	);
 
-key.position.set(
-	2.5,
-	4,
-	5
-);
+	proxy.userData.itemIndex = index;
+	proxy.userData.isHoverProxy = true;
 
-scene.add(
-	key
-);
+	wrapper.add(proxy);
+	wrapper.add(root);
+
+	scene.add(wrapper);
+
+	wrappers[index] = wrapper;
+	hoverTargets.push(proxy);
+}
 
 
-const softSide =
-	new THREE.DirectionalLight(
-		0xbfc9ff,
-		.38
+/* ==================================================
+   LOAD
+   ================================================== */
+
+const loader = new GLTFLoader();
+
+async function loadEverything() {
+	let loaded = 0;
+	const failures = [];
+
+	report(`Loading 0/${ITEMS.length}…`);
+
+	await Promise.all(
+		ITEMS.map(async (item, index) => {
+			try {
+				const gltf = await loader.loadAsync(
+					new URL(item.file, window.location.href).href
+				);
+
+				const model = normalizeModel(gltf.scene, index);
+				createWrapper(model, index);
+
+				loaded += 1;
+				report(`Loading ${loaded}/${ITEMS.length}…`);
+			} catch (error) {
+				console.error("Could not load:", item.file, error);
+				failures.push(item.file);
+			}
+		})
 	);
 
-softSide.position.set(
-	-4,
-	-1,
-	3
-);
-
-scene.add(
-	softSide
-);
-
-/*
-Objects are split between layer 0 (behind name)
-and layer 1 (in front of name).
-All lights must affect BOTH layers.
-*/
-scene.traverse(obj=>{
-	if(obj.isLight){
-		obj.layers.enable(0);
-		obj.layers.enable(1);
+	if (failures.length) {
+		report(
+			`Loaded ${loaded}/${ITEMS.length}\nFAILED:\n${failures.join("\n")}`,
+			true
+		);
+	} else {
+		report(`${loaded}/${ITEMS.length} objects loaded ✓`);
+		if (!DEBUG) status.style.display = "none";
 	}
+}
+
+loadEverything();
+
+
+/* ==================================================
+   HOVER
+   ================================================== */
+
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2(999, 999);
+
+let hovered = -1;
+
+function updatePointer(event) {
+	const rect = renderer.domElement.getBoundingClientRect();
+
+	pointer.x =
+		((event.clientX - rect.left) / rect.width) * 2 - 1;
+
+	pointer.y =
+		-((event.clientY - rect.top) / rect.height) * 2 + 1;
+}
+
+renderer.domElement.addEventListener("pointermove", (event) => {
+	updatePointer(event);
+
+	raycaster.setFromCamera(pointer, camera);
+
+	const hits = raycaster.intersectObjects(hoverTargets, false);
+	const next = hits.length ? hits[0].object.userData.itemIndex : -1;
+
+	if (next !== hovered && next >= 0 && wrappers[next]) {
+		wrappers[next].userData.spinVelocity += SETTINGS.hoverSpin;
+	}
+
+	hovered = next;
 });
 
-
-
-function applyCanvasFilter(){
-	const filter =
-		`saturate(${SATURATION}) contrast(${CONTRAST}) brightness(${BRIGHTNESS})`;
-
-	rendererBack.domElement.style.filter = filter;
-	rendererFront.domElement.style.filter = filter;
-}
+renderer.domElement.addEventListener("pointerleave", () => {
+	hovered = -1;
+	pointer.set(999, 999);
+});
 
 
 /* ==================================================
    ORBIT
    ================================================== */
 
-const wrappers =
-	[];
+const ringEuler = new THREE.Euler(
+	THREE.MathUtils.degToRad(SETTINGS.ringTiltX),
+	THREE.MathUtils.degToRad(SETTINGS.ringTiltY),
+	THREE.MathUtils.degToRad(SETTINGS.ringTiltZ),
+	"XYZ"
+);
 
-const hoverProxies = [];
+const ringPosition = new THREE.Vector3();
 
-const raycaster =
-	new THREE.Raycaster();
+function updateOrbit(time) {
+	wrappers.forEach((wrapper, index) => {
+		if (!wrapper) return;
 
-raycaster.layers.enableAll();
+		const angle =
+			wrapper.userData.baseAngle +
+			time * SETTINGS.speed;
 
-const pointer =
-	new THREE.Vector2();
+		const orbitNoise =
+			1 +
+			Math.sin(
+				angle * 1.65 +
+				wrapper.userData.phase
+			) * 0.055;
 
+		const depth = Math.sin(angle);
 
-let hovered =
-	-1;
+		const crossPull =
+			1 -
+			SETTINGS.overlap *
+			Math.pow(Math.abs(Math.cos(angle)), 1.35);
 
-let selected =
-	-1;
+		const verticalPull =
+			1 -
+			SETTINGS.overlap *
+			0.38 *
+			Math.pow(Math.abs(Math.sin(angle)), 2);
 
-let cardOpen =
-	false;
+		ringPosition.set(
+			Math.cos(angle) *
+				SETTINGS.ringWidth *
+				wrapper.userData.radiusX *
+				orbitNoise *
+				crossPull,
 
+			Math.sin(angle) *
+				SETTINGS.ringHeight *
+				wrapper.userData.radiusY *
+				verticalPull,
 
-let SIZE_MULTIPLIER = 0.70;
-let RING_WIDTH = 2.80;
-let RING_HEIGHT = 0.70;
-let RING_DEPTH = 0.30;
-let DEPTH_SCALE_STRENGTH = 1.45;
-let RING_TILT_X = THREE.MathUtils.degToRad(0);
-let RING_TILT_Y = THREE.MathUtils.degToRad(-21);
-let RING_TILT_Z = THREE.MathUtils.degToRad(-23);
-let SATURATION = 1.85;
-let CONTRAST = 1.05;
-let BRIGHTNESS = 1.20;
-let PAUSED = false;
-const OBJECT_ENABLED = new Array(11).fill(true);
-let ITEM_COUNT = 13;
-const INDIVIDUAL_TILT_X = [18,14,-26,-10,10,-16,-34,-20,8,12,8].map(THREE.MathUtils.degToRad);
-const INDIVIDUAL_TILT_Y2 = [-30,-16,90,-24,-20,0,0,-34,0,90,-90].map(THREE.MathUtils.degToRad);
-const INDIVIDUAL_TILT_Z = [32,4,2,-4,-12,0,-44,-32,0,12,12].map(THREE.MathUtils.degToRad);
-const INDIVIDUAL_TILT_Y = [-30,-16,90,-24,-20,0,0,-34,0,90,-90].map(THREE.MathUtils.degToRad);
-let HOVER_BOOST = 1.60;
-let HERO_SIZE = 4.50;
-let OVERLAP_AMOUNT = 0.31;
-let OUTLINE_ON = false;
-let OUTLINE_SCALE = 1.090;
-const OUTLINES = [];
-const INDIVIDUAL_SCALE = [1.10,1.05,0.60,0.80,1.30,1.10,0.80,1.60,0.95,1.25,0.75];
-let NAME_SIZE = 24;
-let DEPTH_STRENGTH = 1.40;
-let HOVER_SPIN_IMPULSE = 1.20;
-
-applyCanvasFilter();
-
-
-
-/*
-Keep the speed from the version that felt good.
-*/
-let ORBIT_SPEED =
-	0.17;
-
-
-let ORBIT_X =
-	2.35;
-
-let ORBIT_Y =
-	1.00;
-
-
-/* ==================================================
-   UTILS
-   ================================================== */
-
-
-function addOutline(mesh){
-	// Outline intentionally disabled.
-	return null;
-}
-
-function refreshOutlines(){
-	// Outline intentionally disabled.
-}
-
-function normalizeModel(
-	root,
-	index
-){
-
-	root.updateMatrixWorld(
-		true
-	);
-
-
-	const box =
-		new THREE.Box3()
-			.setFromObject(
-				root
-			);
-
-
-	const center =
-		new THREE.Vector3();
-
-
-	const size =
-		new THREE.Vector3();
-
-
-	box.getCenter(
-		center
-	);
-
-
-	box.getSize(
-		size
-	);
-
-
-	const maxDim =
-		Math.max(
-			size.x,
-			size.y,
-			size.z
+			Math.sin(angle) *
+				SETTINGS.ringDepth
 		);
 
-
-	const visual =
-		new THREE.Group();
-
-
-	root.position.sub(
-		center
-	);
-
-
-	root.scale.setScalar(
-		1 /
-		Math.max(
-			maxDim,
-			.0001
-		)
-	);
-
-
-	const sourceMeshes = [];
-
-	root.traverse(child => {
-		if(child.isMesh && !child.userData.isOutline){
-			child.userData.itemIndex = index;
-
-			if(Array.isArray(child.material)){
-				child.material = child.material.map(m=>m.clone());
-				child.material.forEach(m=>{
-					m.transparent = true;
-					m.opacity = 1;
-				});
-			}else if(child.material){
-				child.material = child.material.clone();
-				child.material.transparent = true;
-				child.material.opacity = 1;
-			}
-
-			sourceMeshes.push(child);
-		}
-	});
-
-	sourceMeshes.forEach(addOutline);
-
-	visual.add(
-		root
-	);
-
-
-	return visual;
-
-}
-
-
-/* ==================================================
-   CREATE WRAPPER
-   ================================================== */
-
-function createWrapper(
-	visual,
-	index,
-	filename
-){
-
-	const wrapper =
-		new THREE.Group();
-
-
-	wrapper.userData.itemIndex =
-		index;
-
-
-	wrapper.userData.filename =
-		filename;
-
-
-	wrapper.userData.label = OBJECT_LABELS[index] || filename;
-	wrapper.userData.baseAngle =
-		(index / FILES.length) *
-		Math.PI *
-		2 -
-		Math.PI / 2;
-
-
-	/*
-	   Every object has slightly different orbital proportions.
-	*/
-	wrapper.userData.radiusX =
-		1 +
-		Math.sin(
-			index * 2.17
-		) *
-		.065;
-
-
-	wrapper.userData.radiusY =
-		1 +
-		Math.cos(
-			index * 1.71
-		) *
-		.055;
-
-
-	wrapper.userData.phase =
-		index * .83;
-
-
-	/*
-	   Different starting orientation for every asset.
-	*/
-	wrapper.userData.baseRotX =
-		THREE.MathUtils.degToRad(
-			-14 +
-			(index % 4) * 9
-		) +
-		INDIVIDUAL_TILT_X[index];
-
-
-	wrapper.userData.baseRotY =
-		THREE.MathUtils.degToRad(
-			-28 +
-			(index % 5) * 14
-		) +
-		INDIVIDUAL_TILT_Y2[index];
-
-
-	wrapper.userData.baseRotZ =
-		THREE.MathUtils.degToRad(
-			-8 +
-			(index % 3) * 8
-		) +
-		INDIVIDUAL_TILT_Z[index];
-
-
-	/*
-	   Slight size variation:
-	   important because different objects should not
-	   feel mechanically equal.
-	*/
-	wrapper.userData.baseSize =
-		[
-			1.00,
-			1.08,
-			1.18,
-			.92,
-			1.12,
-			1.02,
-			1.10,
-			.96
-		][index % 8];
-
-
-	wrapper.userData.hoverSpin =
-		0;
-
-
-	wrapper.userData.spinVelocity =
-		0;
-
-
-	wrapper.userData.targetPos =
-		new THREE.Vector3();
-
-
-	wrapper.userData.targetScale =
-		wrapper.userData.baseSize;
-
-
-	wrapper.userData.targetOpacity =
-		1;
-
-
-	wrapper.userData.targetRotY =
-		0;
-
-
-
-	/*
-	   Dedicated invisible hover proxy.
-	   This fixes inconsistent hover on tiny / thin / oddly-shaped GLBs.
-	   It is deliberately larger than the model's exact mesh bounds.
-	*/
-	const proxy =
-		new THREE.Mesh(
-			new THREE.SphereGeometry(.82,14,10),
-			new THREE.MeshBasicMaterial({
-				transparent:true,
-				opacity:0,
-				depthWrite:false,
-				colorWrite:false
-			})
-		);
-
-	proxy.userData.itemIndex =
-		index;
-
-	proxy.userData.isHoverProxy =
-		true;
-
-	wrapper.add(
-		proxy
-	);
-
-	hoverProxies.push(
-		proxy
-	);
-
-	wrapper.add(
-		visual
-	);
-
-
-	scene.add(
-		wrapper
-	);
-
-
-	wrappers.push(
-		wrapper
-	);
-
-	redistributeActiveObjects();
-
-
-}
-
-
-/* ==================================================
-   LOAD ALL OBJECTS
-   ================================================== */
-
-const loader =
-	new GLTFLoader();
-
-
-async function loadAll(){
-
-	let loaded =
-		0;
-
-
-	for(
-		let i = 0;
-		i < FILES.length;
-		i++
-	){
-
-		const filename =
-			FILES[i];
-
-
-		try{
-
-			const gltf =
-				await loader.loadAsync(
-					"./" +
-					filename
-				);
-
-
-			const visual =
-				normalizeModel(
-					gltf.scene,
-					i
-				);
-
-
-			createWrapper(
-				visual,
-				i,
-				filename
-			);
-
-
-			loaded++;
-
-
-			debug.textContent =
-				`loading ${loaded}/${FILES.length}…`;
-
-		}
-		catch(error){
-
-			console.error(
-				"Could not load",
-				filename,
-				error
-			);
-
-			debug.style.display = "block";
-			debug.textContent =
-				`FAILED: ${filename}`;
-
-		}
-
-	}
-
-
-	refreshOutlines();
-
-	debug.textContent =
-		`${loaded}/${FILES.length} objects loaded ✓`;
-
-}
-
-
-
-loadAll();
-
-
-/* ==================================================
-   CARD STATE
-   ================================================== */
-
-function setSelectedTargets(
-	index
-){
-
-	selected =
-		index;
-
-
-	wrappers.forEach(
-		(wrapper,i) => {
-
-			if(
-				i === index
-			){
-
-				/*
-				   selected object:
-				   larger and close to the name.
-				*/
-
-				wrapper.userData.targetPos.set(
-					0,
-					.05,
-					-.12
-				);
-
-
-				wrapper.userData.targetScale =
-					wrapper.userData.baseSize *
-					SIZE_MULTIPLIER *
-					INDIVIDUAL_SCALE[i] ?? 1 *
-					HERO_SIZE;
-
-
-				wrapper.userData.targetOpacity =
-					1;
-
-
-				wrapper.userData.targetRotY =
-					wrapper.userData.baseRotY +
-					.35;
-
-			}
-			else{
-
-				/*
-				   other objects:
-				   curve toward the right and disappear
-				   behind the incoming card.
-				*/
-
-				const j =
-					i < index
-						? i
-						: i - 1;
-
-
-				const row =
-					(j % 6) - 2.5;
-
-
-				wrapper.userData.targetPos.set(
-					2.15 +
-					(j % 2) *
-					.18,
-
-					row *
-					.28,
-
-					-.45 -
-					(j % 3) *
-					.08
-				);
-
-
-				wrapper.userData.targetScale =
-					wrapper.userData.baseSize *
-					SIZE_MULTIPLIER *
-					INDIVIDUAL_SCALE[i] ?? 1 *
-					.58;
-
-
-				wrapper.userData.targetOpacity =
-					.08;
-
-
-				wrapper.userData.targetRotY =
-					wrapper.userData.baseRotY +
-					1.0 +
-					j *
-					.12;
-
-			}
-
-		}
-	);
-
-}
-
-
-function openProject(
-	label,
-	index
-){
-
-	if(
-		wrappers.length === 0
-	){
-		return;
-	}
-
-
-	title.textContent =
-		label;
-
-
-	setSelectedTargets(
-		index %
-		wrappers.length
-	);
-
-
-	card.classList.add(
-		"open"
-	);
-
-
-	cardOpen =
-		true;
-
-}
-
-
-function closeProject(){
-
-	card.classList.remove(
-		"open"
-	);
-
-
-	cardOpen =
-		false;
-
-
-	selected =
-		-1;
-
-}
-
-
-document
-	.querySelector("#close")
-	.onclick =
-	closeProject;
-
-
-/* ==================================================
-   MENU CONNECTION
-   ================================================== */
-
-document
-	.querySelectorAll(
-		"#menu a"
-	)
-	.forEach(
-		(link,i) => {
-
-			/*
-			   Hovering the text highlights the associated object.
-			*/
-
-			link.addEventListener(
-				"mouseenter",
-				() => {
-
-					if(
-						!cardOpen &&
-						wrappers.length
-					){
-
-						hovered =
-							i %
-							wrappers.length;
-
-					}
-
-				}
-			);
-
-
-			link.addEventListener(
-				"mouseleave",
-				() => {
-
-					if(
-						!cardOpen
-					){
-
-						hovered =
-							-1;
-
-					}
-
-				}
-			);
-
-
-			link.onclick =
-				() => {
-
-					openProject(
-						link.dataset.page,
-						i
-					);
-
-				};
-
-		}
-	);
-
-
-
-/* ==================================================
-   ROBUST HOVER / CLICK PICKING
-   ================================================== */
-
-const pickWorld = new THREE.Vector3();
-const pickNDC = new THREE.Vector3();
-
-function nearestObjectFromPointer(clientX, clientY){
-
-	if(!wrappers.length){
-		return -1;
-	}
-
-	const rect =
-		rendererFront.domElement
-			.getBoundingClientRect();
-
-	let nearestIndex =
-		-1;
-
-	let nearestDistance =
-		Infinity;
-
-	wrappers.forEach((wrapper,i)=>{
-
-		wrapper.getWorldPosition(
-			pickWorld
-		);
-
-		pickNDC.copy(
-			pickWorld
-		).project(
-			camera
-		);
-
-		const x =
-			rect.left +
-			(pickNDC.x*.5+.5) *
-			rect.width;
-
-		const y =
-			rect.top +
-			(-pickNDC.y*.5+.5) *
-			rect.height;
-
-		const d =
-			Math.hypot(
-				clientX-x,
-				clientY-y
-			);
+		ringPosition.applyEuler(ringEuler);
+		wrapper.position.copy(ringPosition);
 
 		/*
-		   Bigger threshold for visually thin assets
-		   such as lure / surfboard / tulip.
+		Keep the same visual idea as the prototype:
+		objects at the front become larger.
 		*/
-		const threshold =
-			34 +
-			(wrapper.scale.x * 12);
-
-		if(
-			d < threshold &&
-			d < nearestDistance
-		){
-			nearestDistance = d;
-			nearestIndex = i;
-		}
-
-	});
-
-	return nearestIndex;
-}
-
-function pickObject(event){
-
-	const rect =
-		rendererFront.domElement
-			.getBoundingClientRect();
-
-	pointer.x =
-		(
-			(
-				event.clientX -
-				rect.left
-			) /
-			rect.width
-		) *
-		2 -
-		1;
-
-	pointer.y =
-		-(
-			(
-				(
-					event.clientY -
-						rect.top
-				) /
-				rect.height
-			) *
-			2 -
-			1
+		const depthScale = THREE.MathUtils.mapLinear(
+			depth,
+			-1,
+			1,
+			1 - SETTINGS.depthScale * 0.22,
+			1 + SETTINGS.depthScale * 0.36
 		);
 
-	raycaster.setFromCamera(
-		pointer,
-		camera
-	);
+		const hoverScale =
+			index === hovered ? SETTINGS.hoverBoost : 1;
 
-	/*
-	   First try proper 3D proxy hit.
-	*/
-	const hits =
-		raycaster.intersectObjects(
-			hoverProxies,
-			false
+		const targetScale =
+			wrapper.userData.baseSize *
+			SETTINGS.objectSize *
+			wrapper.userData.customScale *
+			depthScale *
+			hoverScale;
+
+		const smoothScale = THREE.MathUtils.lerp(
+			wrapper.scale.x || targetScale,
+			targetScale,
+			0.10
 		);
 
-	if(
-		hits.length
-	){
-
-		const index =
-			hits[0]
-				.object
-				.userData
-				.itemIndex;
-
-		if(
-			Number.isInteger(
-				index
-			)
-		){
-			return index;
-		}
-
-	}
-
-	/*
-	   Fallback:
-	   projected 2D proximity.
-	   This makes hover consistent even on tiny/thin models.
-	*/
-	return nearestObjectFromPointer(
-		event.clientX,
-		event.clientY
-	);
-}
-
-/* ==================================================
-   RAYCAST HOVER
-   ================================================== */
-
-rendererFront.domElement.addEventListener(
-	"pointermove",
-	event => {
-
-		if(
-			cardOpen
-		){
-			return;
-		}
-
-		const previous =
-			hovered;
-
-		hovered =
-			pickObject(
-				event
-			);
-
-		if(
-			hovered !== -1 &&
-			hovered !== previous &&
-			wrappers[hovered]
-		){
-
-			wrappers[hovered]
-				.userData
-				.spinVelocity +=
-				HOVER_SPIN_IMPULSE;
-
-		}
-
-	}
-);
-
-
-/* ==================================================
-   CLICK OBJECT
-   ================================================== */
-
-rendererFront.domElement.addEventListener(
-	"pointerdown",
-	event => {
-
-		if(
-			cardOpen
-		){
-			return;
-		}
-
-		const index =
-			pickObject(
-				event
-			);
-
-		if(
-			Number.isInteger(
-				index
-			) &&
-			index >= 0
-		){
-
-			const filename =
-				wrappers[index]
-					.userData
-					.filename;
-
-			openProject(
-				filename.replace(
-					".glb",
-					""
-				),
-				index
-			);
-
-		}
-
-	}
-);
-
-
-
-
-/* ==================================================
-   ELLIPSE LAB CONTROLS
-   ================================================== */
-
-function bindLab(id,valId,cb,digits=2){
-	const input = document.getElementById(id);
-	const val = document.getElementById(valId);
-
-	if(!input) return;
-
-	function update(){
-		const v = parseFloat(input.value);
-		if(val) val.textContent = v.toFixed(digits);
-		cb(v);
-	}
-
-	input.addEventListener("input",update);
-	update();
-}
-
-bindLab("ringWidth","ringWidthVal",v=>RING_WIDTH=v);
-bindLab("ringHeight","ringHeightVal",v=>RING_HEIGHT=v);
-bindLab("ringDepth","ringDepthVal",v=>RING_DEPTH=v);
-bindLab("depthScale","depthScaleVal",v=>DEPTH_SCALE_STRENGTH=v);
-bindLab("ringTiltX","ringTiltXVal",v=>RING_TILT_X=THREE.MathUtils.degToRad(v),0);
-bindLab("ringTiltY","ringTiltYVal",v=>RING_TILT_Y=THREE.MathUtils.degToRad(v),0);
-bindLab("ringTiltZ","ringTiltZVal",v=>RING_TILT_Z=THREE.MathUtils.degToRad(v),0);
-bindLab("ringSpeed","ringSpeedVal",v=>ORBIT_SPEED=v);
-
-bindLab("overlap","overlapVal",v=>OVERLAP_AMOUNT=v);
-
-bindLab("saturation","saturationVal",v=>{SATURATION=v;applyCanvasFilter()});
-bindLab("contrast","contrastVal",v=>{CONTRAST=v;applyCanvasFilter()});
-bindLab("brightness","brightnessVal",v=>{BRIGHTNESS=v;applyCanvasFilter()});
-
-bindLab("objectSize","objectSizeVal",v=>{
-	SIZE_MULTIPLIER=v;
-	if(cardOpen && selected!==-1)setSelectedTargets(selected);
-});
-bindLab("hoverBoost","hoverBoostVal",v=>HOVER_BOOST=v);
-bindLab("hoverSpin","hoverSpinVal",v=>HOVER_SPIN_IMPULSE=v);
-bindLab("heroSize","heroSizeVal",v=>{
-	HERO_SIZE=v;
-	if(cardOpen && selected!==-1)setSelectedTargets(selected);
-});
-bindLab("nameSize","nameSizeVal",v=>{
-	document.getElementById("name").style.fontSize=v+"px";
-},0);
-
-for(let i=0;i<OBJECT_LABELS.length;i++){
-	bindLab("s"+(i+1),"s"+(i+1)+"Val",v=>{
-		INDIVIDUAL_SCALE[i]=v;
-		if(cardOpen && selected!==-1)setSelectedTargets(selected);
-	});
-
-	const refreshAssetTilt = ()=>{
-		const wrapper = wrappers[i];
-		if(!wrapper) return;
-
-		wrapper.userData.baseRotX =
-			THREE.MathUtils.degToRad(-10 + (i % 4) * 7) +
-			INDIVIDUAL_TILT_X[i];
-
-		wrapper.userData.baseRotY =
-			THREE.MathUtils.degToRad(-28 + (i % 5) * 14) +
-			INDIVIDUAL_TILT_Y2[i];
-
-		wrapper.userData.baseRotZ =
-			THREE.MathUtils.degToRad(-12 + (i % 3) * 12) +
-			INDIVIDUAL_TILT_Z[i];
-	};
-
-	bindLab("tx"+(i+1),"tx"+(i+1)+"Val",v=>{
-		INDIVIDUAL_TILT_X[i]=THREE.MathUtils.degToRad(v);
-		refreshAssetTilt();
-	},0);
-
-	bindLab("ty"+(i+1),"ty"+(i+1)+"Val",v=>{
-		INDIVIDUAL_TILT_Y2[i]=THREE.MathUtils.degToRad(v);
-		refreshAssetTilt();
-	},0);
-
-	bindLab("tz"+(i+1),"tz"+(i+1)+"Val",v=>{
-		INDIVIDUAL_TILT_Z[i]=THREE.MathUtils.degToRad(v);
-		refreshAssetTilt();
-	},0);
-}
-
-const nameLayout = document.getElementById("nameLayout");
-const nameEl = document.getElementById("name");
-let oneLine = true;
-
-nameLayout.addEventListener("click",()=>{
-	oneLine = !oneLine;
-	nameEl.classList.toggle("one-line",oneLine);
-	nameEl.classList.toggle("two-lines",!oneLine);
-	nameLayout.textContent = oneLine ? "1 LINE" : "2 LINES";
-	nameLayout.classList.toggle("active",oneLine);
-});
-
-const pauseOrbit = document.getElementById("pauseOrbit");
-pauseOrbit.addEventListener("click",()=>{
-	PAUSED=!PAUSED;
-	pauseOrbit.textContent = PAUSED ? "RESUME" : "PAUSE";
-	pauseOrbit.classList.toggle("active",PAUSED);
-});
-
-document.getElementById("resetLab").addEventListener("click",()=>{
-	location.reload();
-});
-
-
-
-
-function redistributeActiveObjects(){
-	const active=[];
-	wrappers.forEach((w,i)=>{ if(w && OBJECT_ENABLED[i]) active.push(i); });
-	wrappers.forEach((w,i)=>{ if(w) w.visible=OBJECT_ENABLED[i]; });
-	active.forEach((idx,slot)=>{
-		wrappers[idx].userData.baseAngle=(slot/Math.max(active.length,1))*Math.PI*2-Math.PI/2;
-	});
-	document.querySelectorAll("#project-menu a").forEach((a,i)=>a.classList.toggle("is-off",!OBJECT_ENABLED[i]));
-	document.querySelectorAll(".object-control-row").forEach(r=>{
-		const i=parseInt(r.dataset.controlIndex,10);
-		r.classList.toggle("is-off",!OBJECT_ENABLED[i]);
-	});
-	const countEl = document.getElementById("active-count");
-	if(countEl) countEl.textContent = active.length + " / " + OBJECT_LABELS.length;
-}
-
-
-}
-
-
-
-function focusProject(index){
-	if(index < 0 || index >= wrappers.length) return;
-	if(!OBJECT_ENABLED[index]) return;
-
-	selected = index;
-	cardOpen = true;
-
-	document.querySelectorAll("#project-menu a").forEach((a,i)=>{
-		a.classList.toggle("active", i === index);
-	});
-
-	/*
-	  Keep only the selected object visually dominant.
-	  Others stay present but are pushed back/faded.
-	*/
-	wrappers.forEach((wrapper,i)=>{
-		wrapper.userData.menuFocus = (i === index);
-	});
-
-	if(typeof setSelectedTargets === "function"){
-		setSelectedTargets(index);
-	}
-
-	if(card){
-		card.classList.add("open");
-	}
-
-	if(typeof cardTitle !== "undefined" && cardTitle){
-		cardTitle.textContent = OBJECT_LABELS[index] || "Project";
-	}
-}
-
-document.querySelectorAll("#project-menu a").forEach(a=>{
-	a.addEventListener("click",e=>{
-		e.preventDefault();
-		const index = parseInt(a.dataset.projectIndex,10);
-		focusProject(index);
-	});
-});
-
-
-function removeAnyOutlineMeshes(){
-	scene.traverse(obj=>{
-		if(obj.userData && obj.userData.isOutline){
-			obj.visible = false;
-		}
+		wrapper.scale.setScalar(smoothScale);
+
+		wrapper.userData.spinVelocity *= 0.90;
+		wrapper.userData.hoverSpin += wrapper.userData.spinVelocity;
+
+		wrapper.rotation.x =
+			wrapper.userData.baseRotX +
+			Math.sin(
+				time * (0.30 + index * 0.015) +
+				wrapper.userData.phase
+			) * 0.13;
+
+		wrapper.rotation.y =
+			wrapper.userData.baseRotY +
+			Math.sin(
+				time * (0.24 + index * 0.012) +
+				wrapper.userData.phase * 1.3
+			) * 0.20 +
+			wrapper.userData.hoverSpin;
+
+		wrapper.rotation.z =
+			wrapper.userData.baseRotZ +
+			Math.cos(
+				time * (0.26 + index * 0.011) +
+				wrapper.userData.phase
+			) * 0.09;
 	});
 }
-
-/* ==================================================
-   ANIMATION
-   ================================================== */
-
-const clock =
-	new THREE.Clock();
-
-let orbitTime = 0;
-
-
-function updateOrbit(
-	time
-){
-
-	wrappers.forEach(
-		(wrapper,i) => {
-
-			if(
-				!cardOpen
-			){
-
-				const angle =
-					wrapper.userData.baseAngle +
-					time *
-					ORBIT_SPEED;
-
-
-				/*
-				   Imperfect orbit.
-				*/
-
-				const orbitNoise =
-					1 +
-					Math.sin(
-						angle *
-						1.65 +
-						wrapper.userData.phase
-					) *
-					.055;
-
-
-				const depth =
-					Math.sin(
-						angle
-					);
-
-
-				/*
-				   Deliberately allow the orbit to cut through the title.
-				   OVERLAP_AMOUNT pulls objects inward most strongly
-				   around the left/right crossing points, so some frames
-				   partially cover BRUNO / LOPES.
-				*/
-				const crossPull =
-					1 -
-					OVERLAP_AMOUNT *
-					Math.pow(
-						Math.abs(
-							Math.cos(angle)
-						),
-						1.35
-					);
-
-				const verticalPull =
-					1 -
-					OVERLAP_AMOUNT *
-					.38 *
-					Math.pow(
-						Math.abs(
-							Math.sin(angle)
-						),
-						2
-					);
-
-				/*
-				   True 3D ellipse / ring.
-				   Start in local ellipse coordinates,
-				   then rotate the ring plane itself.
-				*/
-				const localRingPos =
-					new THREE.Vector3(
-						Math.cos(angle) *
-							RING_WIDTH *
-							wrapper.userData.radiusX *
-							orbitNoise *
-							crossPull,
-
-						Math.sin(angle) *
-							RING_HEIGHT *
-							wrapper.userData.radiusY *
-							verticalPull,
-
-						Math.sin(angle) *
-							RING_DEPTH
-					);
-
-				localRingPos.applyEuler(
-					new THREE.Euler(
-						RING_TILT_X,
-						RING_TILT_Y,
-						RING_TILT_Z,
-						"XYZ"
-					)
-				);
-
-				wrapper.position.copy(
-					localRingPos
-				);
-
-
-				/*
-				   Front/back depth scaling.
-				*/
-
-				const depthScale =
-					THREE.MathUtils.mapLinear(
-						depth,
-						-1,
-						1,
-						1 - DEPTH_SCALE_STRENGTH * .22,
-						1 + DEPTH_SCALE_STRENGTH * .36
-					);
-
-
-				const hoverScale =
-					i === hovered
-						? HOVER_BOOST
-						: 1;
-
-
-				const targetScale =
-					wrapper.userData.baseSize *
-					SIZE_MULTIPLIER *
-					INDIVIDUAL_SCALE[i] ?? 1 *
-					depthScale *
-					hoverScale;
-
-
-				const scale =
-					THREE.MathUtils.lerp(
-						wrapper.scale.x,
-						targetScale,
-						.10
-					);
-
-
-				wrapper.scale.setScalar(
-					scale
-				);
-
-
-				/*
-				   Hover impulse loses energy quickly.
-				*/
-
-				wrapper.userData.spinVelocity *=
-					.90;
-
-
-				wrapper.userData.hoverSpin +=
-					wrapper.userData.spinVelocity;
-
-
-				/*
-				   Different slow self rotation per object.
-				*/
-
-				wrapper.rotation.x =
-					wrapper.userData.baseRotX +
-					Math.sin(
-						time *
-						(.30 + i*.015) +
-						wrapper.userData.phase
-					) *
-					.13;
-
-
-				wrapper.rotation.y =
-					wrapper.userData.baseRotY +
-					Math.sin(
-						time *
-						(.24 + i*.012) +
-						wrapper.userData.phase *
-						1.3
-					) *
-					.20 +
-					wrapper.userData.hoverSpin;
-
-
-				wrapper.rotation.z =
-					wrapper.userData.baseRotZ +
-					Math.cos(
-						time *
-						(.26 + i*.011) +
-						wrapper.userData.phase
-					) *
-					.09;
-
-
-				/*
-				   Actual front/back crossing around BRUNO LOPES:
-				   layer 0 = behind text
-				   layer 1 = in front of text
-				*/
-
-				const layer =
-					wrapper.position.z > 0
-						? 1
-						: 0;
-
-
-				wrapper.traverse(
-					child => {
-
-						child.layers.set(
-							layer
-						);
-
-
-						if(
-							child.isMesh
-						){
-
-							child.material.opacity =
-								THREE.MathUtils.lerp(
-									child.material.opacity,
-									1,
-									.10
-								);
-
-						}
-
-					}
-				);
-
-			}
-			else{
-
-				/*
-				   Project state.
-				*/
-
-				wrapper.position.lerp(
-					wrapper.userData.targetPos,
-					.075
-				);
-
-
-				const scale =
-					THREE.MathUtils.lerp(
-						wrapper.scale.x,
-						wrapper.userData.targetScale,
-						.075
-					);
-
-
-				wrapper.scale.setScalar(
-					scale
-				);
-
-
-				wrapper.rotation.y =
-					THREE.MathUtils.lerp(
-						wrapper.rotation.y,
-						wrapper.userData.targetRotY,
-						.06
-					);
-
-
-				wrapper.rotation.x +=
-					(
-						wrapper.userData.baseRotX -
-						wrapper.rotation.x
-					) *
-					.055;
-
-
-				wrapper.rotation.z +=
-					(
-						wrapper.userData.baseRotZ -
-						wrapper.rotation.z
-					) *
-					.055;
-
-
-				/*
-				   selected object stays in front,
-				   rest go behind.
-				*/
-
-				/*
-				   Selected object becomes a large backdrop
-				   BEHIND BRUNO / LOPES.
-				*/
-				const layer = 0;
-
-
-				wrapper.traverse(
-					child => {
-
-						child.layers.set(
-							layer
-						);
-
-
-						if(
-							child.isMesh
-						){
-
-							child.material.opacity =
-								THREE.MathUtils.lerp(
-									child.material.opacity,
-									wrapper.userData.targetOpacity,
-									.10
-								);
-
-						}
-
-					}
-				);
-
-			}
-
-		}
-	);
-
-}
-
-
-/* ==================================================
-   RENDER LOOP
-   ================================================== */
-
-function animate(){
-	removeAnyOutlineMeshes();
-
-	requestAnimationFrame(
-		animate
-	);
-
-
-	const dt =
-		clock.getDelta();
-
-	if(!PAUSED){
-		orbitTime += dt;
-	}
-
-	updateOrbit(
-		orbitTime
-	);
-
-
-	/*
-	   BACK PASS
-	*/
-	camera.layers.set(
-		0
-	);
-
-rendererBack.render(
-		scene,
-		camera
-	);
-
-
-	/*
-	   FRONT PASS
-	*/
-	camera.layers.set(
-		1
-	);
-
-	rendererFront.render(
-		scene,
-		camera
-	);
-
-}
-
-
-animate();
 
 
 /* ==================================================
    RESIZE
    ================================================== */
 
-function resize(){
+function resize() {
+	const width = Math.max(stage.clientWidth, 1);
+	const height = Math.max(stage.clientHeight, 1);
 
-	const width =
-		stage.clientWidth;
+	renderer.setSize(width, height, false);
 
-
-	const height =
-		stage.clientHeight;
-
-
-	rendererBack.setSize(
-		width,
-		height,
-		false
-	);
-
-
-	rendererFront.setSize(
-		width,
-		height,
-		false
-	);
-
-
-	camera.aspect =
-		width /
-		height;
-
-
+	camera.aspect = width / height;
 	camera.updateProjectionMatrix();
-
 }
 
+window.addEventListener("resize", resize, { passive: true });
 
-window.addEventListener(
-	"resize",
-	resize
-);
-
+if ("ResizeObserver" in window) {
+	new ResizeObserver(resize).observe(stage);
+}
 
 resize();
 
 
-document.getElementById("tune-button")?.addEventListener("click",()=>{
-	document.body.classList.toggle("show-lab");
-	document.getElementById("tune-button").textContent =
-		document.body.classList.contains("show-lab") ? "CLOSE" : "TUNE";
-});
+/* ==================================================
+   LOOP
+   ================================================== */
 
+const clock = new THREE.Clock();
+let elapsed = 0;
+
+function animate() {
+	requestAnimationFrame(animate);
+
+	const dt = Math.min(clock.getDelta(), 0.05);
+	elapsed += dt;
+
+	updateOrbit(elapsed);
+	renderer.render(scene, camera);
+}
+
+animate();
 </script>
-
 </body>
 </html>
