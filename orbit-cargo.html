@@ -120,56 +120,78 @@ function report(message, force = false) {
 
 const ITEMS = [
 	{
+		key: "showreel",
+		label: "Showreel",
 		file: "Showreel.glb",
 		scale: 1.10,
 		tilt: [18, -30, 32]
 	},
 	{
+		key: "playground",
+		label: "Playground",
 		file: "Playground2.glb",
 		scale: 1.05,
 		tilt: [14, -16, 4]
 	},
 	{
+		key: "futster",
+		label: "Futster",
 		file: "Futster.glb",
 		scale: 0.60,
 		tilt: [-26, 90, 2]
 	},
 	{
+		key: "gobelinsjpo",
+		label: "Gobelins JPO",
 		file: "GobelinsJPO2.glb",
 		scale: 0.80,
 		tilt: [-10, -24, -4]
 	},
 	{
+		key: "universal-music-france",
+		label: "Universal Music France",
 		file: "UniversalMusicFrance.glb",
 		scale: 1.30,
 		tilt: [10, -20, -12]
 	},
 	{
+		key: "museum-dorsay",
+		label: "Museum D’Orsay",
 		file: "MuseumDOrsay.glb",
 		scale: 1.10,
 		tilt: [-16, 0, 0]
 	},
 	{
+		key: "papersoundmachine",
+		label: "Paper Sound Machine",
 		file: "PaperSoundMachine2.glb",
 		scale: 0.80,
 		tilt: [-34, 0, -44]
 	},
 	{
+		key: "bushoe",
+		label: "Bushoe",
 		file: "Bushoe.glb",
 		scale: 1.60,
 		tilt: [-20, -34, -32]
 	},
 	{
+		key: "silent-running",
+		label: "Silent Running",
 		file: "SilentRunning2.glb",
 		scale: 0.95,
 		tilt: [8, 0, 0]
 	},
 	{
+		key: "paratypology",
+		label: "Paratypology",
 		file: "Paratypology.glb",
 		scale: 1.25,
 		tilt: [12, 90, 12]
 	},
 	{
+		key: "vfx",
+		label: "VFX",
 		file: "vfx.glb",
 		scale: 0.75,
 		tilt: [8, -90, 12]
@@ -201,7 +223,7 @@ const SETTINGS = {
 	brightness: 1.20,
 
 	hoverBoost: 1.28,
-	hoverSpin: 1.15
+	hoverSpin: 0.35
 };
 
 
@@ -405,6 +427,12 @@ loadEverything();
 
 
 /* ==================================================
+   PHASE 3 — HOVER ONLY
+   Objects intentionally have NO click navigation.
+   Cargo project links remain the only navigation controls.
+   ================================================== */
+
+/* ==================================================
    HOVER — CARGO BRIDGE / SCREEN-SPACE PICKING
    ==================================================
 
@@ -428,6 +456,39 @@ const pointerNDC = new THREE.Vector2(999, 999);
 const projectedPoint = new THREE.Vector3();
 
 let hovered = -1;
+let linkedHovered = -1;
+let lastReportedHover = "__init__";
+
+function indexFromKey(key) {
+	return ITEMS.findIndex((item) => item.key === key);
+}
+
+function reportHoverToCargo(index) {
+
+	const key =
+		index >= 0 && ITEMS[index]
+			? ITEMS[index].key
+			: null;
+
+	if (key === lastReportedHover) {
+		return;
+	}
+
+	lastReportedHover = key;
+
+	window.parent?.postMessage(
+		{
+			type: "bruno-orbit-hover",
+			layer: LAYER_MODE,
+			key: key,
+			label:
+				index >= 0 && ITEMS[index]
+					? ITEMS[index].label
+					: null
+		},
+		"*"
+	);
+}
 
 /*
  * Hover radius in normalized device coordinates.
@@ -438,6 +499,7 @@ const HOVER_RADIUS = 0.24;
 function clearHover() {
 	hovered = -1;
 	pointerNDC.set(999, 999);
+	reportHoverToCargo(-1);
 }
 
 function updateHoverFromNormalized(x, y) {
@@ -528,6 +590,7 @@ function updateHoverFromNormalized(x, y) {
 	}
 
 	hovered = next;
+	reportHoverToCargo(hovered);
 }
 
 
@@ -538,22 +601,49 @@ window.addEventListener("message", (event) => {
 
 	const data = event.data;
 
-	if (
-		!data ||
-		data.type !== "bruno-orbit-pointer"
-	) {
+	if (!data) {
 		return;
 	}
 
-	if (data.active === false) {
-		clearHover();
+	/*
+	 * Cargo pointer → object hover.
+	 */
+	if (data.type === "bruno-orbit-pointer") {
+
+		if (data.active === false) {
+			clearHover();
+			return;
+		}
+
+		updateHoverFromNormalized(
+			Number(data.x),
+			Number(data.y)
+		);
+
 		return;
 	}
 
-	updateHoverFromNormalized(
-		Number(data.x),
-		Number(data.y)
-	);
+	/*
+	 * Cargo project title → matching 3D object.
+	 */
+	if (data.type === "bruno-orbit-highlight") {
+
+		const next =
+			data.key
+				? indexFromKey(String(data.key))
+				: -1;
+
+		if (
+			next !== linkedHovered &&
+			next >= 0 &&
+			wrappers[next]
+		) {
+			wrappers[next].userData.spinVelocity +=
+				SETTINGS.hoverSpin * 0.65;
+		}
+
+		linkedHovered = next;
+	}
 
 });
 
@@ -699,7 +789,12 @@ function updateOrbit(time) {
 		);
 
 		const hoverScale =
-			index === hovered ? SETTINGS.hoverBoost : 1;
+			(
+				index === hovered ||
+				index === linkedHovered
+			)
+				? SETTINGS.hoverBoost
+				: 1;
 
 		const targetScale =
 			wrapper.userData.baseSize *
