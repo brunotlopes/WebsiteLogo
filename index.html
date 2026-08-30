@@ -366,6 +366,58 @@ FRONT objects render above the name.
 	font-weight:700;
 }
 
+
+#text-nav-block{
+	position:relative;
+	z-index:30;
+	margin-top:10px;
+	margin-left:0;
+	width:max-content;
+}
+#subtitle{
+	position:relative !important;
+	left:auto !important;
+	top:auto !important;
+	bottom:auto !important;
+	right:auto !important;
+	margin:0 0 6px 0 !important;
+	font-size:16px;
+	font-weight:700;
+	white-space:nowrap;
+}
+.project-menu{
+	display:flex;
+	flex-direction:column;
+	gap:2px;
+	position:relative !important;
+	left:auto !important;
+	top:auto !important;
+	bottom:auto !important;
+	right:auto !important;
+	margin:0 !important;
+	width:max-content;
+	z-index:30;
+}
+.project-menu a{
+	color:#111;
+	text-decoration:none;
+	font-size:11px;
+	line-height:1.25;
+	opacity:.72;
+}
+.project-menu a:hover{opacity:1;}
+.project-menu a.active{
+	opacity:1;
+	font-weight:700;
+}
+
+
+.selection-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
+.object-toggle-row{font-size:10px;margin:3px 0}
+.object-toggle-row label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.object-control-row.is-off{opacity:.25}
+.project-menu a.is-off{opacity:.22;text-decoration:line-through}
+
 </style>
 </head>
 
@@ -381,9 +433,8 @@ FRONT objects render above the name.
 
 		</div>
 
-		<div id="subtitle">MOTION GRAPHICS * VFX</div>
-
-
+		<div id="text-nav-block">
+<div id="subtitle">MOTION GRAPHICS * VFX</div>
 <div id="project-menu" class="project-menu">
 	<a href="#" data-project-index="0">Showreel</a>
 	<a href="#" data-project-index="1">Playground 1</a>
@@ -394,11 +445,19 @@ FRONT objects render above the name.
 	<a href="#" data-project-index="6">Gobelins JPO 2</a>
 	<a href="#" data-project-index="7">Universal Music France</a>
 	<a href="#" data-project-index="8">Museum D’Orsay</a>
-	<a href="#" data-project-index="9">Paper Sound Machine</a>
-	<a href="#" data-project-index="10">Bushoe 1</a>
-	<a href="#" data-project-index="11">Bushoe 2</a>
-	<a href="#" data-project-index="12">Silent Running</a>
+	<a href="#" data-project-index="9">Paper Sound Machine 1</a>
+	<a href="#" data-project-index="10">Paper Sound Machine 2</a>
+	<a href="#" data-project-index="11">Bushoe 1</a>
+	<a href="#" data-project-index="12">Bushoe 2</a>
+	<a href="#" data-project-index="13">Silent Running 1</a>
+	<a href="#" data-project-index="14">Silent Running 2</a>
+	<a href="#" data-project-index="15">Paratypology</a>
+	<a href="#" data-project-index="16">VFX</a>
 </div>
+</div>
+
+
+
 
 
 		
@@ -436,7 +495,7 @@ FRONT objects render above the name.
 		<div class="row"><label>Tilt Y</label><input id="ringTiltY" type="range" min="-45" max="45" step="1" value="-21"><span class="val" id="ringTiltYVal">-21</span></div>
 		<div class="row"><label>Tilt Z</label><input id="ringTiltZ" type="range" min="-30" max="30" step="1" value="-23"><span class="val" id="ringTiltZVal">-23</span></div>
 		<div class="row"><label>Speed</label><input id="ringSpeed" type="range" min="-.35" max=".35" step=".01" value="0.31"><span class="val" id="ringSpeedVal">0.31</span></div>
-		<div class="row"><label><strong>NUMBER OF ITEMS</strong></label><input id="itemCount" type="range" min="3" max="13" step="1" value="13"><span class="val" id="itemCountVal">13</span></div>
+		
 		<div class="row"><label>Overlap</label><input id="overlap" type="range" min="0" max=".7" step=".01" value="0.31"><span class="val" id="overlapVal">0.31</span></div>
 
 		<div class="section">LOOK</div>
@@ -452,60 +511,95 @@ FRONT objects render above the name.
 		<div class="row"><label>Name size</label><input id="nameSize" type="range" min="14" max="36" step="1" value="28"><span class="val" id="nameSizeVal">28</span></div>
 		<div class="row"><label>Layout</label><button id="nameLayout" class="active">1 LINE</button><span></span></div>
 
-		<div class="section">INDIVIDUAL SIZE — PROJECT OBJECTS</div>
-		<div class="row"><label>1 · Showreel</label><input id="s1" type="range" min=".4" max="2.5" step=".05" value="0.70"><span class="val" id="s1Val">0.70</span></div>
-		<div class="row"><label>2 · Playground 1</label><input id="s2" type="range" min=".4" max="2.5" step=".05" value="0.65"><span class="val" id="s2Val">0.65</span></div>
-		<div class="row"><label>3 · Playground 2</label><input id="s3" type="range" min=".4" max="2.5" step=".05" value="0.85"><span class="val" id="s3Val">0.85</span></div>
-		<div class="row"><label>4 · Playground 3</label><input id="s4" type="range" min=".4" max="2.5" step=".05" value="0.50"><span class="val" id="s4Val">0.50</span></div>
-		<div class="row"><label>5 · Futster</label><input id="s5" type="range" min=".4" max="2.5" step=".05" value="1.20"><span class="val" id="s5Val">1.20</span></div>
-		<div class="row"><label>6 · Gobelins JPO 1</label><input id="s6" type="range" min=".4" max="2.5" step=".05" value="0.95"><span class="val" id="s6Val">0.95</span></div>
-		<div class="row"><label>7 · Gobelins JPO 2</label><input id="s7" type="range" min=".4" max="2.5" step=".05" value="0.80"><span class="val" id="s7Val">0.80</span></div>
-		<div class="row"><label>8 · Universal Music France</label><input id="s8" type="range" min=".4" max="2.5" step=".05" value="1.15"><span class="val" id="s8Val">1.15</span></div>
-		<div class="row"><label>9 · Museum D’Orsay</label><input id="s9" type="range" min=".4" max="2.5" step=".05" value="1.00"><span class="val" id="s9Val">1.00</span></div>
-		<div class="row"><label>10 · Paper Sound Machine</label><input id="s10" type="range" min=".4" max="2.5" step=".05" value="1.00"><span class="val" id="s10Val">1.00</span></div>
-		<div class="row"><label>11 · Bushoe 1</label><input id="s11" type="range" min=".4" max="2.5" step=".05" value="1.00"><span class="val" id="s11Val">1.00</span></div>
-		<div class="row"><label>12 · Bushoe 2</label><input id="s12" type="range" min=".4" max="2.5" step=".05" value="1.00"><span class="val" id="s12Val">1.00</span></div>
-		<div class="row"><label>13 · Silent Running</label><input id="s13" type="range" min=".4" max="2.5" step=".05" value="1.00"><span class="val" id="s13Val">1.00</span></div>
-		<div class="section">INDIVIDUAL TILT X / Y / Z — PROJECT OBJECTS</div>
-		<div class="row"><label>1 · Showreel X</label><input id="tx1" type="range" min="-90" max="90" step="2" value="8"><span class="val" id="tx1Val">8</span></div>
-		<div class="row"><label>1 · Showreel Y</label><input id="ty1" type="range" min="-90" max="90" step="2" value="-30"><span class="val" id="ty1Val">-30</span></div>
-		<div class="row"><label>1 · Showreel Z</label><input id="tz1" type="range" min="-90" max="90" step="2" value="32"><span class="val" id="tz1Val">32</span></div>
-		<div class="row"><label>2 · Playground 1 X</label><input id="tx2" type="range" min="-90" max="90" step="2" value="-10"><span class="val" id="tx2Val">-10</span></div>
-		<div class="row"><label>2 · Playground 1 Y</label><input id="ty2" type="range" min="-90" max="90" step="2" value="26"><span class="val" id="ty2Val">26</span></div>
-		<div class="row"><label>2 · Playground 1 Z</label><input id="tz2" type="range" min="-90" max="90" step="2" value="54"><span class="val" id="tz2Val">54</span></div>
-		<div class="row"><label>3 · Playground 2 X</label><input id="tx3" type="range" min="-90" max="90" step="2" value="20"><span class="val" id="tx3Val">20</span></div>
-		<div class="row"><label>3 · Playground 2 Y</label><input id="ty3" type="range" min="-90" max="90" step="2" value="16"><span class="val" id="ty3Val">16</span></div>
-		<div class="row"><label>3 · Playground 2 Z</label><input id="tz3" type="range" min="-90" max="90" step="2" value="14"><span class="val" id="tz3Val">14</span></div>
-		<div class="row"><label>4 · Playground 3 X</label><input id="tx4" type="range" min="-90" max="90" step="2" value="-6"><span class="val" id="tx4Val">-6</span></div>
-		<div class="row"><label>4 · Playground 3 Y</label><input id="ty4" type="range" min="-90" max="90" step="2" value="12"><span class="val" id="ty4Val">12</span></div>
-		<div class="row"><label>4 · Playground 3 Z</label><input id="tz4" type="range" min="-90" max="90" step="2" value="-18"><span class="val" id="tz4Val">-18</span></div>
-		<div class="row"><label>5 · Futster X</label><input id="tx5" type="range" min="-90" max="90" step="2" value="52"><span class="val" id="tx5Val">52</span></div>
-		<div class="row"><label>5 · Futster Y</label><input id="ty5" type="range" min="-90" max="90" step="2" value="-28"><span class="val" id="ty5Val">-28</span></div>
-		<div class="row"><label>5 · Futster Z</label><input id="tz5" type="range" min="-90" max="90" step="2" value="-16"><span class="val" id="tz5Val">-16</span></div>
-		<div class="row"><label>6 · Gobelins JPO 1 X</label><input id="tx6" type="range" min="-90" max="90" step="2" value="64"><span class="val" id="tx6Val">64</span></div>
-		<div class="row"><label>6 · Gobelins JPO 1 Y</label><input id="ty6" type="range" min="-90" max="90" step="2" value="-10"><span class="val" id="ty6Val">-10</span></div>
-		<div class="row"><label>6 · Gobelins JPO 1 Z</label><input id="tz6" type="range" min="-90" max="90" step="2" value="-40"><span class="val" id="tz6Val">-40</span></div>
-		<div class="row"><label>7 · Gobelins JPO 2 X</label><input id="tx7" type="range" min="-90" max="90" step="2" value="-66"><span class="val" id="tx7Val">-66</span></div>
-		<div class="row"><label>7 · Gobelins JPO 2 Y</label><input id="ty7" type="range" min="-90" max="90" step="2" value="-6"><span class="val" id="ty7Val">-6</span></div>
-		<div class="row"><label>7 · Gobelins JPO 2 Z</label><input id="tz7" type="range" min="-90" max="90" step="2" value="-4"><span class="val" id="tz7Val">-4</span></div>
-		<div class="row"><label>8 · Universal Music France X</label><input id="tx8" type="range" min="-90" max="90" step="2" value="-8"><span class="val" id="tx8Val">-8</span></div>
-		<div class="row"><label>8 · Universal Music France Y</label><input id="ty8" type="range" min="-90" max="90" step="2" value="-84"><span class="val" id="ty8Val">-84</span></div>
-		<div class="row"><label>8 · Universal Music France Z</label><input id="tz8" type="range" min="-90" max="90" step="2" value="-34"><span class="val" id="tz8Val">-34</span></div>
-		<div class="row"><label>9 · Museum D’Orsay X</label><input id="tx9" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tx9Val">0</span></div>
-		<div class="row"><label>9 · Museum D’Orsay Y</label><input id="ty9" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="ty9Val">0</span></div>
-		<div class="row"><label>9 · Museum D’Orsay Z</label><input id="tz9" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tz9Val">0</span></div>
-		<div class="row"><label>10 · Paper Sound Machine X</label><input id="tx10" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tx10Val">0</span></div>
-		<div class="row"><label>10 · Paper Sound Machine Y</label><input id="ty10" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="ty10Val">0</span></div>
-		<div class="row"><label>10 · Paper Sound Machine Z</label><input id="tz10" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tz10Val">0</span></div>
-		<div class="row"><label>11 · Bushoe 1 X</label><input id="tx11" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tx11Val">0</span></div>
-		<div class="row"><label>11 · Bushoe 1 Y</label><input id="ty11" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="ty11Val">0</span></div>
-		<div class="row"><label>11 · Bushoe 1 Z</label><input id="tz11" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tz11Val">0</span></div>
-		<div class="row"><label>12 · Bushoe 2 X</label><input id="tx12" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tx12Val">0</span></div>
-		<div class="row"><label>12 · Bushoe 2 Y</label><input id="ty12" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="ty12Val">0</span></div>
-		<div class="row"><label>12 · Bushoe 2 Z</label><input id="tz12" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tz12Val">0</span></div>
-		<div class="row"><label>13 · Silent Running X</label><input id="tx13" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tx13Val">0</span></div>
-		<div class="row"><label>13 · Silent Running Y</label><input id="ty13" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="ty13Val">0</span></div>
-		<div class="row"><label>13 · Silent Running Z</label><input id="tz13" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tz13Val">0</span></div>
+		<div class="section">OBJECT SELECTION</div>
+		<div class="selection-actions"><button id="selectAllObjects">ALL</button><button id="selectNoneObjects">NONE</button></div>
+		<div class="object-toggle-row"><label><input id="use1" type="checkbox" checked> 1 · Showreel</label></div>
+		<div class="object-toggle-row"><label><input id="use2" type="checkbox" checked> 2 · Playground 1</label></div>
+		<div class="object-toggle-row"><label><input id="use3" type="checkbox" checked> 3 · Playground 2</label></div>
+		<div class="object-toggle-row"><label><input id="use4" type="checkbox" checked> 4 · Playground 3</label></div>
+		<div class="object-toggle-row"><label><input id="use5" type="checkbox" checked> 5 · Futster</label></div>
+		<div class="object-toggle-row"><label><input id="use6" type="checkbox" checked> 6 · Gobelins JPO 1</label></div>
+		<div class="object-toggle-row"><label><input id="use7" type="checkbox" checked> 7 · Gobelins JPO 2</label></div>
+		<div class="object-toggle-row"><label><input id="use8" type="checkbox" checked> 8 · Universal Music France</label></div>
+		<div class="object-toggle-row"><label><input id="use9" type="checkbox" checked> 9 · Museum D’Orsay</label></div>
+		<div class="object-toggle-row"><label><input id="use10" type="checkbox" checked> 10 · Paper Sound Machine 1</label></div>
+		<div class="object-toggle-row"><label><input id="use11" type="checkbox" checked> 11 · Paper Sound Machine 2</label></div>
+		<div class="object-toggle-row"><label><input id="use12" type="checkbox" checked> 12 · Bushoe 1</label></div>
+		<div class="object-toggle-row"><label><input id="use13" type="checkbox" checked> 13 · Bushoe 2</label></div>
+		<div class="object-toggle-row"><label><input id="use14" type="checkbox" checked> 14 · Silent Running 1</label></div>
+		<div class="object-toggle-row"><label><input id="use15" type="checkbox" checked> 15 · Silent Running 2</label></div>
+		<div class="object-toggle-row"><label><input id="use16" type="checkbox" checked> 16 · Paratypology</label></div>
+		<div class="object-toggle-row"><label><input id="use17" type="checkbox" checked> 17 · VFX</label></div>
+		<div class="section">INDIVIDUAL SIZE</div>
+		<div class="row object-control-row" data-control-index="0"><label>1 · Showreel</label><input id="s1" type="range" min=".35" max="2.5" step=".05" value="0.70"><span class="val" id="s1Val">0.70</span></div>
+		<div class="row object-control-row" data-control-index="1"><label>2 · Playground 1</label><input id="s2" type="range" min=".35" max="2.5" step=".05" value="0.65"><span class="val" id="s2Val">0.65</span></div>
+		<div class="row object-control-row" data-control-index="2"><label>3 · Playground 2</label><input id="s3" type="range" min=".35" max="2.5" step=".05" value="0.85"><span class="val" id="s3Val">0.85</span></div>
+		<div class="row object-control-row" data-control-index="3"><label>4 · Playground 3</label><input id="s4" type="range" min=".35" max="2.5" step=".05" value="0.50"><span class="val" id="s4Val">0.50</span></div>
+		<div class="row object-control-row" data-control-index="4"><label>5 · Futster</label><input id="s5" type="range" min=".35" max="2.5" step=".05" value="1.20"><span class="val" id="s5Val">1.20</span></div>
+		<div class="row object-control-row" data-control-index="5"><label>6 · Gobelins JPO 1</label><input id="s6" type="range" min=".35" max="2.5" step=".05" value="0.95"><span class="val" id="s6Val">0.95</span></div>
+		<div class="row object-control-row" data-control-index="6"><label>7 · Gobelins JPO 2</label><input id="s7" type="range" min=".35" max="2.5" step=".05" value="0.80"><span class="val" id="s7Val">0.80</span></div>
+		<div class="row object-control-row" data-control-index="7"><label>8 · Universal Music France</label><input id="s8" type="range" min=".35" max="2.5" step=".05" value="1.15"><span class="val" id="s8Val">1.15</span></div>
+		<div class="row object-control-row" data-control-index="8"><label>9 · Museum D’Orsay</label><input id="s9" type="range" min=".35" max="2.5" step=".05" value="1.00"><span class="val" id="s9Val">1.00</span></div>
+		<div class="row object-control-row" data-control-index="9"><label>10 · Paper Sound Machine 1</label><input id="s10" type="range" min=".35" max="2.5" step=".05" value="1.00"><span class="val" id="s10Val">1.00</span></div>
+		<div class="row object-control-row" data-control-index="10"><label>11 · Paper Sound Machine 2</label><input id="s11" type="range" min=".35" max="2.5" step=".05" value="1.00"><span class="val" id="s11Val">1.00</span></div>
+		<div class="row object-control-row" data-control-index="11"><label>12 · Bushoe 1</label><input id="s12" type="range" min=".35" max="2.5" step=".05" value="1.00"><span class="val" id="s12Val">1.00</span></div>
+		<div class="row object-control-row" data-control-index="12"><label>13 · Bushoe 2</label><input id="s13" type="range" min=".35" max="2.5" step=".05" value="1.00"><span class="val" id="s13Val">1.00</span></div>
+		<div class="row object-control-row" data-control-index="13"><label>14 · Silent Running 1</label><input id="s14" type="range" min=".35" max="2.5" step=".05" value="1.00"><span class="val" id="s14Val">1.00</span></div>
+		<div class="row object-control-row" data-control-index="14"><label>15 · Silent Running 2</label><input id="s15" type="range" min=".35" max="2.5" step=".05" value="1.00"><span class="val" id="s15Val">1.00</span></div>
+		<div class="row object-control-row" data-control-index="15"><label>16 · Paratypology</label><input id="s16" type="range" min=".35" max="2.5" step=".05" value="1.00"><span class="val" id="s16Val">1.00</span></div>
+		<div class="row object-control-row" data-control-index="16"><label>17 · VFX</label><input id="s17" type="range" min=".35" max="2.5" step=".05" value="1.00"><span class="val" id="s17Val">1.00</span></div>
+		<div class="section">INDIVIDUAL TILT X / Y / Z</div>
+		<div class="row object-control-row" data-control-index="0"><label>1 · Showreel X</label><input id="tx1" type="range" min="-90" max="90" step="2" value="8"><span class="val" id="tx1Val">8</span></div>
+		<div class="row object-control-row" data-control-index="0"><label>1 · Showreel Y</label><input id="ty1" type="range" min="-90" max="90" step="2" value="-30"><span class="val" id="ty1Val">-30</span></div>
+		<div class="row object-control-row" data-control-index="0"><label>1 · Showreel Z</label><input id="tz1" type="range" min="-90" max="90" step="2" value="32"><span class="val" id="tz1Val">32</span></div>
+		<div class="row object-control-row" data-control-index="1"><label>2 · Playground 1 X</label><input id="tx2" type="range" min="-90" max="90" step="2" value="-10"><span class="val" id="tx2Val">-10</span></div>
+		<div class="row object-control-row" data-control-index="1"><label>2 · Playground 1 Y</label><input id="ty2" type="range" min="-90" max="90" step="2" value="26"><span class="val" id="ty2Val">26</span></div>
+		<div class="row object-control-row" data-control-index="1"><label>2 · Playground 1 Z</label><input id="tz2" type="range" min="-90" max="90" step="2" value="54"><span class="val" id="tz2Val">54</span></div>
+		<div class="row object-control-row" data-control-index="2"><label>3 · Playground 2 X</label><input id="tx3" type="range" min="-90" max="90" step="2" value="20"><span class="val" id="tx3Val">20</span></div>
+		<div class="row object-control-row" data-control-index="2"><label>3 · Playground 2 Y</label><input id="ty3" type="range" min="-90" max="90" step="2" value="16"><span class="val" id="ty3Val">16</span></div>
+		<div class="row object-control-row" data-control-index="2"><label>3 · Playground 2 Z</label><input id="tz3" type="range" min="-90" max="90" step="2" value="14"><span class="val" id="tz3Val">14</span></div>
+		<div class="row object-control-row" data-control-index="3"><label>4 · Playground 3 X</label><input id="tx4" type="range" min="-90" max="90" step="2" value="-6"><span class="val" id="tx4Val">-6</span></div>
+		<div class="row object-control-row" data-control-index="3"><label>4 · Playground 3 Y</label><input id="ty4" type="range" min="-90" max="90" step="2" value="12"><span class="val" id="ty4Val">12</span></div>
+		<div class="row object-control-row" data-control-index="3"><label>4 · Playground 3 Z</label><input id="tz4" type="range" min="-90" max="90" step="2" value="-18"><span class="val" id="tz4Val">-18</span></div>
+		<div class="row object-control-row" data-control-index="4"><label>5 · Futster X</label><input id="tx5" type="range" min="-90" max="90" step="2" value="52"><span class="val" id="tx5Val">52</span></div>
+		<div class="row object-control-row" data-control-index="4"><label>5 · Futster Y</label><input id="ty5" type="range" min="-90" max="90" step="2" value="-28"><span class="val" id="ty5Val">-28</span></div>
+		<div class="row object-control-row" data-control-index="4"><label>5 · Futster Z</label><input id="tz5" type="range" min="-90" max="90" step="2" value="-16"><span class="val" id="tz5Val">-16</span></div>
+		<div class="row object-control-row" data-control-index="5"><label>6 · Gobelins JPO 1 X</label><input id="tx6" type="range" min="-90" max="90" step="2" value="64"><span class="val" id="tx6Val">64</span></div>
+		<div class="row object-control-row" data-control-index="5"><label>6 · Gobelins JPO 1 Y</label><input id="ty6" type="range" min="-90" max="90" step="2" value="-10"><span class="val" id="ty6Val">-10</span></div>
+		<div class="row object-control-row" data-control-index="5"><label>6 · Gobelins JPO 1 Z</label><input id="tz6" type="range" min="-90" max="90" step="2" value="-40"><span class="val" id="tz6Val">-40</span></div>
+		<div class="row object-control-row" data-control-index="6"><label>7 · Gobelins JPO 2 X</label><input id="tx7" type="range" min="-90" max="90" step="2" value="-66"><span class="val" id="tx7Val">-66</span></div>
+		<div class="row object-control-row" data-control-index="6"><label>7 · Gobelins JPO 2 Y</label><input id="ty7" type="range" min="-90" max="90" step="2" value="-6"><span class="val" id="ty7Val">-6</span></div>
+		<div class="row object-control-row" data-control-index="6"><label>7 · Gobelins JPO 2 Z</label><input id="tz7" type="range" min="-90" max="90" step="2" value="-4"><span class="val" id="tz7Val">-4</span></div>
+		<div class="row object-control-row" data-control-index="7"><label>8 · Universal Music France X</label><input id="tx8" type="range" min="-90" max="90" step="2" value="-8"><span class="val" id="tx8Val">-8</span></div>
+		<div class="row object-control-row" data-control-index="7"><label>8 · Universal Music France Y</label><input id="ty8" type="range" min="-90" max="90" step="2" value="-84"><span class="val" id="ty8Val">-84</span></div>
+		<div class="row object-control-row" data-control-index="7"><label>8 · Universal Music France Z</label><input id="tz8" type="range" min="-90" max="90" step="2" value="-34"><span class="val" id="tz8Val">-34</span></div>
+		<div class="row object-control-row" data-control-index="8"><label>9 · Museum D’Orsay X</label><input id="tx9" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tx9Val">0</span></div>
+		<div class="row object-control-row" data-control-index="8"><label>9 · Museum D’Orsay Y</label><input id="ty9" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="ty9Val">0</span></div>
+		<div class="row object-control-row" data-control-index="8"><label>9 · Museum D’Orsay Z</label><input id="tz9" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tz9Val">0</span></div>
+		<div class="row object-control-row" data-control-index="9"><label>10 · Paper Sound Machine 1 X</label><input id="tx10" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tx10Val">0</span></div>
+		<div class="row object-control-row" data-control-index="9"><label>10 · Paper Sound Machine 1 Y</label><input id="ty10" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="ty10Val">0</span></div>
+		<div class="row object-control-row" data-control-index="9"><label>10 · Paper Sound Machine 1 Z</label><input id="tz10" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tz10Val">0</span></div>
+		<div class="row object-control-row" data-control-index="10"><label>11 · Paper Sound Machine 2 X</label><input id="tx11" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tx11Val">0</span></div>
+		<div class="row object-control-row" data-control-index="10"><label>11 · Paper Sound Machine 2 Y</label><input id="ty11" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="ty11Val">0</span></div>
+		<div class="row object-control-row" data-control-index="10"><label>11 · Paper Sound Machine 2 Z</label><input id="tz11" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tz11Val">0</span></div>
+		<div class="row object-control-row" data-control-index="11"><label>12 · Bushoe 1 X</label><input id="tx12" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tx12Val">0</span></div>
+		<div class="row object-control-row" data-control-index="11"><label>12 · Bushoe 1 Y</label><input id="ty12" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="ty12Val">0</span></div>
+		<div class="row object-control-row" data-control-index="11"><label>12 · Bushoe 1 Z</label><input id="tz12" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tz12Val">0</span></div>
+		<div class="row object-control-row" data-control-index="12"><label>13 · Bushoe 2 X</label><input id="tx13" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tx13Val">0</span></div>
+		<div class="row object-control-row" data-control-index="12"><label>13 · Bushoe 2 Y</label><input id="ty13" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="ty13Val">0</span></div>
+		<div class="row object-control-row" data-control-index="12"><label>13 · Bushoe 2 Z</label><input id="tz13" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tz13Val">0</span></div>
+		<div class="row object-control-row" data-control-index="13"><label>14 · Silent Running 1 X</label><input id="tx14" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tx14Val">0</span></div>
+		<div class="row object-control-row" data-control-index="13"><label>14 · Silent Running 1 Y</label><input id="ty14" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="ty14Val">0</span></div>
+		<div class="row object-control-row" data-control-index="13"><label>14 · Silent Running 1 Z</label><input id="tz14" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tz14Val">0</span></div>
+		<div class="row object-control-row" data-control-index="14"><label>15 · Silent Running 2 X</label><input id="tx15" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tx15Val">0</span></div>
+		<div class="row object-control-row" data-control-index="14"><label>15 · Silent Running 2 Y</label><input id="ty15" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="ty15Val">0</span></div>
+		<div class="row object-control-row" data-control-index="14"><label>15 · Silent Running 2 Z</label><input id="tz15" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tz15Val">0</span></div>
+		<div class="row object-control-row" data-control-index="15"><label>16 · Paratypology X</label><input id="tx16" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tx16Val">0</span></div>
+		<div class="row object-control-row" data-control-index="15"><label>16 · Paratypology Y</label><input id="ty16" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="ty16Val">0</span></div>
+		<div class="row object-control-row" data-control-index="15"><label>16 · Paratypology Z</label><input id="tz16" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tz16Val">0</span></div>
+		<div class="row object-control-row" data-control-index="16"><label>17 · VFX X</label><input id="tx17" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tx17Val">0</span></div>
+		<div class="row object-control-row" data-control-index="16"><label>17 · VFX Y</label><input id="ty17" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="ty17Val">0</span></div>
+		<div class="row object-control-row" data-control-index="16"><label>17 · VFX Z</label><input id="tz17" type="range" min="-90" max="90" step="2" value="0"><span class="val" id="tz17Val">0</span></div>
 		<div class="buttons">
 			<button id="pauseOrbit">PAUSE</button>
 			<button id="resetLab">RESET</button>
@@ -545,9 +639,13 @@ const FILES = [
 	"UniversalMusicFrance.glb",
 	"MuseumDOrsay.glb",
 	"PaperSoundMachine.glb",
+	"PaperSoundMachine2.glb",
 	"Bushoe.glb",
 	"Bushoe2.glb",
-	"SilentRunning.glb"
+	"SilentRunning.glb",
+	"SilentRunning2.glb",
+	"Paratypology.glb",
+	"vfx.glb"
 ];
 
 const OBJECT_LABELS = [
@@ -560,10 +658,14 @@ const OBJECT_LABELS = [
 	"Gobelins JPO 2",
 	"Universal Music France",
 	"Museum D’Orsay",
-	"Paper Sound Machine",
+	"Paper Sound Machine 1",
+	"Paper Sound Machine 2",
 	"Bushoe 1",
 	"Bushoe 2",
-	"Silent Running"
+	"Silent Running 1",
+	"Silent Running 2",
+	"Paratypology",
+	"VFX"
 ];
 
 
@@ -776,17 +878,17 @@ let CONTRAST = 1.15;
 let BRIGHTNESS = 1.05;
 let PAUSED = false;
 let ITEM_COUNT = 13;
-const INDIVIDUAL_TILT_X = [8,-10,20,-6,52,64,-66,-8,0,0,0,0,0].map(THREE.MathUtils.degToRad);
-const INDIVIDUAL_TILT_Y2 = [-30,26,16,12,-28,-10,-6,-84,0,0,0,0,0].map(THREE.MathUtils.degToRad);
-const INDIVIDUAL_TILT_Z = [32,54,14,-18,-16,-40,-4,-34,0,0,0,0,0].map(THREE.MathUtils.degToRad);
-const INDIVIDUAL_TILT_Y = [-30,26,16,12,-28,-10,-6,-84,0,0,0,0,0].map(THREE.MathUtils.degToRad);
+const INDIVIDUAL_TILT_X = [8,-10,20,-6,52,64,-66,-8,0,0,0,0,0,0,0,0,0].map(THREE.MathUtils.degToRad);
+const INDIVIDUAL_TILT_Y2 = [-30,26,16,12,-28,-10,-6,-84,0,0,0,0,0,0,0,0,0].map(THREE.MathUtils.degToRad);
+const INDIVIDUAL_TILT_Z = [32,54,14,-18,-16,-40,-4,-34,0,0,0,0,0,0,0,0,0].map(THREE.MathUtils.degToRad);
+const INDIVIDUAL_TILT_Y = [-30,26,16,12,-28,-10,-6,-84,0,0,0,0,0,0,0,0,0].map(THREE.MathUtils.degToRad);
 let HOVER_BOOST = 1.60;
 let HERO_SIZE = 4.50;
 let OVERLAP_AMOUNT = 0.31;
 let OUTLINE_ON = false;
 let OUTLINE_SCALE = 1.090;
 const OUTLINES = [];
-const INDIVIDUAL_SCALE = [0.70,0.65,0.85,0.50,1.20,0.95,0.80,1.15,1.00,1.00,1.00,1.00,1.00];
+const INDIVIDUAL_SCALE = [0.7,0.65,0.85,0.5,1.2,0.95,0.8,1.15,1,1,1,1,1,1,1,1,1];
 let NAME_SIZE = 24;
 let DEPTH_STRENGTH = 1.40;
 let HOVER_SPIN_IMPULSE = 1.20;
@@ -1082,6 +1184,8 @@ function createWrapper(
 	wrappers.push(
 		wrapper
 	);
+
+	redistributeActiveObjects();
 
 	updateItemCount(ITEM_COUNT);
 
@@ -1765,8 +1869,41 @@ document.getElementById("resetLab").addEventListener("click",()=>{
 });
 
 
+
+const OBJECT_ENABLED = new Array(17).fill(true);
+
+function redistributeActiveObjects(){
+	const active=[];
+	wrappers.forEach((w,i)=>{ if(w && OBJECT_ENABLED[i]) active.push(i); });
+	wrappers.forEach((w,i)=>{ if(w) w.visible=OBJECT_ENABLED[i]; });
+	active.forEach((idx,slot)=>{
+		wrappers[idx].userData.baseAngle=(slot/Math.max(active.length,1))*Math.PI*2-Math.PI/2;
+	});
+	document.querySelectorAll("#project-menu a").forEach((a,i)=>a.classList.toggle("is-off",!OBJECT_ENABLED[i]));
+	document.querySelectorAll(".object-control-row").forEach(r=>{
+		const i=parseInt(r.dataset.controlIndex,10);
+		r.classList.toggle("is-off",!OBJECT_ENABLED[i]);
+	});
+}
+
+for(let i=0;i<OBJECT_LABELS.length;i++){
+	const c=document.getElementById("use"+(i+1));
+	if(c)c.addEventListener("change",()=>{OBJECT_ENABLED[i]=c.checked;redistributeActiveObjects();});
+}
+document.getElementById("selectAllObjects")?.addEventListener("click",()=>{
+	OBJECT_ENABLED.fill(true);
+	for(let i=0;i<OBJECT_LABELS.length;i++){const c=document.getElementById("use"+(i+1));if(c)c.checked=true;}
+	redistributeActiveObjects();
+});
+document.getElementById("selectNoneObjects")?.addEventListener("click",()=>{
+	OBJECT_ENABLED.fill(false);
+	for(let i=0;i<OBJECT_LABELS.length;i++){const c=document.getElementById("use"+(i+1));if(c)c.checked=false;}
+	redistributeActiveObjects();
+});
+
 function focusProject(index){
 	if(index < 0 || index >= wrappers.length) return;
+	if(!OBJECT_ENABLED[index]) return;
 
 	selected = index;
 	cardOpen = true;
