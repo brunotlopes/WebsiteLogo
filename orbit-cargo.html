@@ -189,8 +189,8 @@ const SETTINGS = {
 	ringDepth: 0.30,
 
 	ringTiltX: 0,
-	ringTiltY: -21,
-	ringTiltZ: -13,
+	ringTiltY: -20,
+	ringTiltZ: -9,
 
 	speed: 0.31,
 	overlap: 0.31,
@@ -460,21 +460,33 @@ const ringPosition = new THREE.Vector3();
 function updateOrbit(time) {
 
 	/*
-	 * Slow breathing motion of the whole orbital plane.
-	 * Tilt Z ranges from -18° to -8°, centered on -13°.
-	 * One full cycle takes about 35 seconds.
-	 * The absolute shared clock keeps FRONT/BACK synchronized.
+	 * Organic orbital motion:
+	 * - Z tilt: -18° to 0°
+	 * - Y tilt: -24° to -16°
+	 * - Vertical ellipse breathing: 0.64 to 0.76
+	 *
+	 * Different frequencies prevent an obvious repeating loop.
+	 * Uses the shared absolute clock so FRONT/BACK remain synchronized.
 	 */
 	const animatedTiltZ =
-		SETTINGS.ringTiltZ +
-		Math.sin(time * 0.18) * 5;
+		-9 +
+		Math.sin(time * 0.16) * 9;
+
+	const animatedTiltY =
+		-20 +
+		Math.sin(time * 0.11 + 1.4) * 4;
+
+	const animatedRingHeight =
+		SETTINGS.ringHeight +
+		Math.sin(time * 0.13 + 0.6) * 0.06;
 
 	ringEuler.set(
 		THREE.MathUtils.degToRad(SETTINGS.ringTiltX),
-		THREE.MathUtils.degToRad(SETTINGS.ringTiltY),
+		THREE.MathUtils.degToRad(animatedTiltY),
 		THREE.MathUtils.degToRad(animatedTiltZ),
 		"XYZ"
 	);
+
 
 	wrappers.forEach((wrapper, index) => {
 		if (!wrapper) return;
@@ -525,7 +537,7 @@ function updateOrbit(time) {
 				crossPull,
 
 			Math.sin(angle) *
-				SETTINGS.ringHeight *
+				animatedRingHeight *
 				wrapper.userData.radiusY *
 				verticalPull,
 
