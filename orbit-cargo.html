@@ -1,1208 +1,1096 @@
-<!-- ==================================================
-     ORBITA 3D — BACK + FRONT
-     ================================================== -->
-
-<div class="portfolio-orbit">
-
-	<iframe
-		class="portfolio-orbit-back"
-		loading="eager"
-		src="https://brunotlopes.github.io/WebsiteLogo/orbit-cargo.html?layer=back&v=5"
-		title="Bruno Lopes Orbit Back">
-	</iframe>
-
-	<iframe
-		class="portfolio-orbit-front"
-		loading="eager"
-		src="https://brunotlopes.github.io/WebsiteLogo/orbit-cargo.html?layer=front&v=5"
-		title="Bruno Lopes Orbit Front">
-	</iframe>
-
-</div>
-
-
-<!-- ==================================================
-     NOME
-     ================================================== -->
-
-<div class="portfolio-name-wrapper" style="text-align: center">
-
-	<a class="titlebrunolopes" href="projects-1" rel="history">
-		BRUNO LOPES
-	</a>
-
-</div>
-
-
-<!-- ==================================================
-     CATEGORIAS
-     ================================================== -->
-
-<div class="portfolio-categories">
-
-	<button class="subtitlesmgvfx is-active" data-menu-button="motion" type="button">
-		MOTION GRAPHICS
-	</button>
-
-	<span class="subtitlesmgvfx">
-		*
-	</span>
-
-	<button class="subtitlesmgvfx" data-menu-button="vfx" type="button">
-		VFX
-	</button>
-
-</div>
-
-
-<!-- ==================================================
-     MOTION GRAPHICS
-     ================================================== -->
-
-<div class="portfolio-projects is-open" data-menu-list="motion">
-
-	<a href="/showreel" rel="history" style="line-height: 2;">
-		Showreel
-	</a>
-
-	<a href="/playground" rel="history" style="line-height: 2;">
-		Playground
-	</a>
-
-	<a href="/futster" rel="history" style="line-height: 2;">
-		Futster
-	</a>
-
-	<a href="/gobelinsjpo" rel="history" style="line-height: 2;">
-		Gobelins JPO
-	</a>
-
-	<a href="/universal-music-france" rel="history" style="line-height: 2;">
-		Universal Music France
-	</a>
-
-	<a href="/museum-d'orsay" rel="history" style="line-height: 2;">
-		Museum D’Orsay
-	</a>
-
-	<a href="/paratypology" rel="history" style="line-height: 2;">
-		Paratypology
-	</a>
-
-	<a href="/papersoundmachine" rel="history" style="line-height: 2;">
-		Paper Sound Machine
-	</a>
-
-	<a href="/bushoe" rel="history" style="line-height: 2;">
-		Bushoe
-	</a>
-
-	<a href="/silent-running" rel="history" style="line-height: 2;">
-		Silent Running
-	</a>
-
-</div>
-
-
-<!-- ==================================================
-     VFX
-     ================================================== -->
-
-<div class="portfolio-projects" data-menu-list="vfx">
-
-	<a href="/vfx-showreel" rel="history" style="line-height: 2;">
-		Showreel
-	</a>
-
-	<a href="/and-if-they-didnt-exist" rel="history" style="line-height: 2;">
-		And If They Didn’t Exist
-	</a>
-
-	<a href="/la-casa-di-barbi" rel="history" style="line-height: 2;">
-		La Casa Di Barbi
-	</a>
-
-	<a href="/limbo" rel="history" style="line-height: 2;">
-		Limbo
-	</a>
-
-	<a href="/over-the-burning-skies" rel="history" style="line-height: 2;">
-		Over The Burning Skies
-	</a>
-
-	<a href="/color-latium" rel="history" style="line-height: 2;">
-		Color Latium
-	</a>
-
-	<a href="/cannes" rel="history" style="line-height: 2;">
-		Cannes
-	</a>
-
-	<a href="/relogio" rel="history" style="line-height: 2;">
-		Relógio
-	</a>
-
-</div>
-
-
-<!-- ==================================================
-     HOVER VISUAL GLB <-> TITULO
-     ================================================== -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bruno Lopes — Cargo Orbit Phase 4</title>
 
 <style>
-.portfolio-projects a.is-orbit-hovered {
-	opacity: 1 !important;
-	font-weight: 700 !important;
-	transform: translateX(4px);
+html, body {
+	margin: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	background: transparent;
 }
 
-.portfolio-categories button.is-orbit-hovered {
-	opacity: 1 !important;
+body {
+	position: relative;
+}
+
+#orbit {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	background: transparent;
+}
+
+#orbit canvas {
+	position: absolute;
+	inset: 0;
+	display: block;
+	width: 100%;
+	height: 100%;
+	background: transparent;
+	cursor: default;
+}
+
+#status {
+	position: fixed;
+	left: 8px;
+	bottom: 8px;
+	z-index: 20;
+	max-width: calc(100% - 16px);
+	box-sizing: border-box;
+	padding: 5px 7px;
+	border-radius: 4px;
+	background: rgba(0,0,0,.82);
+	color: #fff;
+	font: 11px/1.3 Arial, sans-serif;
+	pointer-events: none;
+	display: none;
+	white-space: pre-wrap;
 }
 </style>
 
-
-<!-- ==================================================
-     JAVASCRIPT
-     ================================================== -->
-
 <script>
 (() => {
+	const params = new URLSearchParams(location.search);
+	const debug = params.get("debug") === "1";
 
-	/* ==================================================
-	   REMOVE INITIALIZATION ANTERIOR
-	   ================================================== */
-
-	if (window.__brunoDesktopMenuController) {
-		window.__brunoDesktopMenuController.abort();
+	function showStatus(message) {
+		const el = document.getElementById("status");
+		if (!el) return;
+		el.style.display = "block";
+		el.textContent = message;
 	}
 
-	if (window.__brunoDesktopMenuObserver) {
-		window.__brunoDesktopMenuObserver.disconnect();
+	window.__orbitDebug = { debug, showStatus };
+
+	if (debug) {
+		window.addEventListener("error", (event) => {
+			showStatus("JS ERROR:\n" + (event.message || "Unknown error"));
+		});
+
+		window.addEventListener("unhandledrejection", (event) => {
+			const reason = event.reason;
+			showStatus(
+				"PROMISE ERROR:\n" +
+				(reason?.message || String(reason || "Unknown error"))
+			);
+		});
 	}
+})();
+</script>
 
-
-	const controller =
-		new AbortController();
-
-	const signal =
-		controller.signal;
-
-
-	window.__brunoDesktopMenuController =
-		controller;
-
-
-
-	/* ==================================================
-	   MAPA PROJETO -> GLB
-
-	   MOTION:
-	   cada projeto possui seu próprio GLB.
-
-	   VFX:
-	   todos os projetos usam vfx.glb.
-	   ================================================== */
-
-	const ORBIT_PROJECT_MAP = {
-
-		"/showreel": "showreel",
-		"/playground": "playground",
-		"/futster": "futster",
-		"/gobelinsjpo": "gobelinsjpo",
-		"/universal-music-france": "universal-music-france",
-		"/museum-d'orsay": "museum-dorsay",
-		"/paratypology": "paratypology",
-		"/papersoundmachine": "papersoundmachine",
-		"/bushoe": "bushoe",
-		"/silent-running": "silent-running",
-
-		"/vfx-showreel": "vfx",
-		"/and-if-they-didnt-exist": "vfx",
-		"/la-casa-di-barbi": "vfx",
-		"/limbo": "vfx",
-		"/over-the-burning-skies": "vfx",
-		"/color-latium": "vfx",
-		"/cannes": "vfx",
-		"/relogio": "vfx"
-
-	};
-
-
-
-	/* ==================================================
-	   HELPERS
-	   ================================================== */
-
-	function normalizePath(path) {
-
-		return String(path || "")
-			.replace(/\/+$/, "")
-			.toLowerCase();
-
+<script type="importmap">
+{
+	"imports": {
+		"three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+		"three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
 	}
+}
+</script>
+</head>
 
+<body>
+<div id="orbit"></div>
+<div id="status">Loading…</div>
 
-	function getLinkPath(link) {
+<script type="module">
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
-		return normalizePath(
-			new URL(
-				link.href,
-				window.location.origin
-			).pathname
-		);
+const stage = document.getElementById("orbit");
+const status = document.getElementById("status");
+const DEBUG = window.__orbitDebug?.debug === true;
+const LAYER_MODE = new URLSearchParams(location.search).get("layer") || "all";
 
+function report(message, force = false) {
+	if (!DEBUG && !force) return;
+	status.style.display = "block";
+	status.textContent = message;
+}
+
+/* ==================================================
+   FINAL SELECTED OBJECTS
+   ================================================== */
+
+const ITEMS = [
+	{
+		key: "showreel",
+		label: "Showreel",
+		file: "Showreel.glb",
+		scale: 1.10,
+		tilt: [18, -30, 32]
+	},
+	{
+		key: "playground",
+		label: "Playground",
+		file: "Playground2.glb",
+		scale: 1.05,
+		tilt: [14, -16, 4]
+	},
+	{
+		key: "futster",
+		label: "Futster",
+		file: "Futster.glb",
+		scale: 0.60,
+		tilt: [-26, 90, 2]
+	},
+	{
+		key: "gobelinsjpo",
+		label: "Gobelins JPO",
+		file: "GobelinsJPO2.glb",
+		scale: 0.80,
+		tilt: [-10, -24, -4]
+	},
+	{
+		key: "universal-music-france",
+		label: "Universal Music France",
+		file: "UniversalMusicFrance.glb",
+		scale: 1.30,
+		tilt: [10, -20, -12]
+	},
+	{
+		key: "museum-dorsay",
+		label: "Museum D’Orsay",
+		file: "MuseumDOrsay.glb",
+		scale: 1.10,
+		tilt: [-16, 0, 0]
+	},
+	{
+		key: "papersoundmachine",
+		label: "Paper Sound Machine",
+		file: "PaperSoundMachine2.glb",
+		scale: 0.80,
+		tilt: [-34, 0, -44]
+	},
+	{
+		key: "bushoe",
+		label: "Bushoe",
+		file: "Bushoe.glb",
+		scale: 1.60,
+		tilt: [-20, -34, -32]
+	},
+	{
+		key: "silent-running",
+		label: "Silent Running",
+		file: "SilentRunning2.glb",
+		scale: 0.95,
+		tilt: [8, 0, 0]
+	},
+	{
+		key: "paratypology",
+		label: "Paratypology",
+		file: "Paratypology.glb",
+		scale: 1.25,
+		tilt: [12, 90, 12]
+	},
+	{
+		key: "vfx",
+		label: "VFX",
+		file: "vfx.glb",
+		scale: 0.75,
+		tilt: [8, -90, 12]
 	}
+];
 
 
-	function getCurrentPath() {
+/* ==================================================
+   SAVED LOOK / ORBIT
+   ================================================== */
 
-		return normalizePath(
-			window.location.pathname
-		);
+const SETTINGS = {
+	objectSize: 0.70,
 
-	}
+	ringWidth: 2.80,
+	ringHeight: 0.70,
+	ringDepth: 0.30,
 
+	ringTiltX: 0,
+	ringTiltY: -20,
+	ringTiltZ: -9,
 
-	function getOrbitFrames() {
+	speed: 0.31,
+	overlap: 0.31,
+	depthScale: 1.45,
 
-		return document.querySelectorAll(
-			".portfolio-orbit iframe"
-		);
+	saturation: 1.85,
+	contrast: 1.05,
+	brightness: 1.20,
 
-	}
+	hoverBoost: 1.28,
+	hoverSpin: 0.35,
 
+	/* PHASE 4 — PROJECT HERO */
+	heroScale: 3.05,
+	heroX: 0.00,
+	heroY: 0.00,
+	heroZ: 0.00,
 
+	otherScaleWhenHero: 0.48,
+	otherOpacityWhenHero: 0.22,
 
-	/* ==================================================
-	   PHASE 4 — PAGINA ATUAL -> HERO GLB
-	   ==================================================
-
-	   Home / outra pagina:
-	   key = null -> orbita normal
-
-	   Motion:
-	   key = projeto -> GLB especifico vira hero
-
-	   VFX:
-	   qualquer projeto -> vfx.glb vira hero
-	   ================================================== */
-
-	function getCurrentProjectKey() {
-
-		const path =
-			getCurrentPath();
-
-		return ORBIT_PROJECT_MAP[path] || null;
-
-	}
+	heroOpacity: 0.92,
+	heroLerp: 0.075,
+	otherLerp: 0.09
+};
 
 
-	function sendCurrentProjectToOrbit() {
+/* ==================================================
+   THREE
+   ================================================== */
 
-		const key =
-			getCurrentProjectKey();
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera(
+	34,
+	1,
+	0.01,
+	100
+);
+
+camera.position.set(0, 0, 7.4);
+
+const renderer = new THREE.WebGLRenderer({
+	antialias: true,
+	alpha: true,
+	powerPreference: "high-performance"
+});
+
+renderer.setClearColor(0x000000, 0);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.domElement.style.filter =
+	`saturate(${SETTINGS.saturation}) ` +
+	`contrast(${SETTINGS.contrast}) ` +
+	`brightness(${SETTINGS.brightness})`;
+
+stage.appendChild(renderer.domElement);
 
 
-		getOrbitFrames()
-			.forEach((frame) => {
+/* ==================================================
+   LIGHTING
+   ================================================== */
 
-				frame.contentWindow?.postMessage(
-					{
-						type:
-							"bruno-orbit-project",
+scene.add(
+	new THREE.HemisphereLight(
+		0xffffff,
+		0x706b72,
+		1.25
+	)
+);
 
-						key:
-							key
-					},
-					"*"
+const key = new THREE.DirectionalLight(0xffffff, 1.6);
+key.position.set(2.5, 4, 5);
+scene.add(key);
+
+const fill = new THREE.DirectionalLight(0xbfc9ff, 0.38);
+fill.position.set(-4, -1, 3);
+scene.add(fill);
+
+
+/* ==================================================
+   MODEL HELPERS
+   ================================================== */
+
+const wrappers = [];
+const hoverTargets = [];
+
+function normalizeModel(root, index) {
+	root.updateMatrixWorld(true);
+
+	const box = new THREE.Box3().setFromObject(root);
+	const center = new THREE.Vector3();
+	const size = new THREE.Vector3();
+
+	box.getCenter(center);
+	box.getSize(size);
+
+	const maxDim = Math.max(size.x, size.y, size.z, 0.0001);
+
+	root.position.sub(center);
+	root.scale.setScalar(1 / maxDim);
+
+	root.traverse((child) => {
+		if (!child.isMesh) return;
+
+		child.userData.itemIndex = index;
+
+		if (Array.isArray(child.material)) {
+			child.material = child.material.map((material) => {
+				const clone = material.clone();
+				clone.transparent = true;
+				clone.opacity = 1;
+				return clone;
+			});
+		} else if (child.material) {
+			child.material = child.material.clone();
+			child.material.transparent = true;
+			child.material.opacity = 1;
+		}
+	});
+
+	return root;
+}
+
+function createWrapper(root, index) {
+	const item = ITEMS[index];
+	const wrapper = new THREE.Group();
+
+	wrapper.userData.itemIndex = index;
+	wrapper.userData.baseAngle =
+		(index / ITEMS.length) * Math.PI * 2 - Math.PI / 2;
+
+	wrapper.userData.radiusX =
+		1 + Math.sin(index * 2.17) * 0.065;
+
+	wrapper.userData.radiusY =
+		1 + Math.cos(index * 1.71) * 0.055;
+
+	wrapper.userData.phase = index * 0.83;
+
+	const [tx, ty, tz] = item.tilt;
+
+	wrapper.userData.baseRotX =
+		THREE.MathUtils.degToRad(-14 + (index % 4) * 9 + tx);
+
+	wrapper.userData.baseRotY =
+		THREE.MathUtils.degToRad(-28 + (index % 5) * 14 + ty);
+
+	wrapper.userData.baseRotZ =
+		THREE.MathUtils.degToRad(-8 + (index % 3) * 8 + tz);
+
+	wrapper.userData.baseSize =
+		[1.00, 1.08, 1.18, 0.92, 1.12, 1.02, 1.10, 0.96][index % 8];
+
+	wrapper.userData.customScale = item.scale;
+	wrapper.userData.hoverSpin = 0;
+	wrapper.userData.spinVelocity = 0;
+
+	const proxy = new THREE.Mesh(
+		new THREE.SphereGeometry(0.82, 14, 10),
+		new THREE.MeshBasicMaterial({
+			transparent: true,
+			opacity: 0,
+			depthWrite: false,
+			colorWrite: false
+		})
+	);
+
+	proxy.userData.itemIndex = index;
+	proxy.userData.isHoverProxy = true;
+
+	wrapper.add(proxy);
+	wrapper.add(root);
+
+	scene.add(wrapper);
+
+	wrappers[index] = wrapper;
+	hoverTargets.push(proxy);
+}
+
+
+/* ==================================================
+   LOAD
+   ================================================== */
+
+const loader = new GLTFLoader();
+
+async function loadEverything() {
+	let loaded = 0;
+	const failures = [];
+
+	report(`Loading 0/${ITEMS.length}…`);
+
+	await Promise.all(
+		ITEMS.map(async (item, index) => {
+			try {
+				const gltf = await loader.loadAsync(
+					new URL(item.file, window.location.href).href
 				);
 
-			});
+				const model = normalizeModel(gltf.scene, index);
+				createWrapper(model, index);
 
+				loaded += 1;
+				report(`Loading ${loaded}/${ITEMS.length}…`);
+			} catch (error) {
+				console.error("Could not load:", item.file, error);
+				failures.push(item.file);
+			}
+		})
+	);
+
+	if (failures.length) {
+		report(
+			`Loaded ${loaded}/${ITEMS.length}\nFAILED:\n${failures.join("\n")}`,
+			true
+		);
+	} else {
+		report(`${loaded}/${ITEMS.length} objects loaded ✓`);
+		if (!DEBUG) status.style.display = "none";
+	}
+}
+
+loadEverything();
+
+
+/* ==================================================
+   PHASE 4 — HOVER ONLY + PROJECT HERO
+   Objects intentionally have NO click navigation.
+   Cargo project links remain the only navigation controls.
+   ================================================== */
+
+/* ==================================================
+   HOVER — CARGO BRIDGE / SCREEN-SPACE PICKING
+   ==================================================
+
+   The iframe remains pointer-events:none in Cargo.
+
+   Instead of Three.js mesh raycasting, which can be fragile across
+   transparent layered iframes, hover is detected by projecting each
+   visible orbit object into screen space and choosing the closest one
+   to the pointer.
+
+   Cargo sends normalized iframe coordinates:
+   {
+      type: "bruno-orbit-pointer",
+      active: true/false,
+      x: 0..1,
+      y: 0..1
+   }
+   ================================================== */
+
+const pointerNDC = new THREE.Vector2(999, 999);
+const projectedPoint = new THREE.Vector3();
+
+let hovered = -1;
+let linkedHovered = -1;
+let lastReportedHover = "__init__";
+
+/* ==================================================
+   PHASE 4 — CURRENT PROJECT / HERO STATE
+   ================================================== */
+
+let selectedProjectKey = null;
+let selectedProjectIndex = -1;
+
+function setWrapperOpacity(wrapper, opacity) {
+	if (!wrapper) return;
+
+	wrapper.traverse((child) => {
+		if (!child.isMesh || child.userData.isHoverProxy) return;
+
+		const materials =
+			Array.isArray(child.material)
+				? child.material
+				: [child.material];
+
+		materials.forEach((material) => {
+			if (!material) return;
+			material.transparent = true;
+			material.opacity = opacity;
+		});
+	});
+}
+
+function setSelectedProject(key) {
+	selectedProjectKey = key || null;
+	selectedProjectIndex =
+		selectedProjectKey
+			? indexFromKey(selectedProjectKey)
+			: -1;
+
+	/*
+	 * A selected project is intentionally NOT clickable.
+	 * This state only changes the visual composition.
+	 */
+}
+
+function indexFromKey(key) {
+	return ITEMS.findIndex((item) => item.key === key);
+}
+
+function reportHoverToCargo(index) {
+
+	const key =
+		index >= 0 && ITEMS[index]
+			? ITEMS[index].key
+			: null;
+
+	if (key === lastReportedHover) {
+		return;
 	}
 
+	lastReportedHover = key;
 
-	function syncCurrentProjectToOrbit() {
+	window.parent?.postMessage(
+		{
+			type: "bruno-orbit-hover",
+			layer: LAYER_MODE,
+			key: key,
+			label:
+				index >= 0 && ITEMS[index]
+					? ITEMS[index].label
+					: null
+		},
+		"*"
+	);
+}
 
-		sendCurrentProjectToOrbit();
+/*
+ * Hover radius in normalized device coordinates.
+ * 0.24 feels forgiving without making distant objects react.
+ */
+const HOVER_RADIUS = 0.24;
+
+function clearHover() {
+	hovered = -1;
+	pointerNDC.set(999, 999);
+	reportHoverToCargo(-1);
+}
+
+function updateHoverFromNormalized(x, y) {
+
+	if (
+		!Number.isFinite(x) ||
+		!Number.isFinite(y) ||
+		x < 0 ||
+		x > 1 ||
+		y < 0 ||
+		y > 1
+	) {
+		clearHover();
+		return;
+	}
+
+	pointerNDC.set(
+		x * 2 - 1,
+		-(y * 2 - 1)
+	);
+
+	let next = -1;
+	let bestDistance = Infinity;
+
+	for (let index = 0; index < wrappers.length; index++) {
+
+		const wrapper = wrappers[index];
+
+		if (
+			!wrapper ||
+			!wrapper.visible
+		) {
+			continue;
+		}
+
+		projectedPoint.setFromMatrixPosition(
+			wrapper.matrixWorld
+		);
+
+		projectedPoint.project(camera);
 
 		/*
-		 * Reenvios curtos ajudam quando o Cargo acabou
-		 * de trocar a pagina ou o iframe terminou de carregar.
+		 * Ignore anything behind the camera.
 		 */
-		setTimeout(
-			sendCurrentProjectToOrbit,
-			80
+		if (
+			projectedPoint.z < -1 ||
+			projectedPoint.z > 1
+		) {
+			continue;
+		}
+
+		const dx =
+			projectedPoint.x - pointerNDC.x;
+
+		const dy =
+			projectedPoint.y - pointerNDC.y;
+
+		const distance =
+			Math.sqrt(dx * dx + dy * dy);
+
+		/*
+		 * Slightly expand the hover radius for large objects.
+		 */
+		const objectRadius =
+			HOVER_RADIUS *
+			THREE.MathUtils.clamp(
+				wrapper.scale.x * 1.15,
+				0.85,
+				1.55
+			);
+
+		if (
+			distance < objectRadius &&
+			distance < bestDistance
+		) {
+			bestDistance = distance;
+			next = index;
+		}
+	}
+
+	if (
+		next !== hovered &&
+		next >= 0 &&
+		wrappers[next]
+	) {
+		wrappers[next].userData.spinVelocity +=
+			SETTINGS.hoverSpin;
+	}
+
+	hovered = next;
+	reportHoverToCargo(hovered);
+}
+
+
+/*
+ * Cargo → iframe bridge.
+ */
+window.addEventListener("message", (event) => {
+
+	const data = event.data;
+
+	if (!data) {
+		return;
+	}
+
+	/*
+	 * Cargo pointer → object hover.
+	 */
+	if (data.type === "bruno-orbit-pointer") {
+
+		if (data.active === false) {
+			clearHover();
+			return;
+		}
+
+		updateHoverFromNormalized(
+			Number(data.x),
+			Number(data.y)
 		);
 
-		setTimeout(
-			sendCurrentProjectToOrbit,
-			300
+		return;
+	}
+
+	/*
+	 * Cargo project title → matching 3D object.
+	 */
+	if (data.type === "bruno-orbit-highlight") {
+
+		const next =
+			data.key
+				? indexFromKey(String(data.key))
+				: -1;
+
+		if (
+			next !== linkedHovered &&
+			next >= 0 &&
+			wrappers[next]
+		) {
+			wrappers[next].userData.spinVelocity +=
+				SETTINGS.hoverSpin * 0.65;
+		}
+
+		linkedHovered = next;
+		return;
+	}
+
+	/*
+	 * Cargo current page → persistent hero object.
+	 *
+	 * Motion project:
+	 *   its own GLB becomes the hero.
+	 *
+	 * Any VFX project:
+	 *   vfx.glb becomes the hero.
+	 *
+	 * Home / non-project page:
+	 *   key:null restores the normal orbit.
+	 */
+	if (data.type === "bruno-orbit-project") {
+		setSelectedProject(
+			data.key ? String(data.key) : null
+		);
+	}
+
+});
+
+
+/*
+ * Direct fallback when opening this HTML by itself.
+ */
+renderer.domElement.addEventListener(
+	"pointermove",
+	(event) => {
+
+		const rect =
+			renderer.domElement.getBoundingClientRect();
+
+		updateHoverFromNormalized(
+			(event.clientX - rect.left) / rect.width,
+			(event.clientY - rect.top) / rect.height
 		);
 
 	}
+);
+
+renderer.domElement.addEventListener(
+	"pointerleave",
+	clearHover
+);
 
 
-	/* ==================================================
-	   PHASE 4.1 — NAVEGACAO CARGO -> HERO IMEDIATO
+/* ==================================================
+   ORBIT
+   ================================================== */
 
-	   O Cargo usa navegacao por history e nem sempre dispara
-	   popstate quando um link de projeto e clicado.
+const ringEuler = new THREE.Euler(
+	THREE.MathUtils.degToRad(SETTINGS.ringTiltX),
+	THREE.MathUtils.degToRad(SETTINGS.ringTiltY),
+	THREE.MathUtils.degToRad(SETTINGS.ringTiltZ),
+	"XYZ"
+);
 
-	   Por isso enviamos o projeto DIRETAMENTE no clique,
-	   antes mesmo da troca de pagina terminar.
-	   ================================================== */
+const ringPosition = new THREE.Vector3();
 
-	function sendProjectKeyToOrbit(key) {
+function updateOrbit(time) {
 
-		getOrbitFrames()
-			.forEach((frame) => {
+	/*
+	 * Organic orbital motion:
+	 * - Z tilt: -18° to 0°
+	 * - Y tilt: -24° to -16°
+	 * - Vertical ellipse breathing: 0.64 to 0.76
+	 *
+	 * FRONT/BACK use the same absolute clock.
+	 */
+	const animatedTiltZ =
+		-9 +
+		Math.sin(time * 0.16) * 9;
 
-				frame.contentWindow?.postMessage(
-					{
-						type:
-							"bruno-orbit-project",
+	const animatedTiltY =
+		-20 +
+		Math.sin(time * 0.11 + 1.4) * 4;
 
-						key:
-							key || null
-					},
-					"*"
-				);
+	const animatedRingHeight =
+		SETTINGS.ringHeight +
+		Math.sin(time * 0.13 + 0.6) * 0.06;
 
-			});
-
-	}
-
-
-	document.addEventListener(
-		"click",
-
-		(event) => {
-
-			const projectLink =
-				event.target.closest(
-					".portfolio-projects a"
-				);
-
-
-			if (projectLink) {
-
-				const key =
-					ORBIT_PROJECT_MAP[
-						getLinkPath(projectLink)
-					] || null;
+	ringEuler.set(
+		THREE.MathUtils.degToRad(SETTINGS.ringTiltX),
+		THREE.MathUtils.degToRad(animatedTiltY),
+		THREE.MathUtils.degToRad(animatedTiltZ),
+		"XYZ"
+	);
 
 
-				sendProjectKeyToOrbit(
-					key
-				);
+	wrappers.forEach((wrapper, index) => {
+		if (!wrapper) return;
+
+		const isHero =
+			selectedProjectIndex >= 0 &&
+			index === selectedProjectIndex;
+
+		const heroMode =
+			selectedProjectIndex >= 0;
+
+		const angle =
+			wrapper.userData.baseAngle +
+			time * SETTINGS.speed;
+
+		const orbitNoise =
+			1 +
+			Math.sin(
+				angle * 1.65 +
+				wrapper.userData.phase
+			) * 0.055;
+
+		const depth = Math.sin(angle);
+
+		const crossPull =
+			1 -
+			SETTINGS.overlap *
+			Math.pow(Math.abs(Math.cos(angle)), 1.35);
+
+		const verticalPull =
+			1 -
+			SETTINGS.overlap *
+			0.38 *
+			Math.pow(Math.abs(Math.sin(angle)), 2);
+
+		ringPosition.set(
+			Math.cos(angle) *
+				SETTINGS.ringWidth *
+				wrapper.userData.radiusX *
+				orbitNoise *
+				crossPull,
+
+			Math.sin(angle) *
+				animatedRingHeight *
+				wrapper.userData.radiusY *
+				verticalPull,
+
+			Math.sin(angle) *
+				SETTINGS.ringDepth
+		);
+
+		ringPosition.applyEuler(ringEuler);
 
 
-				/*
-				 * Reenvia depois que o Cargo termina
-				 * sua navegacao interna.
-				 */
-				setTimeout(
-					() => sendProjectKeyToOrbit(key),
-					120
-				);
+		/* ==================================================
+		   VISIBILITY / FRONT + BACK
+		   ==================================================
 
-				setTimeout(
-					() => sendProjectKeyToOrbit(key),
-					400
-				);
+		   The selected HERO is rendered ONLY by the BACK
+		   iframe, so it sits behind the external BRUNO LOPES
+		   HTML text.
 
+		   The FRONT iframe hides its duplicate hero.
+		   Other objects keep their regular depth behavior.
+		   ================================================== */
+
+		if (isHero) {
+
+			if (LAYER_MODE === "front") {
+				wrapper.visible = false;
 				return;
 			}
 
+			wrapper.visible = true;
 
-			/*
-			 * BRUNO LOPES = home = volta para orbita normal.
-			 */
-			const homeLink =
-				event.target.closest(
-					".titlebrunolopes"
-				);
+		} else {
 
-
-			if (homeLink) {
-
-				sendProjectKeyToOrbit(
-					null
-				);
-
+			if (LAYER_MODE === "back") {
+				wrapper.visible = depth < 0;
+			} else if (LAYER_MODE === "front") {
+				wrapper.visible = depth >= 0;
+			} else {
+				wrapper.visible = true;
 			}
-
-		},
-
-		{
-			capture: true,
-			signal: signal
 		}
-	);
 
 
+		/* ==================================================
+		   POSITION
+		   ================================================== */
 
-	/* ==================================================
-	   DETECTA history.pushState / replaceState DO CARGO
-	   ================================================== */
+		if (isHero) {
 
-	if (!window.__brunoHistoryPatched) {
+			const heroTarget =
+				new THREE.Vector3(
+					SETTINGS.heroX,
+					SETTINGS.heroY,
+					SETTINGS.heroZ
+				);
 
-		window.__brunoHistoryPatched = true;
-
-
-		["pushState", "replaceState"]
-			.forEach((methodName) => {
-
-				const original =
-					history[methodName];
-
-
-				history[methodName] =
-					function(...args) {
-
-						const result =
-							original.apply(
-								this,
-								args
-							);
-
-
-						setTimeout(
-							() => {
-
-								window.dispatchEvent(
-									new Event(
-										"bruno-history-change"
-									)
-								);
-
-							},
-							0
-						);
-
-
-						return result;
-
-					};
-
-			});
-
-	}
-
-
-	window.addEventListener(
-		"bruno-history-change",
-
-		() => {
-
-			syncCurrentProjectToOrbit();
-
-		},
-
-		{
-			signal: signal
-		}
-	);
-
-
-
-	/* ==================================================
-	   ABRE / FECHA MENU
-	   ================================================== */
-
-	function openMenu(category) {
-
-		const lists =
-			document.querySelectorAll(
-				"[data-menu-list]"
-			);
-
-		const buttons =
-			document.querySelectorAll(
-				"[data-menu-button]"
-			);
-
-
-		lists.forEach((list) => {
-
-			list.classList.toggle(
-				"is-open",
-				list.dataset.menuList === category
-			);
-
-		});
-
-
-		buttons.forEach((button) => {
-
-			button.classList.toggle(
-				"is-active",
-				button.dataset.menuButton === category
-			);
-
-		});
-
-
-		if (category) {
-
-			sessionStorage.setItem(
-				"bruno-portfolio-menu",
-				category
+			wrapper.position.lerp(
+				heroTarget,
+				SETTINGS.heroLerp
 			);
 
 		} else {
 
-			sessionStorage.removeItem(
-				"bruno-portfolio-menu"
+			wrapper.position.lerp(
+				ringPosition,
+				SETTINGS.otherLerp
 			);
-
 		}
 
-	}
 
+		/* ==================================================
+		   SCALE
+		   ================================================== */
 
+		const depthScale = THREE.MathUtils.mapLinear(
+			depth,
+			-1,
+			1,
+			1 - SETTINGS.depthScale * 0.22,
+			1 + SETTINGS.depthScale * 0.36
+		);
 
-	/* ==================================================
-	   CLIQUE — MOTION / VFX
-	   ================================================== */
+		const hoverScale =
+			(
+				index === hovered ||
+				index === linkedHovered
+			)
+				? SETTINGS.hoverBoost
+				: 1;
 
-	document.addEventListener(
-		"click",
+		let targetScale;
 
-		(event) => {
-
-			const button =
-				event.target.closest(
-					"[data-menu-button]"
-				);
-
-
-			if (!button) {
-				return;
-			}
-
-
-			event.preventDefault();
-			event.stopPropagation();
-
-
-			const category =
-				button.dataset.menuButton;
-
+		if (isHero) {
 
 			/*
-			 * Clicar em MOTION GRAPHICS ou VFX
-			 * volta o 3D para a órbita normal.
-			 *
-			 * Isso limpa o HERO do projeto atual
-			 * sem navegar para outra página.
+			 * Models are normalized on load, so hero scale is
+			 * intentionally independent from each orbit customScale.
 			 */
-			sendProjectKeyToOrbit(
-				null
+			targetScale =
+				SETTINGS.heroScale;
+
+		} else {
+
+			targetScale =
+				wrapper.userData.baseSize *
+				SETTINGS.objectSize *
+				wrapper.userData.customScale *
+				depthScale *
+				hoverScale;
+
+			if (heroMode) {
+				targetScale *=
+					SETTINGS.otherScaleWhenHero;
+			}
+		}
+
+		const lerpSpeed =
+			isHero
+				? SETTINGS.heroLerp
+				: SETTINGS.otherLerp;
+
+		const smoothScale =
+			THREE.MathUtils.lerp(
+				wrapper.scale.x || targetScale,
+				targetScale,
+				lerpSpeed
 			);
 
-
-			const list =
-				document.querySelector(
-					`[data-menu-list="${category}"]`
-				);
-
-
-			if (!list) {
-				return;
-			}
-
-
-			const alreadyOpen =
-				list.classList.contains(
-					"is-open"
-				);
-
-
-			openMenu(
-				alreadyOpen
-					? null
-					: category
-			);
-
-		},
-
-		{
-			capture: true,
-			signal: signal
-		}
-	);
-
-
-
-	/* ==================================================
-	   RESTAURA ULTIMO MENU
-	   ================================================== */
-
-	function restoreSavedMenu() {
-
-		const savedMenu =
-			sessionStorage.getItem(
-				"bruno-portfolio-menu"
-			);
-
-
-		if (
-			savedMenu !== "motion" &&
-			savedMenu !== "vfx"
-		) {
-			return;
-		}
-
-
-		const list =
-			document.querySelector(
-				`[data-menu-list="${savedMenu}"]`
-			);
-
-
-		if (!list) {
-			return;
-		}
-
-
-		if (
-			!list.classList.contains(
-				"is-open"
-			)
-		) {
-
-			openMenu(savedMenu);
-
-		}
-
-	}
-
-
-
-	/* ==================================================
-	   PROJETO ATUAL EM NEGRITO
-	   ================================================== */
-
-	function updateCurrentProject() {
-
-		const projectLinks =
-			document.querySelectorAll(
-				".portfolio-projects a"
-			);
-
-
-		const currentPath =
-			getCurrentPath();
-
-
-		projectLinks.forEach((link) => {
-
-			const linkPath =
-				getLinkPath(link);
-
-
-			link.classList.toggle(
-				"is-current",
-				linkPath === currentPath
-			);
-
-		});
-
-	}
-
-
-
-	/* ==================================================
-	   REFRESH DO MENU + HERO
-	   ================================================== */
-
-	let refreshQueued = false;
-
-
-	function refreshMenu() {
-
-		if (refreshQueued) {
-			return;
-		}
-
-
-		refreshQueued = true;
-
-
-		requestAnimationFrame(() => {
-
-			refreshQueued = false;
-
-			updateCurrentProject();
-
-			restoreSavedMenu();
-
-			syncCurrentProjectToOrbit();
-
-		});
-
-	}
-
-
-
-	/* ==================================================
-	   PRIMEIRA EXECUCAO
-	   ================================================== */
-
-	updateCurrentProject();
-
-	restoreSavedMenu();
-
-	syncCurrentProjectToOrbit();
-
-
-
-	/* ==================================================
-	   QUANDO OS IFRAMES CARREGAREM
-	   ================================================== */
-
-	getOrbitFrames()
-		.forEach((frame) => {
-
-			frame.addEventListener(
-				"load",
-				() => {
-
-					syncCurrentProjectToOrbit();
-
-				},
-				{
-					signal: signal
-				}
-			);
-
-		});
-
-
-
-	/* ==================================================
-	   OBSERVA NAVEGACAO DO CARGO
-	   ================================================== */
-
-	const observer =
-		new MutationObserver(() => {
-
-			refreshMenu();
-
-		});
-
-
-	observer.observe(
-		document.body,
-		{
-			childList: true,
-			subtree: true
-		}
-	);
-
-
-	window.__brunoDesktopMenuObserver =
-		observer;
-
-
-
-	/* ==================================================
-	   VOLTAR / AVANCAR
-	   ================================================== */
-
-	window.addEventListener(
-		"popstate",
-
-		() => {
-
-			setTimeout(
-				refreshMenu,
-				50
-			);
-
-		},
-
-		{
-			signal: signal
-		}
-	);
-
-
-
-	/* ==================================================
-	   CARGO -> ORBIT
-	   POSICAO DO MOUSE
-	   ================================================== */
-
-	function sendPointerToOrbit(event) {
-
-		const frames =
-			getOrbitFrames();
-
-
-		frames.forEach((frame) => {
-
-			if (!frame.contentWindow) {
-				return;
-			}
-
-
-			const rect =
-				frame.getBoundingClientRect();
-
-
-			const x =
-				(event.clientX - rect.left) /
-				rect.width;
-
-
-			const y =
-				(event.clientY - rect.top) /
-				rect.height;
-
-
-			frame.contentWindow.postMessage(
-				{
-					type:
-						"bruno-orbit-pointer",
-
-					active:
-						true,
-
-					x:
-						x,
-
-					y:
-						y
-				},
-				"*"
-			);
-
-		});
-
-	}
-
-
-	document.addEventListener(
-		"pointermove",
-		sendPointerToOrbit,
-		{
-			passive: true,
-			capture: true,
-			signal: signal
-		}
-	);
-
-
-
-	/* ==================================================
-	   TITULO -> GLB
-	   ================================================== */
-
-	function sendOrbitHighlight(key) {
-
-		getOrbitFrames()
-			.forEach((frame) => {
-
-				frame.contentWindow?.postMessage(
-					{
-						type:
-							"bruno-orbit-highlight",
-
-						key:
-							key
-					},
-					"*"
-				);
-
-			});
-
-	}
-
-
-	document.addEventListener(
-		"pointerover",
-
-		(event) => {
-
-			const link =
-				event.target.closest(
-					".portfolio-projects a"
-				);
-
-
-			if (link) {
-
-				const key =
-					ORBIT_PROJECT_MAP[
-						getLinkPath(link)
-					];
-
-
-				if (key) {
-
-					sendOrbitHighlight(
-						key
-					);
-
-				}
-
-
-				return;
-			}
-
-
-			const vfxButton =
-				event.target.closest(
-					'[data-menu-button="vfx"]'
-				);
-
-
-			if (vfxButton) {
-
-				sendOrbitHighlight(
-					"vfx"
-				);
-
-			}
-
-		},
-
-		{
-			signal: signal
-		}
-	);
-
-
-	document.addEventListener(
-		"pointerout",
-
-		(event) => {
-
-			const link =
-				event.target.closest(
-					".portfolio-projects a"
-				);
-
-
-			if (link) {
-
-				sendOrbitHighlight(
-					null
-				);
-
-				return;
-			}
-
-
-			const vfxButton =
-				event.target.closest(
-					'[data-menu-button="vfx"]'
-				);
-
-
-			if (vfxButton) {
-
-				sendOrbitHighlight(
-					null
-				);
-
-			}
-
-		},
-
-		{
-			signal: signal
-		}
-	);
-
-
-
-	/* ==================================================
-	   GLB -> TITULO
-	   ================================================== */
-
-	const orbitLayerHover = {
-
-		front:
-			null,
-
-		back:
-			null,
-
-		all:
-			null
-
-	};
-
-
-	function clearOrbitTextHighlight() {
-
-		document
-			.querySelectorAll(
-				".is-orbit-hovered"
-			)
-			.forEach((element) => {
-
-				element.classList.remove(
-					"is-orbit-hovered"
-				);
-
-			});
-
-	}
-
-
-	window.addEventListener(
-		"message",
-
-		(event) => {
-
-			const data =
-				event.data;
-
-
-			if (
-				!data ||
-				data.type !==
-					"bruno-orbit-hover"
-			) {
-				return;
-			}
-
-
-			const layer =
-				data.layer || "all";
-
-
-			orbitLayerHover[layer] =
-				data.key || null;
-
-
-			const activeKey =
-				orbitLayerHover.front ||
-				orbitLayerHover.back ||
-				orbitLayerHover.all;
-
-
-			clearOrbitTextHighlight();
-
-
-			if (!activeKey) {
-				return;
-			}
-
-
-			if (activeKey === "vfx") {
-
-				document
-					.querySelector(
-						'[data-menu-button="vfx"]'
-					)
-					?.classList.add(
-						"is-orbit-hovered"
-					);
-
-				return;
-			}
-
-
-			document
-				.querySelectorAll(
-					".portfolio-projects a"
-				)
-				.forEach((link) => {
-
-					const key =
-						ORBIT_PROJECT_MAP[
-							getLinkPath(link)
-						];
-
-
-					if (
-						key === activeKey
-					) {
-
-						link.classList.add(
-							"is-orbit-hovered"
-						);
-
-					}
-
-				});
-
-		},
-
-		{
-			signal: signal
-		}
-	);
-
-
-
-	/* ==================================================
-	   LIMPA HOVER
-	   ================================================== */
-
-	function clearOrbitHover() {
-
-		sendOrbitHighlight(
-			null
+		wrapper.scale.setScalar(
+			smoothScale
 		);
 
 
-		orbitLayerHover.front =
-			null;
+		/* ==================================================
+		   OPACITY
+		   ================================================== */
 
-		orbitLayerHover.back =
-			null;
-
-		orbitLayerHover.all =
-			null;
-
-
-		clearOrbitTextHighlight();
-
-
-		getOrbitFrames()
-			.forEach((frame) => {
-
-				frame.contentWindow?.postMessage(
-					{
-						type:
-							"bruno-orbit-pointer",
-
-						active:
-							false
-					},
-					"*"
+		const targetOpacity =
+			isHero
+				? SETTINGS.heroOpacity
+				: (
+					heroMode
+						? SETTINGS.otherOpacityWhenHero
+						: 1
 				);
 
-			});
+		const previousOpacity =
+			Number.isFinite(wrapper.userData.opacity)
+				? wrapper.userData.opacity
+				: 1;
 
-	}
+		wrapper.userData.opacity =
+			THREE.MathUtils.lerp(
+				previousOpacity,
+				targetOpacity,
+				isHero
+					? SETTINGS.heroLerp
+					: SETTINGS.otherLerp
+			);
+
+		setWrapperOpacity(
+			wrapper,
+			wrapper.userData.opacity
+		);
 
 
-	document.addEventListener(
-		"mouseleave",
-		clearOrbitHover,
-		{
-			signal: signal
+		/* ==================================================
+		   ROTATION
+		   ================================================== */
+
+		wrapper.userData.spinVelocity *=
+			isHero ? 0.94 : 0.90;
+
+		wrapper.userData.hoverSpin +=
+			wrapper.userData.spinVelocity;
+
+		if (isHero) {
+
+			/*
+			 * Hero stays alive, but much calmer than the orbit.
+			 */
+			wrapper.rotation.x =
+				wrapper.userData.baseRotX +
+				Math.sin(time * 0.12) * 0.055;
+
+			wrapper.rotation.y =
+				wrapper.userData.baseRotY +
+				Math.sin(time * 0.10 + 0.8) * 0.075 +
+				wrapper.userData.hoverSpin * 0.35;
+
+			wrapper.rotation.z =
+				wrapper.userData.baseRotZ +
+				Math.cos(time * 0.11 + 1.7) * 0.04;
+
+		} else {
+
+			wrapper.rotation.x =
+				wrapper.userData.baseRotX +
+				Math.sin(
+					time * (0.30 + index * 0.015) +
+						wrapper.userData.phase
+				) * 0.13;
+
+			wrapper.rotation.y =
+				wrapper.userData.baseRotY +
+				Math.sin(
+					time * (0.24 + index * 0.012) +
+						wrapper.userData.phase * 1.3
+				) * 0.20 +
+				wrapper.userData.hoverSpin;
+
+			wrapper.rotation.z =
+				wrapper.userData.baseRotZ +
+				Math.cos(
+					time * (0.26 + index * 0.011) +
+						wrapper.userData.phase
+				) * 0.09;
 		}
-	);
+	});
+}
+
+/* ==================================================
+   RESIZE
+   ================================================== */
+
+function resize() {
+	const width = Math.max(stage.clientWidth, 1);
+	const height = Math.max(stage.clientHeight, 1);
+
+	renderer.setSize(width, height, false);
+
+	camera.aspect = width / height;
+	camera.updateProjectionMatrix();
+}
+
+window.addEventListener("resize", resize, { passive: true });
+
+if ("ResizeObserver" in window) {
+	new ResizeObserver(resize).observe(stage);
+}
+
+resize();
 
 
-	window.addEventListener(
-		"blur",
-		clearOrbitHover,
-		{
-			signal: signal
-		}
-	);
+/* ==================================================
+   LOOP
+   ================================================== */
 
-})();
+function animate() {
+	requestAnimationFrame(animate);
+
+	/*
+	Absolute time keeps the BACK and FRONT Cargo iframes synchronized
+	even though they are separate documents.
+	*/
+	const elapsed = performance.timeOrigin / 1000 + performance.now() / 1000;
+
+	updateOrbit(elapsed);
+	renderer.render(scene, camera);
+}
+
+animate();
 </script>
+</body>
+</html>
