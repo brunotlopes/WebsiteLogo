@@ -635,7 +635,8 @@ function updateHoverFromNormalized(x, y) {
 	if (
 		next !== hovered &&
 		next >= 0 &&
-		wrappers[next]
+		wrappers[next] &&
+		next !== selectedProjectIndex
 	) {
 		wrappers[next].userData.spinVelocity +=
 			SETTINGS.hoverSpin;
@@ -688,7 +689,8 @@ window.addEventListener("message", (event) => {
 		if (
 			next !== linkedHovered &&
 			next >= 0 &&
-			wrappers[next]
+			wrappers[next] &&
+			next !== selectedProjectIndex
 		) {
 			wrappers[next].userData.spinVelocity +=
 				SETTINGS.hoverSpin * 0.65;
@@ -1008,20 +1010,22 @@ function updateOrbit(time) {
 		if (isHero) {
 
 			/*
-			 * Hero stays alive, but much calmer than the orbit.
+			 * HERO: continuous self-rotation, independent from hover.
 			 */
+			wrapper.userData.spinVelocity = 0;
+			wrapper.userData.hoverSpin = 0;
+
 			wrapper.rotation.x =
 				wrapper.userData.baseRotX +
-				Math.sin(time * 0.12) * 0.055;
+				Math.sin(time * 0.12) * 0.035;
 
 			wrapper.rotation.y =
 				wrapper.userData.baseRotY +
-				Math.sin(time * 0.10 + 0.8) * 0.075 +
-				wrapper.userData.hoverSpin * 0.35;
+				time * 0.22;
 
 			wrapper.rotation.z =
 				wrapper.userData.baseRotZ +
-				Math.cos(time * 0.11 + 1.7) * 0.04;
+				Math.cos(time * 0.11 + 1.7) * 0.025;
 
 		} else {
 
